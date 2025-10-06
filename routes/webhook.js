@@ -179,4 +179,33 @@ async function callFongoAPI(cardData) {
   }
 }
 
+// Test endpoint to check Fongo API access
+router.get('/test-api', async (req, res) => {
+  try {
+    console.log('Testing Fongo API access...');
+    
+    const testData = {
+      callerId: '15551112222',
+      cardNumber: '4532015112830366',
+      expiryMonth: '12',
+      expiryYear: '2027'
+    };
+    
+    const result = await callFongoAPI(testData);
+    
+    res.status(200).json({
+      success: true,
+      message: 'API test completed',
+      result: result
+    });
+    
+  } catch (error) {
+    console.error('API test failed:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
 module.exports = router;
