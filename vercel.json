@@ -1,31 +1,14 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "index.js",
-      "use": "@vercel/node"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/webhook",
-      "dest": "/index.js"
+  "functions": {
+    "api/webhook.js": {
+      "maxDuration": 30
     },
-    {
-      "src": "/health",
-      "dest": "/index.js"
-    },
-    {
-      "src": "/llm-websocket",
-      "dest": "/index.js"
+    "api/health.js": {
+      "maxDuration": 10
     }
-  ],
+  },
   "env": {
     "NODE_ENV": "production"
-  },
-  "functions": {
-    "index.js": {
-      "maxDuration": 30
-    }
   }
 }
