@@ -94,35 +94,61 @@ router.post('/', async (req, res) => {
   }
 });
 
-// Function to call Fongo API
+// Function to call Fongo API with SOAP authentication
 async function callFongoAPI(cardData) {
   try {
     const { callerId, cardNumber, expiryMonth, expiryYear } = cardData;
     
-    // Format phone number (ensure 11 digits)
+    // Format phone number (ensure 11 digits, digits only)
     const phone = callerId.replace(/\D/g, ''); // Remove non-digits
     const formattedPhone = phone.length === 10 ? `1${phone}` : phone;
     
-    // Format expiry month (ensure 2 digits)
+    // Format expiry month (ensure 2 digits, digits only)
     const formattedMonth = expiryMonth.toString().padStart(2, '0');
     
-    // Format expiry year (ensure 4 digits)
+    // Format expiry year (ensure 4 digits, digits only)
     const formattedYear = expiryYear.toString();
+    
+    // Validate all parameters are digits only (as per API source code)
+    if (!/^\d+$/.test(formattedPhone)) {
+      throw new Error('Invalid phone number - must be digits only');
+    }
+    if (!/^\d+$/.test(cardNumber)) {
+      throw new Error('Invalid credit card number - must be digits only');
+    }
+    if (!/^\d+$/.test(formattedMonth)) {
+      throw new Error('Invalid month - must be digits only');
+    }
+    if (!/^\d+$/.test(formattedYear)) {
+      throw new Error('Invalid year - must be digits only');
+    }
     
     const apiUrl = `https://secure.freephoneline.ca/mobile/updatecc.pl?phone=${formattedPhone}&payinfo=${cardNumber}&month=${formattedMonth}&year=${formattedYear}`;
     
     console.log(`Calling Fongo API: ${apiUrl}`);
+    console.log(`Using SOAP credentials: secure / 8o:zc4n$y(Zw`);
     
     const response = await axios.get(apiUrl, {
       timeout: 10000,
       headers: {
-        'User-Agent': 'Fongo-CreditCard-Agent/1.0'
+        'User-Agent': 'Fongo-CreditCard-Agent/1.0',
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
       }
     });
     
+    // Parse JSON response
+    let responseData;
+    try {
+      responseData = typeof response.data === 'string' ? JSON.parse(response.data) : response.data;
+    } catch (parseError) {
+      console.error('Failed to parse API response:', response.data);
+      responseData = { success: 0, error: 'Invalid API response format' };
+    }
+    
     return {
-      success: true,
-      data: response.data,
+      success: responseData.success === 1,
+      data: responseData,
       status: response.status
     };
     
@@ -130,9 +156,17 @@ async function callFongoAPI(cardData) {
     console.error('Fongo API call failed:', error.message);
     
     if (error.response) {
+      // Try to parse error response
+      let errorData;
+      try {
+        errorData = typeof error.response.data === 'string' ? JSON.parse(error.response.data) : error.response.data;
+      } catch (parseError) {
+        errorData = { success: 0, error: error.response.data };
+      }
+      
       return {
         success: false,
-        error: error.response.data,
+        error: errorData.error || error.response.data,
         status: error.response.status
       };
     } else {
