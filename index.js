@@ -29,11 +29,17 @@ app.get('/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
-// Start server
-server.listen(PORT, () => {
-  console.log(`🚀 Fongo Credit Card Agent server running on port ${PORT}`);
-  console.log(`📞 Webhook endpoint: http://localhost:${PORT}/webhook`);
-  console.log(`🤖 LLM WebSocket endpoint: ws://localhost:${PORT}/llm-websocket`);
-});
-
-module.exports = { app, server };
+// For Vercel deployment
+if (process.env.NODE_ENV === 'production') {
+  // Export for Vercel
+  module.exports = app;
+} else {
+  // Start server for local development
+  server.listen(PORT, () => {
+    console.log(`🚀 Fongo Credit Card Agent server running on port ${PORT}`);
+    console.log(`📞 Webhook endpoint: http://localhost:${PORT}/webhook`);
+    console.log(`🤖 LLM WebSocket endpoint: ws://localhost:${PORT}/llm-websocket`);
+  });
+  
+  module.exports = { app, server };
+}
