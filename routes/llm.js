@@ -67,6 +67,8 @@ function setupWebSocketHandlers() {
 async function handleLLMResponse(ws, data) {
   const { call_id, response } = data;
   
+  console.log(`🤖 Processing response for call ${call_id}: ${response}`);
+  
   // Extract caller ID from the call data
   const callerId = data.call?.from_number;
   

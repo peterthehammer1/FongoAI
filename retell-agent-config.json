@@ -4,8 +4,8 @@
   "language": "en-US",
   "webhook_url": "https://fongo-credit-card-agent-8hhkqjxd1-petes-projects-268bdd55.vercel.app/webhook",
   "response_engine": {
-    "type": "websocket",
-    "websocket_url": "wss://fongo-credit-card-agent-8hhkqjxd1-petes-projects-268bdd55.vercel.app/llm-websocket"
+    "type": "custom-llm",
+    "llm_websocket_url": "wss://fongo-credit-card-agent-8hhkqjxd1-petes-projects-268bdd55.vercel.app/llm-websocket"
   },
   "conversation_transcriber": {
     "provider": "deepgram",
