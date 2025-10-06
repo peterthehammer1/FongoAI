@@ -27,8 +27,5 @@
     "index.js": {
       "maxDuration": 30
     }
-  },
-  "protection": {
-    "bypass": true
   }
 }
