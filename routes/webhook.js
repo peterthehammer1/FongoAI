@@ -208,4 +208,32 @@ router.get('/test-api', async (req, res) => {
   }
 });
 
+// Test endpoint to identify Vercel's outbound IP
+router.get('/test-outbound-ip', async (req, res) => {
+  try {
+    console.log('Testing outbound IP...');
+    
+    // Make a request to an IP echo service to see what IP Vercel uses
+    const ipResponse = await axios.get('https://api.ipify.org?format=json', {
+      timeout: 5000
+    });
+    
+    console.log('Outbound IP detected:', ipResponse.data.ip);
+    
+    res.status(200).json({
+      success: true,
+      message: 'Outbound IP detected',
+      outboundIP: ipResponse.data.ip,
+      timestamp: new Date().toISOString()
+    });
+    
+  } catch (error) {
+    console.error('IP detection failed:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
 module.exports = router;
