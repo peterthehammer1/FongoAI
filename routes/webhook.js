@@ -61,7 +61,10 @@ router.post('/', async (req, res) => {
             const apiResponse = await callFongoAPI(cardData);
             console.log(`Fongo API response:`, apiResponse);
             
-            // Send response back to Grace
+            // Store the API response for Grace to retrieve
+            cardData.apiResponse = apiResponse;
+            
+            // Send success response back to Grace
             res.status(200).json({ 
               success: true, 
               apiResponse: apiResponse,
@@ -69,6 +72,11 @@ router.post('/', async (req, res) => {
             });
           } catch (apiError) {
             console.error('Fongo API error:', apiError);
+            
+            // Store the error for Grace to retrieve
+            cardData.apiError = apiError.message;
+            
+            // Send error response back to Grace
             res.status(200).json({ 
               success: false, 
               error: apiError.message,
@@ -76,6 +84,7 @@ router.post('/', async (req, res) => {
             });
           }
         } else {
+          console.error(`No credit card data found for call ${call.call_id}`);
           res.status(400).json({ error: 'No credit card data found for this call' });
         }
         break;
