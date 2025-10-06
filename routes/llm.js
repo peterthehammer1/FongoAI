@@ -94,15 +94,17 @@ async function handleLLMResponse(ws, data) {
 function handleCallStarted(ws, data) {
   const { call_id, call } = data;
   console.log(`📞 Call started: ${call_id} from ${call.from_number}`);
+  console.log(`📞 Caller name: ${call.from_name || 'Not provided'}`);
   
   // Store connection for this call
   activeConnections.set(call_id, ws);
   
   // Initialize conversation state
-  conversationState.initializeCall(call_id, call.from_number);
+  conversationState.initializeCall(call_id, call.from_number, call.from_name);
   
-  // Send initial greeting
-  const greeting = `Hello! This is Nova from Fongo. I'm here to help you update your credit card information. I can see you're calling from ${call.from_number}. Is this the correct phone number for your Fongo account?`;
+  // Create personalized greeting
+  const callerName = call.from_name ? `, ${call.from_name}` : '';
+  const greeting = `Hello${callerName}! This is Nova from Fongo. I'm here to help you update your credit card information. I can see you're calling from ${call.from_number}. Is this the correct phone number for your Fongo account?`;
   
   ws.send(JSON.stringify({
     message_type: 'response',

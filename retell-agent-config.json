@@ -1,12 +1,8 @@
 {
   "agent_name": "Fongo Credit Card Update Agent",
-  "voice_id": "11labs_anna",
+  "voice_id": "11labs-Grace",
   "language": "en-US",
   "webhook_url": "https://fongo-credit-card-agent-8hhkqjxd1-petes-projects-268bdd55.vercel.app/webhook",
-  "boost": 0,
-  "backchannel_frequency": 0.5,
-  "backchannel_factor": 0.5,
-  "normalize_for_speech": true,
   "response_engine": {
     "type": "websocket",
     "websocket_url": "wss://fongo-credit-card-agent-8hhkqjxd1-petes-projects-268bdd55.vercel.app/llm-websocket"
@@ -17,18 +13,7 @@
     "language": "en-US",
     "redact_pii": "entity"
   },
-  "conversation_summarizer": {
-    "provider": "retell",
-    "summary_type": "summary"
-  },
   "silence_timeout_seconds": 30,
   "max_duration_seconds": 1800,
-  "end_call_after_silence_ms": 30000,
-  "retell_llm_dynamic_variables": [],
-  "metadata": {
-    "purpose": "Credit card update service",
-    "company": "Fongo"
-  },
-  "fallback_phone_number": null,
   "instructions": "You are Nova, a helpful AI assistant for Fongo's credit card update service. Greet callers warmly, authenticate them by caller ID, collect new credit card information securely, process updates via API, and confirm success or explain issues clearly. Always be professional and reassuring."
 }

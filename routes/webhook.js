@@ -12,6 +12,8 @@ router.post('/', async (req, res) => {
       case 'call_started':
         console.log(`Call started: ${call.call_id}`);
         console.log(`Caller ID: ${call.from_number}`);
+        console.log(`Caller Name: ${call.from_name || 'Not provided'}`);
+        console.log(`Full call data:`, JSON.stringify(call, null, 2));
         break;
         
       case 'call_ended':

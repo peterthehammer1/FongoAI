@@ -12,11 +12,13 @@ class ConversationState {
    * Initialize conversation state for a new call
    * @param {string} callId - Unique call identifier
    * @param {string} callerId - Phone number of the caller
+   * @param {string} callerName - Name of the caller (if available)
    */
-  initializeCall(callId, callerId) {
+  initializeCall(callId, callerId, callerName = null) {
     this.states.set(callId, {
       step: 'greeting',
       callerId: callerId,
+      callerName: callerName,
       cardNumber: null,
       expirationMonth: null,
       expirationYear: null,
@@ -25,7 +27,7 @@ class ConversationState {
       startTime: new Date()
     });
     
-    console.log(`📞 Initialized conversation state for call ${callId} from ${callerId}`);
+    console.log(`📞 Initialized conversation state for call ${callId} from ${callerId}${callerName ? ` (${callerName})` : ''}`);
   }
   
   /**
@@ -193,8 +195,13 @@ class ConversationState {
         state.expirationYear = digits;
         
         const lastFour = state.cardNumber.slice(-4);
+        const lastFourDigits = lastFour.split('').map(digit => {
+          const digitNames = ['Zero', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
+          return digitNames[parseInt(digit)];
+        }).join(', ');
+        
         return {
-          response: `Let me confirm: Card ending in ${lastFour}, expiring ${state.expirationMonth}/${state.expirationYear}. Is this correct?`,
+          response: `Let me confirm: Card ending in ${lastFourDigits}, expiring ${state.expirationMonth}/${state.expirationYear}. Is this correct?`,
           nextStep: 'continue'
         };
       }
