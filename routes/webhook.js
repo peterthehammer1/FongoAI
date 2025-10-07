@@ -91,15 +91,18 @@ router.post('/', async (req, res) => {
         
       default:
         console.log(`Unknown event: ${event}`);
-        res.status(200).json({ success: true });
+        break;
     }
     
+    // Send response if not already sent (credit_card_collected sends its own response)
     if (event !== 'credit_card_collected') {
       res.status(200).json({ success: true });
     }
   } catch (error) {
     console.error('Webhook error:', error);
-    res.status(500).json({ error: 'Webhook processing failed' });
+    if (!res.headersSent) {
+      res.status(500).json({ error: 'Webhook processing failed' });
+    }
   }
 });
 
