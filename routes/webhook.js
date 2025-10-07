@@ -171,8 +171,12 @@ async function callFongoAPI(cardData) {
     if (!/^\d+$/.test(formattedPhone)) {
       throw new Error('Invalid phone number - must be digits only');
     }
+    // Card number can be 15 digits (Amex) or 16 digits (Visa/MasterCard)
     if (!/^\d+$/.test(cardNumber)) {
       throw new Error('Invalid credit card number - must be digits only');
+    }
+    if (cardNumber.length !== 15 && cardNumber.length !== 16) {
+      throw new Error('Invalid credit card number - must be 15 or 16 digits');
     }
     if (!/^\d+$/.test(formattedMonth)) {
       throw new Error('Invalid month - must be digits only');
