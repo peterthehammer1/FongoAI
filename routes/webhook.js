@@ -8,9 +8,55 @@ const creditCardData = new Map();
 // Webhook endpoint for NUCLEUS AI callbacks
 router.post('/', async (req, res) => {
   try {
-    const { event, call, data } = req.body;
+    // Log the full request body to see what we're receiving
+    console.log('📞 Webhook received:', JSON.stringify(req.body, null, 2));
     
-    console.log(`📞 Webhook received: ${event} for call ${call?.call_id}`);
+    const { event, call, data, name, args } = req.body;
+    
+    // Handle custom function calls from Retell AI
+    if (name === 'update_credit_card' && args) {
+      console.log('💳 Custom function call: update_credit_card');
+      console.log('Arguments:', args);
+      
+      // Extract caller ID from call object
+      const callerId = call?.from_number || 'unknown';
+      
+      // Prepare credit card data
+      const cardData = {
+        callerId: callerId,
+        cardNumber: args.cardNumber,
+        expiryMonth: args.expiryMonth,
+        expiryYear: args.expiryYear,
+        cvv: args.cvv,
+        nameOnCard: args.nameOnCard
+      };
+      
+      // Call Fongo API
+      try {
+        const apiResponse = await callFongoAPI(cardData);
+        console.log(`✅ Fongo API response:`, apiResponse);
+        
+        if (apiResponse.success) {
+          return res.status(200).json({ 
+            success: true,
+            message: 'Credit card updated successfully'
+          });
+        } else {
+          return res.status(200).json({ 
+            success: false,
+            error: apiResponse.error || 'Failed to update credit card'
+          });
+        }
+      } catch (apiError) {
+        console.error('❌ Fongo API error:', apiError);
+        return res.status(200).json({ 
+          success: false,
+          error: apiError.message
+        });
+      }
+    }
+    
+    console.log(`📞 Webhook event: ${event} for call ${call?.call_id}`);
     
     switch (event) {
       case 'call_started':
