@@ -7,7 +7,7 @@ const router = express.Router();
 // Store active WebSocket connections
 const activeConnections = new Map();
 
-// WebSocket server for LLM communication (will be initialized by main server)
+// WebSocket server for NUCLEUS AI LLM communication (will be initialized by main server)
 let wss = null;
 
 function initializeWebSocketServer(server) {

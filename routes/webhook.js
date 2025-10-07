@@ -5,7 +5,7 @@ const router = express.Router();
 // Store credit card information temporarily
 const creditCardData = new Map();
 
-// Webhook endpoint for Retell AI callbacks
+// Webhook endpoint for NUCLEUS AI callbacks
 router.post('/', async (req, res) => {
   try {
     const { event, call, data } = req.body;

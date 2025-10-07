@@ -26,7 +26,7 @@ The AI agent system is now fully functional and ready for testing. The webhook i
 
 **URL:** `https://secure.freephoneline.ca/mobile/updatecc.pl?phone=15195551234&payinfo=5524000000000000&month=09&year=2026`
 
-**Webhook URL:** `https://fongoai.com/api/webhook`
+**Webhook URL:** `https://fongoai.com/webhook`
 
 **Headers:**
 - User-Agent: Fongo-CreditCard-Agent/1.0

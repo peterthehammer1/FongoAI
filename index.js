@@ -37,8 +37,8 @@ if (process.env.NODE_ENV === 'production') {
   // Start server for local development
   server.listen(PORT, () => {
     console.log(`🚀 Fongo Credit Card Agent server running on port ${PORT}`);
-    console.log(`📞 Webhook endpoint: http://localhost:${PORT}/webhook`);
-    console.log(`🤖 LLM WebSocket endpoint: ws://localhost:${PORT}/llm-websocket`);
+    console.log(`📞 NUCLEUS Webhook endpoint: http://localhost:${PORT}/webhook`);
+    console.log(`🤖 NUCLEUS LLM WebSocket endpoint: ws://localhost:${PORT}/llm-websocket`);
   });
   
   module.exports = { app, server };
