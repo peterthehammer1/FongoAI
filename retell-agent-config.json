@@ -2,10 +2,10 @@
   "agent_name": "Fongo Credit Card Update Agent",
   "voice_id": "11labs-Grace",
   "language": "en-US",
-  "webhook_url": "https://fongo-credit-card-agent-8hhkqjxd1-petes-projects-268bdd55.vercel.app/webhook",
+  "webhook_url": "https://fongoai.com/webhook",
   "response_engine": {
     "type": "custom-llm",
-    "llm_websocket_url": "wss://fongo-credit-card-agent-8hhkqjxd1-petes-projects-268bdd55.vercel.app/llm-websocket"
+    "llm_websocket_url": "wss://fongoai.com/llm-websocket"
   },
   "conversation_transcriber": {
     "provider": "deepgram",
