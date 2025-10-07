@@ -195,14 +195,30 @@ async function callFongoAPI(cardData) {
       }
     });
     
-    // Parse JSON response
+    // Parse response - Fongo API returns JavaScript object notation, not JSON
     let responseData;
     try {
-      responseData = typeof response.data === 'string' ? JSON.parse(response.data) : response.data;
+      if (typeof response.data === 'string') {
+        // Try to parse as JSON first
+        try {
+          responseData = JSON.parse(response.data);
+        } catch (jsonError) {
+          // If JSON parse fails, try to convert JS object notation to JSON
+          // Replace { success:1 } with {"success":1}
+          const fixedJson = response.data
+            .replace(/\{\s*success\s*:\s*(\d+)\s*\}/g, '{"success":$1}')
+            .replace(/\{\s*success\s*:\s*(\d+)\s*,\s*error\s*:\s*"([^"]*)"\s*\}/g, '{"success":$1,"error":"$2"}');
+          responseData = JSON.parse(fixedJson);
+        }
+      } else {
+        responseData = response.data;
+      }
     } catch (parseError) {
       console.error('Failed to parse API response:', response.data);
       responseData = { success: 0, error: 'Invalid API response format' };
     }
+    
+    console.log('Parsed Fongo API response:', responseData);
     
     return {
       success: responseData.success === 1,
