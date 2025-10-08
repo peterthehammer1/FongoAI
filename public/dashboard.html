@@ -623,7 +623,7 @@
         // Load user info
         async function loadUserInfo() {
             try {
-                const response = await fetch('/auth/status');
+                const response = await fetch('/auth/status', { credentials: 'include' });
                 const data = await response.json();
                 if (data.authenticated && data.user) {
                     document.getElementById('userName').textContent = data.user.name || data.user.email;
@@ -638,7 +638,7 @@
         // Logout function
         async function logout() {
             try {
-                await fetch('/auth/logout', { method: 'POST' });
+                await fetch('/auth/logout', { method: 'POST', credentials: 'include' });
                 window.location.href = '/login';
             } catch (error) {
                 console.error('Logout error:', error);
@@ -649,7 +649,7 @@
         // Load summary stats
         async function loadSummary() {
             try {
-                const response = await fetch('/dashboard/api/summary');
+                const response = await fetch('/dashboard/api/summary', { credentials: 'include' });
                 const data = await response.json();
                 
                 if (data.success) {
@@ -667,7 +667,7 @@
         // Load calls
         async function loadCalls() {
             try {
-                const response = await fetch('/dashboard/api/calls?limit=100');
+                const response = await fetch('/dashboard/api/calls?limit=100', { credentials: 'include' });
                 const data = await response.json();
                 
                 const tbody = document.getElementById('callsTable');
@@ -704,7 +704,7 @@
             }
             
             try {
-                const response = await fetch(`/dashboard/api/search?q=${encodeURIComponent(query)}`);
+                const response = await fetch(`/dashboard/api/search?q=${encodeURIComponent(query)}`, { credentials: 'include' });
                 const data = await response.json();
                 
                 const tbody = document.getElementById('callsTable');
@@ -818,7 +818,7 @@
         }
         
         async function getAllCallsForExport() {
-            const response = await fetch('/dashboard/api/calls?limit=10000');
+            const response = await fetch('/dashboard/api/calls?limit=10000', { credentials: 'include' });
             const data = await response.json();
             return data.calls || [];
         }
@@ -857,7 +857,7 @@
         }
         
         async function showSuccessRate() {
-            const response = await fetch('/dashboard/api/summary');
+            const response = await fetch('/dashboard/api/summary', { credentials: 'include' });
             const data = await response.json();
             const summary = data.summary;
             
@@ -874,7 +874,7 @@
         }
         
         async function showCardTypeBreakdown() {
-            const response = await fetch('/dashboard/api/summary');
+            const response = await fetch('/dashboard/api/summary', { credentials: 'include' });
             const data = await response.json();
             const summary = data.summary;
             

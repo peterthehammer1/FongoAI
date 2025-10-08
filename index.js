@@ -26,7 +26,10 @@ app.use(session({
 app.use(helmet({
   contentSecurityPolicy: false, // Disable for dashboard inline scripts
 }));
-app.use(cors());
+app.use(cors({
+  origin: true,
+  credentials: true
+}));
 app.use(express.json());
 
 // Serve static files (dashboard)
