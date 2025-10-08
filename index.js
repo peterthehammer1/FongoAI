@@ -3,11 +3,24 @@ const cors = require('cors');
 const helmet = require('helmet');
 const http = require('http');
 const path = require('path');
+const session = require('express-session');
 require('dotenv').config();
 
 const app = express();
 const server = http.createServer(app);
 const PORT = process.env.PORT || 3000;
+
+// Session configuration
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'fongo-nucleus-ai-secret-key-2025',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: process.env.NODE_ENV === 'production', // HTTPS only in production
+    httpOnly: true,
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  }
+}));
 
 // Middleware
 app.use(helmet({
@@ -23,11 +36,24 @@ app.use(express.static(path.join(__dirname, 'public')));
 const webhookRoutes = require('./routes/webhook');
 const { router: llmRoutes, initializeWebSocketServer } = require('./routes/llm');
 const dashboardRoutes = require('./routes/dashboard');
+const authRoutes = require('./routes/auth');
+const { requireAuth } = require('./middleware/auth');
 
-// Routes
-app.use('/webhook', webhookRoutes);
-app.use('/llm-websocket', llmRoutes);
-app.use('/dashboard', dashboardRoutes);
+// Public routes (no authentication required)
+app.use('/auth', authRoutes);
+app.use('/webhook', webhookRoutes); // Retell AI webhooks don't need auth
+app.use('/llm-websocket', llmRoutes); // WebSocket for LLM
+
+// Login page (public)
+app.get('/login', (req, res) => {
+  if (req.session && req.session.user) {
+    return res.redirect('/');
+  }
+  res.sendFile(path.join(__dirname, 'public', 'login.html'));
+});
+
+// Protected routes (authentication required)
+app.use('/dashboard', requireAuth, dashboardRoutes);
 
 // Initialize WebSocket server
 initializeWebSocketServer(server);
@@ -37,8 +63,8 @@ app.get('/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
-// Dashboard homepage
-app.get('/', (req, res) => {
+// Dashboard homepage (protected)
+app.get('/', requireAuth, (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
 });
 
