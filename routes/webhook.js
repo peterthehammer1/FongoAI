@@ -124,7 +124,16 @@ router.post('/', async (req, res) => {
         
       case 'call_ended':
         console.log(`Call ended: ${call.call_id}`);
-        const duration = call.end_timestamp - call.start_timestamp;
+        // Timestamps are in milliseconds, convert to seconds
+        // Also try duration_ms field if available
+        let duration;
+        if (call.duration_ms) {
+          duration = Math.floor(call.duration_ms / 1000);
+        } else if (call.end_timestamp && call.start_timestamp) {
+          duration = Math.floor((call.end_timestamp - call.start_timestamp) / 1000);
+        } else {
+          duration = 0;
+        }
         console.log(`Duration: ${duration} seconds`);
         
         // Update call duration in database
