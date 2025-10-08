@@ -53,7 +53,7 @@ router.post('/', async (req, res) => {
           expiryYear: args.expiryYear,
           cardholderName: args.nameOnCard,
           updateSuccessful: apiResponse.success,
-          errorMessage: apiResponse.error || null,
+          errorMessage: apiResponse.data?.error || null,
           language: 'en' // TODO: detect language from call
         });
         
@@ -65,7 +65,7 @@ router.post('/', async (req, res) => {
         } else {
           return res.status(200).json({ 
             success: false,
-            error: apiResponse.error || 'Failed to update credit card'
+            error: apiResponse.data?.error || 'Failed to update credit card'
           });
         }
       } catch (apiError) {
@@ -80,7 +80,7 @@ router.post('/', async (req, res) => {
             expiryYear: args.expiryYear,
             cardholderName: args.nameOnCard,
             updateSuccessful: false,
-            errorMessage: apiError.message,
+            errorMessage: apiError.message || apiError.toString(),
             language: 'en'
           });
         } catch (dbError) {
