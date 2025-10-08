@@ -1,6 +1,7 @@
 const express = require('express');
 const axios = require('axios');
 const router = express.Router();
+const db = require('../services/database');
 
 // Store credit card information temporarily
 const creditCardData = new Map();
@@ -20,6 +21,7 @@ router.post('/', async (req, res) => {
       
       // Extract caller ID from call object
       const callerId = call?.from_number || 'unknown';
+      const callId = call?.call_id || 'unknown';
       
       // Prepare credit card data
       const cardData = {
@@ -31,10 +33,28 @@ router.post('/', async (req, res) => {
         nameOnCard: args.nameOnCard
       };
       
+      // Determine card type from card number
+      const firstDigit = args.cardNumber.charAt(0);
+      let cardType = 'unknown';
+      if (firstDigit === '4') cardType = 'visa';
+      else if (firstDigit === '5') cardType = 'mastercard';
+      else if (firstDigit === '3') cardType = 'amex';
+      
       // Call Fongo API
       try {
         const apiResponse = await callFongoAPI(cardData);
         console.log(`✅ Fongo API response:`, apiResponse);
+        
+        // Log to database
+        await db.updateCallResult(callId, {
+          cardType: cardType,
+          cardNumber: args.cardNumber,
+          expiryMonth: args.expiryMonth,
+          expiryYear: args.expiryYear,
+          updateSuccessful: apiResponse.success,
+          errorMessage: apiResponse.error || null,
+          language: 'en' // TODO: detect language from call
+        });
         
         if (apiResponse.success) {
           return res.status(200).json({ 
@@ -49,6 +69,22 @@ router.post('/', async (req, res) => {
         }
       } catch (apiError) {
         console.error('❌ Fongo API error:', apiError);
+        
+        // Log failed attempt to database
+        try {
+          await db.updateCallResult(callId, {
+            cardType: cardType,
+            cardNumber: args.cardNumber,
+            expiryMonth: args.expiryMonth,
+            expiryYear: args.expiryYear,
+            updateSuccessful: false,
+            errorMessage: apiError.message,
+            language: 'en'
+          });
+        } catch (dbError) {
+          console.error('❌ Database error:', dbError);
+        }
+        
         return res.status(200).json({ 
           success: false,
           error: apiError.message
@@ -65,6 +101,13 @@ router.post('/', async (req, res) => {
         console.log(`Caller Name: ${call.from_name || 'Not provided'}`);
         console.log(`Full call data:`, JSON.stringify(call, null, 2));
         
+        // Log call start to database
+        try {
+          await db.logCallStart(call.call_id, call.from_number, call.from_name);
+        } catch (dbError) {
+          console.error('❌ Database error logging call start:', dbError);
+        }
+        
         // Initialize credit card data storage
         creditCardData.set(call.call_id, {
           callerId: call.from_number,
@@ -79,7 +122,15 @@ router.post('/', async (req, res) => {
         
       case 'call_ended':
         console.log(`Call ended: ${call.call_id}`);
-        console.log(`Duration: ${call.end_timestamp - call.start_timestamp} seconds`);
+        const duration = call.end_timestamp - call.start_timestamp;
+        console.log(`Duration: ${duration} seconds`);
+        
+        // Update call duration in database
+        try {
+          await db.updateCallDuration(call.call_id, duration);
+        } catch (dbError) {
+          console.error('❌ Database error updating call duration:', dbError);
+        }
         
         // Clean up stored data
         creditCardData.delete(call.call_id);
