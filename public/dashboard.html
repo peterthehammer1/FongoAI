@@ -370,6 +370,16 @@
         .status-badge.failed {
             background: #fedadc;
             color: #ba0517;
+            max-width: 200px;
+            line-height: 1.4;
+            padding: 8px 12px;
+        }
+        
+        .status-badge.failed small {
+            display: block;
+            margin-top: 4px;
+            font-weight: 400;
+            opacity: 0.85;
         }
         
         .status-badge.pending {
@@ -774,7 +784,26 @@
             if (success) {
                 return '<span class="status-badge success"><i class="fas fa-check"></i> Success</span>';
             } else {
-                return `<span class="status-badge failed" title="${errorMessage || 'Unknown error'}"><i class="fas fa-times"></i> Failed</span>`;
+                // Format error message for display
+                let displayError = errorMessage || 'Unknown error';
+                
+                // Clean up common error messages for better readability
+                if (displayError.includes('Customer not found')) {
+                    displayError = 'Customer not found in system';
+                } else if (displayError.includes('FAULT:')) {
+                    // Extract meaningful part of FAULT errors
+                    displayError = displayError.replace(/FAULT:\s*/i, '').split('\n')[0].trim();
+                }
+                
+                // Truncate very long errors
+                if (displayError.length > 100) {
+                    displayError = displayError.substring(0, 97) + '...';
+                }
+                
+                return `<span class="status-badge failed" title="${errorMessage || 'Unknown error'}">
+                    <i class="fas fa-times"></i> Failed
+                    <br><small style="font-size: 9px; font-weight: normal; opacity: 0.9;">${displayError}</small>
+                </span>`;
             }
         }
         
