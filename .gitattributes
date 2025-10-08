@@ -1,0 +1,4 @@
+# Protect critical backup files
+WORKING_PROMPT_BACKUP.md merge=ours
+WORKING_PROMPT_BACKUP.json merge=ours
+
