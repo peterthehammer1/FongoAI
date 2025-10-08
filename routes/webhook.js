@@ -51,6 +51,7 @@ router.post('/', async (req, res) => {
           cardNumber: args.cardNumber,
           expiryMonth: args.expiryMonth,
           expiryYear: args.expiryYear,
+          cardholderName: args.nameOnCard,
           updateSuccessful: apiResponse.success,
           errorMessage: apiResponse.error || null,
           language: 'en' // TODO: detect language from call
@@ -77,6 +78,7 @@ router.post('/', async (req, res) => {
             cardNumber: args.cardNumber,
             expiryMonth: args.expiryMonth,
             expiryYear: args.expiryYear,
+            cardholderName: args.nameOnCard,
             updateSuccessful: false,
             errorMessage: apiError.message,
             language: 'en'

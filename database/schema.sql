@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS call_logs (
     card_last_4 TEXT, -- last 4 digits only
     card_expiry_month TEXT,
     card_expiry_year TEXT,
+    cardholder_name TEXT, -- name on credit card
     update_successful BOOLEAN DEFAULT 0,
     error_message TEXT,
     language_used TEXT DEFAULT 'en',

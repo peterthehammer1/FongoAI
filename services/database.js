@@ -73,6 +73,7 @@ function updateCallResult(callId, data) {
       cardNumber, // full number, we'll extract last 4
       expiryMonth,
       expiryYear,
+      cardholderName = null,
       updateSuccessful,
       errorMessage = null,
       language = 'en'
@@ -87,6 +88,7 @@ function updateCallResult(callId, data) {
           card_last_4 = ?,
           card_expiry_month = ?,
           card_expiry_year = ?,
+          cardholder_name = ?,
           update_successful = ?,
           error_message = ?,
           language_used = ?,
@@ -96,7 +98,7 @@ function updateCallResult(callId, data) {
     
     db.run(
       sql,
-      [cardType, cardLast4, expiryMonth, expiryYear, updateSuccessful ? 1 : 0, errorMessage, language, callId],
+      [cardType, cardLast4, expiryMonth, expiryYear, cardholderName, updateSuccessful ? 1 : 0, errorMessage, language, callId],
       function(err) {
         if (err) {
           console.error('Error updating call result:', err);
@@ -152,6 +154,7 @@ function getAllCalls(limit = 50, offset = 0) {
         card_last_4,
         card_expiry_month,
         card_expiry_year,
+        cardholder_name,
         update_successful,
         error_message,
         language_used,
@@ -208,6 +211,7 @@ function searchCalls(searchTerm) {
         card_last_4,
         card_expiry_month,
         card_expiry_year,
+        cardholder_name,
         update_successful,
         error_message,
         language_used,
@@ -215,13 +219,14 @@ function searchCalls(searchTerm) {
       FROM call_logs
       WHERE caller_number LIKE ? 
          OR caller_name LIKE ?
+         OR cardholder_name LIKE ?
          OR call_date LIKE ?
       ORDER BY call_date DESC, call_time DESC
       LIMIT 100
     `;
     
     const term = `%${searchTerm}%`;
-    db.all(sql, [term, term, term], (err, rows) => {
+    db.all(sql, [term, term, term, term], (err, rows) => {
       if (err) {
         console.error('Error searching calls:', err);
         reject(err);
