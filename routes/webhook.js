@@ -2,6 +2,7 @@ const express = require('express');
 const axios = require('axios');
 const router = express.Router();
 const db = require('../services/database');
+const { createZendeskTicket } = require('../services/zendesk');
 
 // Store credit card information temporarily
 const creditCardData = new Map();
@@ -67,13 +68,22 @@ router.post('/', async (req, res) => {
           }
         };
         
-        // TODO: Implement actual Zendesk API call
-        console.log('Zendesk ticket data:', JSON.stringify(ticketData, null, 2));
+        // Create actual Zendesk ticket
+        const zendeskResult = await createZendeskTicket(ticketData);
         
-        return res.status(200).json({
-          success: true,
-          message: 'Support ticket created successfully. A billing agent will call you back when available.'
-        });
+        if (zendeskResult.success) {
+          console.log('✅ Zendesk ticket created:', zendeskResult.ticketId);
+          return res.status(200).json({
+            success: true,
+            message: `Support ticket created successfully (Ticket #${zendeskResult.ticketId}). A billing agent will call you back when available.`
+          });
+        } else {
+          console.error('❌ Zendesk ticket creation failed:', zendeskResult.error);
+          return res.status(200).json({
+            success: false,
+            message: 'Sorry, I had trouble creating the support ticket. Please try calling back later.'
+          });
+        }
       } catch (error) {
         console.error('❌ Support ticket creation error:', error);
         return res.status(200).json({
