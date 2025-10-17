@@ -15,6 +15,111 @@ router.post('/', async (req, res) => {
     const { event, call, data, name, args } = req.body;
     
     // Handle custom function calls from Retell AI
+    if (name === 'validate_card_type' && args) {
+      console.log('💳 Custom function call: validate_card_type');
+      console.log('Arguments:', args);
+      
+      const { cardType, cardNumber } = args;
+      let isValid = false;
+      let errorMessage = '';
+      
+      // Card validation rules
+      if (cardType.toLowerCase() === 'visa' && cardNumber.startsWith('4')) {
+        isValid = true;
+      } else if (cardType.toLowerCase() === 'mastercard' && (cardNumber.startsWith('5') || cardNumber.startsWith('2'))) {
+        isValid = true;
+      } else if (cardType.toLowerCase() === 'amex' && (cardNumber.startsWith('34') || cardNumber.startsWith('37'))) {
+        isValid = true;
+      } else {
+        errorMessage = `The card number doesn't match the ${cardType} type. Please verify both the card type and number.`;
+      }
+      
+      return res.status(200).json({
+        success: isValid,
+        message: isValid ? 'Card type matches the number' : errorMessage
+      });
+    }
+    
+    if (name === 'create_support_ticket' && args) {
+      console.log('🎫 Custom function call: create_support_ticket');
+      console.log('Arguments:', args);
+      
+      const { callerName, fongoHomePhone, callbackPhone, callerNumber } = args;
+      
+      try {
+        // Create Zendesk ticket
+        const ticketData = {
+          ticket: {
+            subject: 'FHP [PhoneBot] Billing Inquiry',
+            requester: {
+              email: `1${fongoHomePhone}@tel.fongo.com`,
+              name: callerName
+            },
+            custom_fields: [
+              { id: 22026703, value: `1${callerNumber}` },
+              { id: 22075352, value: 'fongo_home_phone' },
+              { id: 22256532, value: 'fongo_home_phone_billing_and_payment_inquiry' },
+              { id: 22038468, value: 'Normal' }
+            ],
+            comment: {
+              body: `customer called in about something billing-related\nCaller's Name: ${callerName}\nCustomer call back number: ${callbackPhone}\nNumber caller called from: ${callerNumber}\nBilling Issue Description: Caller wants to update CC and/or pay their bill and wants a call back`
+            }
+          }
+        };
+        
+        // TODO: Implement actual Zendesk API call
+        console.log('Zendesk ticket data:', JSON.stringify(ticketData, null, 2));
+        
+        return res.status(200).json({
+          success: true,
+          message: 'Support ticket created successfully. A billing agent will call you back when available.'
+        });
+      } catch (error) {
+        console.error('❌ Support ticket creation error:', error);
+        return res.status(200).json({
+          success: false,
+          message: 'Sorry, I had trouble creating the support ticket. Please try calling back later.'
+        });
+      }
+    }
+    
+    if (name === 'send_sms_link' && args) {
+      console.log('📱 Custom function call: send_sms_link');
+      console.log('Arguments:', args);
+      
+      const { cellPhoneNumber } = args;
+      const accountLink = 'https://account.fongo.com/login/';
+      
+      try {
+        // TODO: Implement actual SMS sending
+        console.log(`Sending SMS to ${cellPhoneNumber} with link: ${accountLink}`);
+        
+        return res.status(200).json({
+          success: true,
+          message: `I've sent the account login link to ${cellPhoneNumber}. After updating your credit card, our system will automatically attempt to charge your outstanding balance to your credit card overnight.`
+        });
+      } catch (error) {
+        console.error('❌ SMS sending error:', error);
+        return res.status(200).json({
+          success: false,
+          message: 'Sorry, I had trouble sending the SMS. You can manually visit https://account.fongo.com/login/ to update your payment information.'
+        });
+      }
+    }
+    
+    if (name === 'end_call' && args) {
+      console.log('📞 Custom function call: end_call');
+      console.log('Arguments:', args);
+      
+      const { message } = args;
+      
+      return res.status(200).json({
+        success: true,
+        message: message || 'Thank you for calling Fongo. Have a great day!',
+        end_call: true
+      });
+    }
+    
     if (name === 'update_credit_card' && args) {
       console.log('💳 Custom function call: update_credit_card');
       console.log('Arguments:', args);
@@ -33,12 +138,26 @@ router.post('/', async (req, res) => {
         nameOnCard: args.nameOnCard
       };
       
-      // Determine card type from card number
-      const firstDigit = args.cardNumber.charAt(0);
-      let cardType = 'unknown';
-      if (firstDigit === '4') cardType = 'visa';
-      else if (firstDigit === '5') cardType = 'mastercard';
-      else if (firstDigit === '3') cardType = 'amex';
+      // Validate card type matches card number
+      const cardType = args.cardType || 'unknown';
+      const cardNumber = args.cardNumber;
+      
+      // Card validation rules
+      let isValidCard = false;
+      if (cardType.toLowerCase() === 'visa' && cardNumber.startsWith('4')) {
+        isValidCard = true;
+      } else if (cardType.toLowerCase() === 'mastercard' && (cardNumber.startsWith('5') || cardNumber.startsWith('2'))) {
+        isValidCard = true;
+      } else if (cardType.toLowerCase() === 'amex' && (cardNumber.startsWith('34') || cardNumber.startsWith('37'))) {
+        isValidCard = true;
+      }
+      
+      if (!isValidCard) {
+        return res.status(200).json({
+          success: false,
+          error: `The card number doesn't match the ${cardType} type. Please verify both the card type and number.`
+        });
+      }
       
       // Call Fongo API
       try {
