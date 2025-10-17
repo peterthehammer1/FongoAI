@@ -4,6 +4,7 @@ const helmet = require('helmet');
 const http = require('http');
 const path = require('path');
 const session = require('express-session');
+const { logger, errorHandler, requestLogger, setupGracefulShutdown } = require('./services/logger');
 require('dotenv').config();
 
 const app = express();
@@ -24,6 +25,7 @@ app.use(session({
 }));
 
 // Middleware
+app.use(requestLogger);
 app.use(helmet({
   contentSecurityPolicy: false, // Disable for dashboard inline scripts
 }));
@@ -72,12 +74,20 @@ app.get('/', requireAuth, (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
 });
 
+// Error handling middleware (must be last)
+app.use(errorHandler);
+
 // Start server
 server.listen(PORT, '0.0.0.0', () => {
-  console.log(`🚀 Fongo Credit Card Agent server running on port ${PORT}`);
-  console.log(`📞 NUCLEUS Webhook endpoint: http://0.0.0.0:${PORT}/webhook`);
-  console.log(`🤖 NUCLEUS LLM WebSocket endpoint: ws://0.0.0.0:${PORT}/llm-websocket`);
-  console.log(`📊 Dashboard: http://0.0.0.0:${PORT}/`);
+  logger.info('Server started', { 
+    port: PORT, 
+    environment: process.env.NODE_ENV,
+    webhookUrl: `http://0.0.0.0:${PORT}/webhook`,
+    dashboardUrl: `http://0.0.0.0:${PORT}/`
+  });
 });
+
+// Setup graceful shutdown
+setupGracefulShutdown();
 
 module.exports = { app, server };

@@ -3,15 +3,22 @@ const axios = require('axios');
 const router = express.Router();
 const db = require('../services/database');
 const { createZendeskTicket } = require('../services/zendesk');
+const { sendAccountLoginLink } = require('../services/sms');
+const { logger, AppError, asyncHandler, handleApiError } = require('../services/logger');
 
 // Store credit card information temporarily
 const creditCardData = new Map();
 
 // Webhook endpoint for NUCLEUS AI callbacks
-router.post('/', async (req, res) => {
+router.post('/', asyncHandler(async (req, res) => {
   try {
     // Log the full request body to see what we're receiving
-    console.log('📞 Webhook received:', JSON.stringify(req.body, null, 2));
+    logger.info('Webhook received', { 
+      event, 
+      callId: call?.call_id,
+      customFunction: name,
+      args: args ? Object.keys(args) : null
+    });
     
     const { event, call, data, name, args } = req.body;
     
@@ -101,13 +108,22 @@ router.post('/', async (req, res) => {
       const accountLink = 'https://account.fongo.com/login/';
       
       try {
-        // TODO: Implement actual SMS sending
-        console.log(`Sending SMS to ${cellPhoneNumber} with link: ${accountLink}`);
+        // Send actual SMS with account login link
+        const smsResult = await sendAccountLoginLink(cellPhoneNumber);
         
-        return res.status(200).json({
-          success: true,
-          message: `I've sent the account login link to ${cellPhoneNumber}. After updating your credit card, our system will automatically attempt to charge your outstanding balance to your credit card overnight.`
-        });
+        if (smsResult.success) {
+          console.log('✅ SMS sent successfully:', smsResult.messageId);
+          return res.status(200).json({
+            success: true,
+            message: `I've sent the account login link to ${cellPhoneNumber}. After updating your credit card, our system will automatically attempt to charge your outstanding balance to your credit card overnight.`
+          });
+        } else {
+          console.error('❌ SMS sending failed:', smsResult.error);
+          return res.status(200).json({
+            success: false,
+            message: 'Sorry, I had trouble sending the SMS. You can manually visit https://account.fongo.com/login/ to update your payment information.'
+          });
+        }
       } catch (error) {
         console.error('❌ SMS sending error:', error);
         return res.status(200).json({
