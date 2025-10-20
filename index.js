@@ -49,6 +49,7 @@ const { requireAuth } = require('./middleware/auth');
 app.use('/auth', authRoutes);
 app.use('/webhook', webhookRoutes); // Retell AI webhooks don't need auth
 app.use('/llm-websocket', llmRoutes); // WebSocket for LLM
+app.use('/monitoring', requireAuth, require('./routes/monitoring')); // System monitoring
 
 // Login page (public)
 app.get('/login', (req, res) => {
