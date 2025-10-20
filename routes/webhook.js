@@ -2,7 +2,6 @@ const express = require('express');
 const axios = require('axios');
 const router = express.Router();
 const db = require('../services/database');
-const { createZendeskTicket } = require('../services/zendesk');
 const { logger, AppError, asyncHandler, handleApiError } = require('../services/logger');
 
 // Store credit card information temporarily
@@ -45,58 +44,6 @@ router.post('/', asyncHandler(async (req, res) => {
         success: isValid,
         message: isValid ? 'Card type matches the number' : errorMessage
       });
-    }
-    
-    if (name === 'create_support_ticket' && args) {
-      console.log('🎫 Custom function call: create_support_ticket');
-      console.log('Arguments:', args);
-      
-      const { callerName, fongoHomePhone, callbackPhone, callerNumber } = args;
-      
-      try {
-        // Create Zendesk ticket
-        const ticketData = {
-          ticket: {
-            subject: 'FHP [PhoneBot] Billing Inquiry',
-            requester: {
-              email: `1${fongoHomePhone}@tel.fongo.com`,
-              name: callerName
-            },
-            custom_fields: [
-              { id: 22026703, value: `1${callerNumber}` },
-              { id: 22075352, value: 'fongo_home_phone' },
-              { id: 22256532, value: 'fongo_home_phone_billing_and_payment_inquiry' },
-              { id: 22038468, value: 'Normal' }
-            ],
-            comment: {
-              body: `customer called in about something billing-related\nCaller's Name: ${callerName}\nCustomer call back number: ${callbackPhone}\nNumber caller called from: ${callerNumber}\nBilling Issue Description: Caller wants to update CC and/or pay their bill and wants a call back`
-            }
-          }
-        };
-        
-        // Create actual Zendesk ticket
-        const zendeskResult = await createZendeskTicket(ticketData);
-        
-        if (zendeskResult.success) {
-          console.log('✅ Zendesk ticket created:', zendeskResult.ticketId);
-          return res.status(200).json({
-            success: true,
-            message: `Support ticket created successfully (Ticket #${zendeskResult.ticketId}). A billing agent will call you back when available.`
-          });
-        } else {
-          console.error('❌ Zendesk ticket creation failed:', zendeskResult.error);
-          return res.status(200).json({
-            success: false,
-            message: 'Sorry, I had trouble creating the support ticket. Please try calling back later.'
-          });
-        }
-      } catch (error) {
-        console.error('❌ Support ticket creation error:', error);
-        return res.status(200).json({
-          success: false,
-          message: 'Sorry, I had trouble creating the support ticket. Please try calling back later.'
-        });
-      }
     }
     
     if (name === 'end_call' && args) {

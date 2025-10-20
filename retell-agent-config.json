@@ -35,32 +35,6 @@
       }
     },
     {
-      "name": "create_support_ticket",
-      "description": "Create a Zendesk support ticket for callback requests",
-      "parameters": {
-        "type": "object",
-        "properties": {
-          "callerName": {
-            "type": "string",
-            "description": "Full name of the caller"
-          },
-          "fongoHomePhone": {
-            "type": "string",
-            "description": "The caller's Fongo Home Phone number"
-          },
-          "callbackPhone": {
-            "type": "string",
-            "description": "Phone number for callback"
-          },
-          "callerNumber": {
-            "type": "string",
-            "description": "Number the caller called from"
-          }
-        },
-        "required": ["callerName", "fongoHomePhone", "callbackPhone", "callerNumber"]
-      }
-    },
-    {
       "name": "end_call",
       "description": "End the call with a farewell message",
       "parameters": {
