@@ -237,12 +237,118 @@ function searchCalls(searchTerm) {
   });
 }
 
+/**
+ * Get analytics data for charts and reports
+ */
+function getAnalytics() {
+  return new Promise((resolve, reject) => {
+    const analytics = {};
+    
+    // Get hourly call distribution for the last 24 hours
+    const hourlyQuery = `
+      SELECT 
+        strftime('%H', datetime(call_date || ' ' || call_time)) as hour,
+        COUNT(*) as call_count
+      FROM call_logs 
+      WHERE datetime(call_date || ' ' || call_time) >= datetime('now', '-24 hours')
+      GROUP BY hour
+      ORDER BY hour
+    `;
+    
+    db.all(hourlyQuery, [], (err, hourlyRows) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+      
+      // Create hourly labels and data arrays
+      const hourlyLabels = [];
+      const hourlyCalls = [];
+      
+      // Initialize all 24 hours
+      for (let i = 0; i < 24; i++) {
+        const hour = i.toString().padStart(2, '0');
+        hourlyLabels.push(hour + ':00');
+        hourlyCalls.push(0);
+      }
+      
+      // Fill in actual data
+      hourlyRows.forEach(row => {
+        const hourIndex = parseInt(row.hour);
+        hourlyCalls[hourIndex] = row.call_count;
+      });
+      
+      analytics.hourly_labels = hourlyLabels;
+      analytics.hourly_calls = hourlyCalls;
+      
+      // Get success/failure counts
+      const successQuery = `
+        SELECT 
+          SUM(CASE WHEN success = 1 THEN 1 ELSE 0 END) as successful_calls,
+          SUM(CASE WHEN success = 0 THEN 1 ELSE 0 END) as failed_calls
+        FROM call_logs 
+        WHERE success IS NOT NULL
+      `;
+      
+      db.get(successQuery, [], (err, successRow) => {
+        if (err) {
+          reject(err);
+          return;
+        }
+        
+        analytics.successful_calls = successRow.successful_calls || 0;
+        analytics.failed_calls = successRow.failed_calls || 0;
+        
+        // Get card type distribution
+        const cardTypeQuery = `
+          SELECT 
+            SUM(CASE WHEN card_type = 'Visa' THEN 1 ELSE 0 END) as visa_count,
+            SUM(CASE WHEN card_type = 'Mastercard' THEN 1 ELSE 0 END) as mastercard_count,
+            SUM(CASE WHEN card_type = 'American Express' THEN 1 ELSE 0 END) as amex_count
+          FROM call_logs 
+          WHERE card_type IS NOT NULL
+        `;
+        
+        db.get(cardTypeQuery, [], (err, cardTypeRow) => {
+          if (err) {
+            reject(err);
+            return;
+          }
+          
+          analytics.visa_count = cardTypeRow.visa_count || 0;
+          analytics.mastercard_count = cardTypeRow.mastercard_count || 0;
+          analytics.amex_count = cardTypeRow.amex_count || 0;
+          
+          // Get average call duration
+          const durationQuery = `
+            SELECT AVG(duration_seconds) as avg_duration
+            FROM call_logs 
+            WHERE duration_seconds IS NOT NULL AND duration_seconds > 0
+          `;
+          
+          db.get(durationQuery, [], (err, durationRow) => {
+            if (err) {
+              reject(err);
+              return;
+            }
+            
+            analytics.avg_duration = Math.round(durationRow.avg_duration || 0);
+            
+            resolve(analytics);
+          });
+        });
+      });
+    });
+  });
+}
+
 module.exports = {
   logCallStart,
   updateCallResult,
   updateCallDuration,
   getAllCalls,
   getCallSummary,
-  searchCalls
+  searchCalls,
+  getAnalytics
 };
 

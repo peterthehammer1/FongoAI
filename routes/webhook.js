@@ -357,7 +357,7 @@ router.post('/', asyncHandler(async (req, res) => {
       res.status(500).json({ error: 'Webhook processing failed' });
     }
   }
-});
+}));
 
 // Function to call Fongo API with SOAP authentication
 async function callFongoAPI(cardData) {

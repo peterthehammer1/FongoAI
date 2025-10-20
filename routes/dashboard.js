@@ -43,5 +43,16 @@ router.get('/api/search', async (req, res) => {
   }
 });
 
+// Get analytics data
+router.get('/api/analytics', async (req, res) => {
+  try {
+    const analytics = await db.getAnalytics();
+    res.json({ success: true, ...analytics });
+  } catch (error) {
+    console.error('Error fetching analytics:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 module.exports = router;
 
