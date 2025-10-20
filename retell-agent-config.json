@@ -61,20 +61,6 @@
       }
     },
     {
-      "name": "send_sms_link",
-      "description": "Send account login link via SMS",
-      "parameters": {
-        "type": "object",
-        "properties": {
-          "cellPhoneNumber": {
-            "type": "string",
-            "description": "Cell phone number to send SMS to"
-          }
-        },
-        "required": ["cellPhoneNumber"]
-      }
-    },
-    {
       "name": "end_call",
       "description": "End the call with a farewell message",
       "parameters": {

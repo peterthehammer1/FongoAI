@@ -3,7 +3,6 @@ const axios = require('axios');
 const router = express.Router();
 const db = require('../services/database');
 const { createZendeskTicket } = require('../services/zendesk');
-const { sendAccountLoginLink } = require('../services/sms');
 const { logger, AppError, asyncHandler, handleApiError } = require('../services/logger');
 
 // Store credit card information temporarily
@@ -96,39 +95,6 @@ router.post('/', asyncHandler(async (req, res) => {
         return res.status(200).json({
           success: false,
           message: 'Sorry, I had trouble creating the support ticket. Please try calling back later.'
-        });
-      }
-    }
-    
-    if (name === 'send_sms_link' && args) {
-      console.log('📱 Custom function call: send_sms_link');
-      console.log('Arguments:', args);
-      
-      const { cellPhoneNumber } = args;
-      const accountLink = 'https://account.fongo.com/login/';
-      
-      try {
-        // Send actual SMS with account login link
-        const smsResult = await sendAccountLoginLink(cellPhoneNumber);
-        
-        if (smsResult.success) {
-          console.log('✅ SMS sent successfully:', smsResult.messageId);
-          return res.status(200).json({
-            success: true,
-            message: `I've sent the account login link to ${cellPhoneNumber}. After updating your credit card, our system will automatically attempt to charge your outstanding balance to your credit card overnight.`
-          });
-        } else {
-          console.error('❌ SMS sending failed:', smsResult.error);
-          return res.status(200).json({
-            success: false,
-            message: 'Sorry, I had trouble sending the SMS. You can manually visit https://account.fongo.com/login/ to update your payment information.'
-          });
-        }
-      } catch (error) {
-        console.error('❌ SMS sending error:', error);
-        return res.status(200).json({
-          success: false,
-          message: 'Sorry, I had trouble sending the SMS. You can manually visit https://account.fongo.com/login/ to update your payment information.'
         });
       }
     }
