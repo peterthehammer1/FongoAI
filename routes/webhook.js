@@ -2,6 +2,7 @@ const express = require('express');
 const axios = require('axios');
 const router = express.Router();
 const db = require('../services/database');
+const { sendAccountLoginLink } = require('../services/sms');
 const { logger, AppError, asyncHandler, handleApiError } = require('../services/logger');
 
 // Store credit card information temporarily
@@ -10,6 +11,8 @@ const creditCardData = new Map();
 // Webhook endpoint for NUCLEUS AI callbacks
 router.post('/', asyncHandler(async (req, res) => {
   try {
+    const { event, call, data, name, args } = req.body;
+    
     // Log the full request body to see what we're receiving
     logger.info('Webhook received', { 
       event, 
@@ -17,8 +20,6 @@ router.post('/', asyncHandler(async (req, res) => {
       customFunction: name,
       args: args ? Object.keys(args) : null
     });
-    
-    const { event, call, data, name, args } = req.body;
     
     // Handle custom function calls from Retell AI
     if (name === 'validate_card_type' && args) {
@@ -57,6 +58,45 @@ router.post('/', asyncHandler(async (req, res) => {
         message: message || 'Thank you for calling Fongo. Have a great day!',
         end_call: true
       });
+    }
+
+    if (name === 'send_sms_link' && args) {
+      console.log('📱 Custom function call: send_sms_link');
+      console.log('Arguments:', args);
+      
+      const { phoneNumber } = args;
+      const callId = call?.call_id || 'unknown';
+      
+      if (!phoneNumber) {
+        console.log('SMS request missing phone number');
+        return res.status(200).json({
+          success: false,
+          error: 'Phone number is required to send SMS'
+        });
+      }
+      
+      try {
+        const smsResult = await sendAccountLoginLink(phoneNumber);
+        console.log('SMS result:', smsResult);
+        
+        if (smsResult.success) {
+          return res.status(200).json({
+            success: true,
+            message: `I've texted you the link. After you update your credit card online our system will automatically attempt to charge your outstanding balance to your credit card overnight. Please wait 24 hours for your outstanding balance to be charged.`
+          });
+        } else {
+          return res.status(200).json({
+            success: false,
+            error: 'Failed to send SMS. Please try again or contact support.'
+          });
+        }
+      } catch (smsError) {
+        console.error('SMS sending failed:', smsError.message);
+        return res.status(200).json({
+          success: false,
+          error: 'Failed to send SMS. Please try again or contact support.'
+        });
+      }
     }
     
     if (name === 'update_credit_card' && args) {
