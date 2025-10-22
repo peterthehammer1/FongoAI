@@ -54,5 +54,30 @@ router.get('/api/analytics', async (req, res) => {
   }
 });
 
+// Get SMS logs with pagination
+router.get('/api/sms-logs', async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 50;
+    const offset = parseInt(req.query.offset) || 0;
+    
+    const smsLogs = await db.getAllSmsLogs(limit, offset);
+    res.json({ success: true, smsLogs });
+  } catch (error) {
+    console.error('Error fetching SMS logs:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Get SMS analytics
+router.get('/api/sms-analytics', async (req, res) => {
+  try {
+    const smsAnalytics = await db.getSmsAnalytics();
+    res.json({ success: true, ...smsAnalytics });
+  } catch (error) {
+    console.error('Error fetching SMS analytics:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 module.exports = router;
 

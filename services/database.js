@@ -238,6 +238,112 @@ function searchCalls(searchTerm) {
 }
 
 /**
+ * Log SMS request and result
+ */
+function logSmsRequest(callId, callerNumber, smsNumber, smsResult) {
+  return new Promise((resolve, reject) => {
+    const sql = `
+      INSERT INTO sms_logs (
+        call_id, 
+        caller_number, 
+        sms_number, 
+        sms_sent, 
+        sms_message_id, 
+        sms_provider, 
+        sms_error
+      )
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `;
+    
+    const values = [
+      callId,
+      callerNumber,
+      smsNumber,
+      smsResult.success ? 1 : 0,
+      smsResult.messageId || null,
+      smsResult.provider || null,
+      smsResult.error || null
+    ];
+    
+    db.run(sql, values, function(err) {
+      if (err) {
+        console.error('Error logging SMS request:', err);
+        reject(err);
+      } else {
+        console.log(`📱 SMS logged: ${callId} -> ${smsNumber} (${smsResult.success ? 'Success' : 'Failed'})`);
+        resolve(this.lastID);
+      }
+    });
+  });
+}
+
+/**
+ * Get all SMS logs with pagination
+ */
+function getAllSmsLogs(limit = 50, offset = 0) {
+  return new Promise((resolve, reject) => {
+    const sql = `
+      SELECT 
+        s.id,
+        s.call_id,
+        s.caller_number,
+        s.sms_number,
+        s.sms_sent,
+        s.sms_message_id,
+        s.sms_provider,
+        s.sms_error,
+        s.link_clicked,
+        s.payment_updated_after_sms,
+        s.payment_updated_date,
+        s.created_at,
+        c.caller_name,
+        c.cardholder_name,
+        c.update_successful as call_successful
+      FROM sms_logs s
+      LEFT JOIN call_logs c ON s.call_id = c.call_id
+      ORDER BY s.created_at DESC
+      LIMIT ? OFFSET ?
+    `;
+    
+    db.all(sql, [limit, offset], (err, rows) => {
+      if (err) {
+        console.error('Error getting SMS logs:', err);
+        reject(err);
+      } else {
+        resolve(rows);
+      }
+    });
+  });
+}
+
+/**
+ * Get SMS analytics
+ */
+function getSmsAnalytics() {
+  return new Promise((resolve, reject) => {
+    const sql = `
+      SELECT 
+        COUNT(*) as total_sms_requests,
+        SUM(CASE WHEN sms_sent = 1 THEN 1 ELSE 0 END) as sms_sent_successfully,
+        SUM(CASE WHEN sms_sent = 0 THEN 1 ELSE 0 END) as sms_failed,
+        SUM(CASE WHEN link_clicked = 1 THEN 1 ELSE 0 END) as links_clicked,
+        SUM(CASE WHEN payment_updated_after_sms = 1 THEN 1 ELSE 0 END) as payments_updated_after_sms,
+        COUNT(DISTINCT sms_number) as unique_sms_numbers
+      FROM sms_logs
+    `;
+    
+    db.get(sql, [], (err, row) => {
+      if (err) {
+        console.error('Error getting SMS analytics:', err);
+        reject(err);
+      } else {
+        resolve(row);
+      }
+    });
+  });
+}
+
+/**
  * Get analytics data for charts and reports
  */
 function getAnalytics() {
@@ -349,6 +455,9 @@ module.exports = {
   getAllCalls,
   getCallSummary,
   searchCalls,
-  getAnalytics
+  getAnalytics,
+  logSmsRequest,
+  getAllSmsLogs,
+  getSmsAnalytics
 };
 

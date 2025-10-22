@@ -79,6 +79,13 @@ router.post('/', asyncHandler(async (req, res) => {
         const smsResult = await sendAccountLoginLink(phoneNumber);
         console.log('SMS result:', smsResult);
         
+        // Log SMS request to database
+        try {
+          await db.logSmsRequest(callId, call?.from_number || 'unknown', phoneNumber, smsResult);
+        } catch (dbError) {
+          console.error('❌ Database error logging SMS:', { callId, error: dbError.message });
+        }
+        
         if (smsResult.success) {
           return res.status(200).json({
             success: true,
@@ -92,6 +99,17 @@ router.post('/', asyncHandler(async (req, res) => {
         }
       } catch (smsError) {
         console.error('SMS sending failed:', smsError.message);
+        
+        // Log failed SMS attempt
+        try {
+          await db.logSmsRequest(callId, call?.from_number || 'unknown', phoneNumber, {
+            success: false,
+            error: smsError.message
+          });
+        } catch (dbError) {
+          console.error('❌ Database error logging SMS failure:', { callId, error: dbError.message });
+        }
+        
         return res.status(200).json({
           success: false,
           error: 'Failed to send SMS. Please try again or contact support.'
