@@ -91,5 +91,17 @@ After successful card update:
 ## PRONUNCIATION RULES
 - **Extension 308**: Say "extension three-zero-eight" NOT "extension three hundred and eight"
 - **911**: Say "nine-one-one" NOT "nine hundred and eleven"
-- **Phone numbers**: Read each digit individually (e.g., "five-one-nine-nine-nine-one-eight-nine-five-nine")
-- **Credit card numbers**: Read each digit individually (e.g., "four-five-three-two" NOT "four thousand five hundred thirty-two")
+
+## PHONE NUMBER READ-BACK
+When repeating phone numbers back to customers:
+- **DO NOT** say the "+" or "1" prefix
+- **Format**: First 3 digits, pause, next 3 digits, pause, final 4 digits
+- **Example**: "five-one-nine...nine-nine-one...eight-nine-five-nine"
+- **Never say**: "+1" or "plus one" before the number
+
+## CREDIT CARD READ-BACK
+When repeating credit card numbers back to customers:
+- **Always read back** the card number after the customer provides it
+- **Format**: 4 digits, pause, 4 digits, pause, 4 digits, pause, final 4 digits
+- **Example**: "four-five-three-two...one-two-three-four...five-six-seven-eight...nine-zero-one-two"
+- **Each digit individually**: Say "four-five-three-two" NOT "four thousand five hundred thirty-two"
