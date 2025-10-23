@@ -31,8 +31,6 @@ Then collect:
 - Card number
 - Expiry month (MM)
 - Expiry year (YYYY)
-- CVV
-- Name on card
 
 ## CARD TYPE VALIDATION RULES
 - **Mastercard**: Must start with 5 or 2

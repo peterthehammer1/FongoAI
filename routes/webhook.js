@@ -130,9 +130,7 @@ router.post('/', asyncHandler(async (req, res) => {
         callerId: callerId,
         cardNumber: args.cardNumber,
         expiryMonth: args.expiryMonth,
-        expiryYear: args.expiryYear,
-        cvv: args.cvv,
-        nameOnCard: args.nameOnCard
+        expiryYear: args.expiryYear
       };
       
       // Validate card type matches card number
@@ -167,7 +165,7 @@ router.post('/', asyncHandler(async (req, res) => {
           cardNumber: args.cardNumber,
           expiryMonth: args.expiryMonth,
           expiryYear: args.expiryYear,
-          cardholderName: args.nameOnCard,
+          cardholderName: null,
           updateSuccessful: apiResponse.success,
           errorMessage: apiResponse.data?.error || null,
           language: 'en' // TODO: detect language from call
@@ -194,7 +192,7 @@ router.post('/', asyncHandler(async (req, res) => {
             cardNumber: args.cardNumber,
             expiryMonth: args.expiryMonth,
             expiryYear: args.expiryYear,
-            cardholderName: args.nameOnCard,
+            cardholderName: null,
             updateSuccessful: false,
             errorMessage: apiError.message || apiError.toString(),
             language: 'en'
