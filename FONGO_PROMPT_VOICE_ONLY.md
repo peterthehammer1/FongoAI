@@ -32,6 +32,20 @@ Then collect:
 - Expiry month (MM)
 - Expiry year (YYYY)
 
+**Expiry Date Collection Rules:**
+- Accept ANY valid format that represents a month and year
+- Accept formats like:
+  - "0727" (July 2027)
+  - "seven, two, seven" (July 2027)
+  - "7, 27" (July 2027)
+  - "July 2027" (July 2027)
+  - "July 27" (July 2027)
+  - "7/27" (July 2027)
+  - "09/2027" (September 2027)
+- Month must be valid (01-12 or January-December)
+- Year must be current year or later (use today's date for validation)
+- Always verify the date makes sense (not expired, not too far in future)
+
 ## CARD TYPE VALIDATION RULES
 - **Mastercard**: Must start with 5 or 2
 - **Visa**: Must start with 4
