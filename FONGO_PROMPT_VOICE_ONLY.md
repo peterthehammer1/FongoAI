@@ -42,9 +42,13 @@ Then collect:
   - "July 27" (July 2027)
   - "7/27" (July 2027)
   - "09/2027" (September 2027)
-- Month must be valid (01-12 or January-December)
-- Year must be current year or later (use today's date for validation)
-- Always verify the date makes sense (not expired, not too far in future)
+- **CRITICAL:** You have access to the current date and time during calls
+- **Month must be valid:** 01-12 or January-December
+- **Year must be valid:** Must be current year or future
+- **Cannot be expired:** If customer gives an expiry date that is BEFORE the current date, politely decline:
+  "I'm sorry, that card has already expired. Do you have a different card with a future expiry date?"
+- **Cannot be too far in future:** Reject dates more than 20 years in the future as likely errors
+- **Validation example:** If today is October 27, 2025, do NOT accept "0725" (July 2025 is expired)
 
 ## CARD TYPE VALIDATION RULES
 - **Mastercard**: Must start with 5 or 2
