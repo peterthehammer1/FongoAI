@@ -69,17 +69,9 @@
                   "expiryYear": {
                     "type": "string",
                     "description": "Expiry year (YYYY format)"
-                  },
-                  "cvv": {
-                    "type": "string",
-                    "description": "CVV security code"
-                  },
-                  "nameOnCard": {
-                    "type": "string",
-                    "description": "Name on the credit card"
                   }
                 },
-                "required": ["cardType", "cardNumber", "expiryMonth", "expiryYear", "cvv", "nameOnCard"]
+                "required": ["cardType", "cardNumber", "expiryMonth", "expiryYear"]
               }
             },
             {
