@@ -1224,7 +1224,7 @@
                 call.card_type || '',
                 call.card_last_4 || '',
                 call.card_expiry_month && call.card_expiry_year ? `${call.card_expiry_month}/${call.card_expiry_year}` : '',
-                call.call_duration || '',
+                call.call_duration ? formatDuration(call.call_duration) : '',
                 call.update_successful ? 'Success' : 'Failed',
                 call.error_message || ''
             ]);
