@@ -262,16 +262,24 @@ router.post('/', asyncHandler(async (req, res) => {
         break;
         
       case 'call_analyzed':
-        console.log(`Call analyzed: ${call.call_id}`);
-        console.log(`Transcript: ${call.transcript}`);
+        console.log(`Call analyzed: ${call?.call_id}`);
+        
+        // Retell AI sends transcript in different possible locations
+        const transcript = call?.transcript || call?.call_transcript || data?.transcript || req.body?.transcript;
+        console.log(`Transcript found: ${transcript ? 'Yes' : 'No'}`);
+        console.log(`Transcript length: ${transcript ? transcript.length : 0}`);
+        console.log(`Full webhook body:`, JSON.stringify(req.body, null, 2));
         
         // Store transcript in database
-        if (call.transcript) {
+        if (transcript) {
           try {
-            await db.updateCallTranscript(call.call_id, call.transcript);
+            await db.updateCallTranscript(call?.call_id || call?.call_id || req.body?.call_id, transcript);
+            console.log(`✅ Transcript stored for call ${call?.call_id}`);
           } catch (dbError) {
             console.error('❌ Database error storing transcript:', dbError);
           }
+        } else {
+          console.log(`⚠️  No transcript found in webhook data`);
         }
         break;
         
