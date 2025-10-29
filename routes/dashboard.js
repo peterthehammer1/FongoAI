@@ -227,6 +227,23 @@ function analyzeError(errorMessage) {
   };
 }
 
+// Get call details by ID
+router.get('/api/call/:callId', async (req, res) => {
+  try {
+    const { callId } = req.params;
+    const call = await db.getCallById(callId);
+    
+    if (!call) {
+      return res.status(404).json({ success: false, error: 'Call not found' });
+    }
+    
+    res.json({ success: true, call });
+  } catch (error) {
+    console.error('Error fetching call details:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 // Get failed calls report with error analysis
 router.get('/api/failed-calls-report', async (req, res) => {
   try {

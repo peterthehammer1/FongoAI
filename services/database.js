@@ -380,6 +380,46 @@ function getFailedCalls() {
 }
 
 /**
+ * Get single call by call_id
+ */
+function getCallById(callId) {
+  return new Promise((resolve, reject) => {
+    const sql = `
+      SELECT 
+        id,
+        call_id,
+        caller_name,
+        caller_number,
+        call_date,
+        call_time,
+        call_duration,
+        card_type,
+        card_last_4,
+        card_expiry_month,
+        card_expiry_year,
+        cardholder_name,
+        update_successful,
+        error_message,
+        language_used,
+        transcript,
+        created_at,
+        updated_at
+      FROM call_logs
+      WHERE call_id = ?
+    `;
+    
+    db.get(sql, [callId], (err, row) => {
+      if (err) {
+        console.error('Error getting call by ID:', err);
+        reject(err);
+      } else {
+        resolve(row);
+      }
+    });
+  });
+}
+
+/**
  * Get SMS analytics
  */
 function getSmsAnalytics() {
@@ -523,6 +563,7 @@ module.exports = {
   logSmsRequest,
   getAllSmsLogs,
   getSmsAnalytics,
-  getFailedCalls
+  getFailedCalls,
+  getCallById
 };
 

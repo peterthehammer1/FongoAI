@@ -859,7 +859,7 @@
                 
                 if (data.success && data.calls.length > 0) {
                     tbody.innerHTML = data.calls.map(call => `
-                        <tr>
+                        <tr class="call-row" onclick="showCallDetails('${call.call_id}')" style="cursor: pointer; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor='#f8f9fa';" onmouseout="this.style.backgroundColor='';">
                             <td>${formatDateTime(call.call_date, call.call_time)}</td>
                             <td><strong>${call.cardholder_name || call.caller_name || '<em>Not provided</em>'}</strong></td>
                             <td>${formatPhoneNumber(call.caller_number)}</td>
@@ -871,7 +871,7 @@
                             <td>${formatStatus(call.update_successful, call.error_message)}</td>
                             <td>
                                 ${call.transcript ? 
-                                    `<button class="btn btn-sm btn-info" onclick="showTranscript(this, '${call.call_id}', '${formatDateTime(call.call_date, call.call_time)}', '${call.caller_number}')" data-transcript="${encodeURIComponent(call.transcript)}">
+                                    `<button class="btn btn-sm btn-info" onclick="event.stopPropagation(); showTranscript(this, '${call.call_id}', '${formatDateTime(call.call_date, call.call_time)}', '${call.caller_number}')" data-transcript="${encodeURIComponent(call.transcript)}">
                                         <i class="fas fa-file-alt"></i> View
                                     </button>` 
                                     : '<span style="color: #706e6b;">-</span>'}
@@ -903,7 +903,7 @@
                 
                 if (data.success && data.calls.length > 0) {
                     tbody.innerHTML = data.calls.map(call => `
-                        <tr>
+                        <tr class="call-row" onclick="showCallDetails('${call.call_id}')" style="cursor: pointer; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor='#f8f9fa';" onmouseout="this.style.backgroundColor='';">
                             <td>${formatDateTime(call.call_date, call.call_time)}</td>
                             <td><strong>${call.cardholder_name || call.caller_name || '<em>Not provided</em>'}</strong></td>
                             <td>${formatPhoneNumber(call.caller_number)}</td>
@@ -915,7 +915,7 @@
                             <td>${formatStatus(call.update_successful, call.error_message)}</td>
                             <td>
                                 ${call.transcript ? 
-                                    `<button class="btn btn-sm btn-info" onclick="showTranscript(this, '${call.call_id}', '${formatDateTime(call.call_date, call.call_time)}', '${call.caller_number}')" data-transcript="${encodeURIComponent(call.transcript)}">
+                                    `<button class="btn btn-sm btn-info" onclick="event.stopPropagation(); showTranscript(this, '${call.call_id}', '${formatDateTime(call.call_date, call.call_time)}', '${call.caller_number}')" data-transcript="${encodeURIComponent(call.transcript)}">
                                         <i class="fas fa-file-alt"></i> View
                                     </button>` 
                                     : '<span style="color: #706e6b;">-</span>'}
@@ -1170,11 +1170,138 @@
             document.getElementById('failedCallsReportModal').style.display = 'none';
         }
         
+        // Show call details
+        async function showCallDetails(callId) {
+            const modal = document.getElementById('callDetailsModal');
+            modal.style.display = 'block';
+            
+            const content = document.getElementById('callDetailsContent');
+            content.innerHTML = '<div style="text-align: center; padding: 40px;"><i class="fas fa-spinner fa-spin" style="font-size: 48px; color: #0176d3;"></i><p style="margin-top: 16px;">Loading call details...</p></div>';
+            
+            try {
+                const response = await fetch(`/dashboard/api/call/${callId}`, { credentials: 'include' });
+                const data = await response.json();
+                
+                if (data.success && data.call) {
+                    displayCallDetails(data.call);
+                } else {
+                    content.innerHTML = `<div style="padding: 40px; text-align: center;"><p style="color: #ea001e;">Error loading call: ${data.error || 'Unknown error'}</p></div>`;
+                }
+            } catch (error) {
+                console.error('Error loading call details:', error);
+                content.innerHTML = '<div style="padding: 40px; text-align: center;"><p style="color: #ea001e;">Error loading call details. Please try again.</p></div>';
+            }
+        }
+        
+        // Display call details
+        function displayCallDetails(call) {
+            const content = document.getElementById('callDetailsContent');
+            
+            const html = `
+                <div style="display: grid; gap: 24px;">
+                    <!-- Call Information Section -->
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; border: 1px solid #e1e5e9;">
+                        <h3 style="margin: 0 0 16px 0; color: #032d60; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-info-circle"></i> Call Information
+                        </h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px;">
+                            <div>
+                                <strong style="color: #706e6b; display: block; margin-bottom: 4px; font-size: 12px;">Call ID</strong>
+                                <span style="color: #032d60; font-family: monospace;">${call.call_id}</span>
+                            </div>
+                            <div>
+                                <strong style="color: #706e6b; display: block; margin-bottom: 4px; font-size: 12px;">Date & Time</strong>
+                                <span style="color: #032d60;">${formatDateTime(call.call_date, call.call_time)}</span>
+                            </div>
+                            <div>
+                                <strong style="color: #706e6b; display: block; margin-bottom: 4px; font-size: 12px;">Phone Number</strong>
+                                <span style="color: #032d60;">${formatPhoneNumber(call.caller_number)}</span>
+                            </div>
+                            <div>
+                                <strong style="color: #706e6b; display: block; margin-bottom: 4px; font-size: 12px;">Duration</strong>
+                                <span style="color: #032d60;">${call.call_duration ? formatDuration(call.call_duration) : '-'}</span>
+                            </div>
+                            <div>
+                                <strong style="color: #706e6b; display: block; margin-bottom: 4px; font-size: 12px;">Language</strong>
+                                <span style="color: #032d60;">${call.language_used || 'en'}</span>
+                            </div>
+                            <div>
+                                <strong style="color: #706e6b; display: block; margin-bottom: 4px; font-size: 12px;">Status</strong>
+                                <span>${formatStatus(call.update_successful, call.error_message)}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Customer & Card Information -->
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; border: 1px solid #e1e5e9;">
+                        <h3 style="margin: 0 0 16px 0; color: #032d60; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-credit-card"></i> Payment Information
+                        </h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px;">
+                            <div>
+                                <strong style="color: #706e6b; display: block; margin-bottom: 4px; font-size: 12px;">Customer Name</strong>
+                                <span style="color: #032d60;">${call.cardholder_name || call.caller_name || 'Not provided'}</span>
+                            </div>
+                            <div>
+                                <strong style="color: #706e6b; display: block; margin-bottom: 4px; font-size: 12px;">Card Type</strong>
+                                <span style="color: #032d60;">${formatCardType(call.card_type)}</span>
+                            </div>
+                            <div>
+                                <strong style="color: #706e6b; display: block; margin-bottom: 4px; font-size: 12px;">Card Last 4</strong>
+                                <span style="color: #032d60;">${call.card_last_4 ? '•••• ' + call.card_last_4 : 'Not provided'}</span>
+                            </div>
+                            <div>
+                                <strong style="color: #706e6b; display: block; margin-bottom: 4px; font-size: 12px;">Expiry Date</strong>
+                                <span style="color: #032d60;">${call.card_expiry_month && call.card_expiry_year ? `${call.card_expiry_month}/${call.card_expiry_year}` : 'Not provided'}</span>
+                            </div>
+                        </div>
+                        ${call.error_message ? `
+                        <div style="margin-top: 16px; padding: 12px; background: #fedadc; border-left: 4px solid #ea001e; border-radius: 4px;">
+                            <strong style="color: #ea001e; display: block; margin-bottom: 4px;">Error Message</strong>
+                            <span style="color: #032d60;">${call.error_message}</span>
+                        </div>
+                        ` : ''}
+                    </div>
+                    
+                    <!-- Transcript Section -->
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; border: 1px solid #e1e5e9;">
+                        <h3 style="margin: 0 0 16px 0; color: #032d60; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-file-alt"></i> Full Call Transcript
+                        </h3>
+                        ${call.transcript ? `
+                            <div style="background: white; padding: 20px; border-radius: 4px; border: 1px solid #e1e5e9; max-height: 500px; overflow-y: auto; white-space: pre-wrap; font-family: 'Courier New', monospace; font-size: 14px; line-height: 1.6; color: #032d60;">
+                                ${call.transcript}
+                            </div>
+                        ` : `
+                            <div style="padding: 40px; text-align: center; color: #706e6b;">
+                                <i class="fas fa-file-alt" style="font-size: 48px; opacity: 0.3; margin-bottom: 16px;"></i>
+                                <p>No transcript available for this call.</p>
+                            </div>
+                        `}
+                    </div>
+                    
+                    <!-- Timestamps -->
+                    <div style="padding: 12px; background: #f8f9fa; border-radius: 4px; font-size: 12px; color: #706e6b; display: flex; justify-content: space-between;">
+                        <span>Created: ${new Date(call.created_at).toLocaleString()}</span>
+                        ${call.updated_at ? `<span>Updated: ${new Date(call.updated_at).toLocaleString()}</span>` : ''}
+                    </div>
+                </div>
+            `;
+            
+            content.innerHTML = html;
+        }
+        
+        // Close call details modal
+        function closeCallDetails() {
+            document.getElementById('callDetailsModal').style.display = 'none';
+        }
+        
         // Close modal when clicking outside
         window.onclick = function(event) {
             const transcriptModal = document.getElementById('transcriptModal');
             const analyticsModal = document.getElementById('analyticsModal');
             const failedCallsModal = document.getElementById('failedCallsReportModal');
+            const callDetailsModal = document.getElementById('callDetailsModal');
             if (event.target === transcriptModal) {
                 transcriptModal.style.display = 'none';
             }
@@ -1183,6 +1310,9 @@
             }
             if (event.target === failedCallsModal) {
                 failedCallsModal.style.display = 'none';
+            }
+            if (event.target === callDetailsModal) {
+                callDetailsModal.style.display = 'none';
             }
         }
         
@@ -1412,6 +1542,22 @@
                         <i class="fas fa-spinner fa-spin" style="font-size: 48px; color: #0176d3;"></i>
                         <p style="margin-top: 16px;">Loading failed calls report...</p>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Call Details Modal -->
+    <div id="callDetailsModal" class="modal">
+        <div class="modal-content" style="max-width: 1200px;">
+            <div class="modal-header">
+                <h2><i class="fas fa-phone"></i> Call Details</h2>
+                <span class="close" onclick="closeCallDetails()">&times;</span>
+            </div>
+            <div class="modal-body" id="callDetailsContent">
+                <div style="text-align: center; padding: 40px;">
+                    <i class="fas fa-spinner fa-spin" style="font-size: 48px; color: #0176d3;"></i>
+                    <p style="margin-top: 16px;">Loading call details...</p>
                 </div>
             </div>
         </div>
