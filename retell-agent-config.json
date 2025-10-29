@@ -2,10 +2,10 @@
   "agent_name": "Fongo Credit Card Update Agent",
   "voice_id": "11labs-Grace",
   "language": "en-US",
-  "webhook_url": "https://nucleusai.com/webhook",
+  "webhook_url": "http://134.122.37.50:3000/webhook",
   "response_engine": {
     "type": "custom-llm",
-    "llm_websocket_url": "wss://nucleusai.com/llm-websocket"
+    "llm_websocket_url": "ws://134.122.37.50:3000/llm-websocket"
   },
   "conversation_transcriber": {
     "provider": "deepgram",
