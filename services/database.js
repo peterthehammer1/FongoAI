@@ -342,6 +342,44 @@ function getAllSmsLogs(limit = 50, offset = 0) {
 }
 
 /**
+ * Get all failed calls with error details
+ */
+function getFailedCalls() {
+  return new Promise((resolve, reject) => {
+    const sql = `
+      SELECT 
+        id,
+        call_id,
+        caller_name,
+        caller_number,
+        call_date,
+        call_time,
+        call_duration,
+        card_type,
+        card_last_4,
+        card_expiry_month,
+        card_expiry_year,
+        error_message,
+        language_used,
+        transcript,
+        created_at
+      FROM call_logs
+      WHERE update_successful = 0 OR update_successful IS NULL
+      ORDER BY call_date DESC, call_time DESC
+    `;
+    
+    db.all(sql, [], (err, rows) => {
+      if (err) {
+        console.error('Error getting failed calls:', err);
+        reject(err);
+      } else {
+        resolve(rows);
+      }
+    });
+  });
+}
+
+/**
  * Get SMS analytics
  */
 function getSmsAnalytics() {
@@ -484,6 +522,7 @@ module.exports = {
   getAnalytics,
   logSmsRequest,
   getAllSmsLogs,
-  getSmsAnalytics
+  getSmsAnalytics,
+  getFailedCalls
 };
 
