@@ -264,22 +264,71 @@ router.post('/', asyncHandler(async (req, res) => {
       case 'call_analyzed':
         console.log(`Call analyzed: ${call?.call_id}`);
         
-        // Retell AI sends transcript in different possible locations
-        const transcript = call?.transcript || call?.call_transcript || data?.transcript || req.body?.transcript;
+        const callId = call?.call_id || data?.call_id || req.body?.call_id;
+        if (!callId) {
+          console.log(`⚠️  No call_id found in call_analyzed event`);
+          break;
+        }
+        
+        // Retell AI sends transcript - check multiple possible locations
+        // According to docs, transcript can be in call.transcript or call.call_analysis.transcript
+        let transcript = call?.transcript 
+          || call?.call_analysis?.transcript
+          || call?.call_transcript 
+          || data?.transcript 
+          || data?.call_analysis?.transcript
+          || req.body?.transcript;
+        
+        console.log(`Looking for transcript in call_analyzed event...`);
+        console.log(`call.transcript exists: ${!!call?.transcript}`);
+        console.log(`call.call_analysis exists: ${!!call?.call_analysis}`);
+        
+        // If transcript not in webhook, fetch from Retell API as fallback
+        if (!transcript && process.env.RETELL_API_KEY) {
+          console.log(`📡 Transcript not in webhook, fetching from Retell API...`);
+          try {
+            const apiResponse = await axios.get(`https://api.retellai.com/get-call/${callId}`, {
+              headers: {
+                'Authorization': `Bearer ${process.env.RETELL_API_KEY}`,
+                'Content-Type': 'application/json'
+              }
+            });
+            
+            if (apiResponse.data?.transcript) {
+              transcript = apiResponse.data.transcript;
+              console.log(`✅ Fetched transcript from API (${transcript.length} characters)`);
+            } else if (apiResponse.data?.call_analysis?.transcript) {
+              transcript = apiResponse.data.call_analysis.transcript;
+              console.log(`✅ Fetched transcript from API call_analysis (${transcript.length} characters)`);
+            } else {
+              console.log(`⚠️  Transcript not found in API response either`);
+              console.log(`API response keys:`, Object.keys(apiResponse.data || {}));
+            }
+          } catch (apiError) {
+            console.error('❌ Error fetching transcript from API:', apiError.message);
+          }
+        }
+        
         console.log(`Transcript found: ${transcript ? 'Yes' : 'No'}`);
-        console.log(`Transcript length: ${transcript ? transcript.length : 0}`);
-        console.log(`Full webhook body:`, JSON.stringify(req.body, null, 2));
+        if (transcript) {
+          console.log(`Transcript preview (first 100 chars): ${transcript.substring(0, 100)}`);
+          console.log(`Transcript length: ${transcript.length}`);
+        }
         
         // Store transcript in database
         if (transcript) {
           try {
-            await db.updateCallTranscript(call?.call_id || call?.call_id || req.body?.call_id, transcript);
-            console.log(`✅ Transcript stored for call ${call?.call_id}`);
+            const result = await db.updateCallTranscript(callId, transcript);
+            console.log(`✅ Transcript stored for call ${callId} (${transcript.length} characters)`);
           } catch (dbError) {
             console.error('❌ Database error storing transcript:', dbError);
+            console.error('Error details:', dbError.message, dbError.stack);
           }
         } else {
-          console.log(`⚠️  No transcript found in webhook data`);
+          console.log(`⚠️  No transcript found in webhook or API`);
+          console.log(`Full webhook body keys:`, Object.keys(req.body || {}));
+          if (call) console.log(`Call object keys:`, Object.keys(call));
+          if (data) console.log(`Data object keys:`, Object.keys(data));
         }
         break;
         
