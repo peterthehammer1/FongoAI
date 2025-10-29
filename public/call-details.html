@@ -460,72 +460,111 @@
             // Retell transcript format: "Agent: ... User: ... Agent: ..."
             // Or could be "Nova: ... Caller: ..." or "Fona: ... Customer: ..."
             
-            const lines = transcript.split('\n').filter(line => line.trim());
+            // Split by newlines and process each line
+            const lines = transcript.split(/\n/);
             let currentSpeaker = null;
-            let currentText = '';
+            let currentText = [];
 
-            lines.forEach(line => {
+            lines.forEach((line, index) => {
                 line = line.trim();
+                if (!line) {
+                    // Empty line - could be a message separator, but continue current message
+                    return;
+                }
+
+                // Check if line starts with a speaker label
+                const agentMatch = line.match(/^(Agent|Nova|Fona|AI|Assistant):\s*(.+)/i);
+                const userMatch = line.match(/^(User|Caller|Customer):\s*(.+)/i);
                 
-                // Check for speaker labels
-                if (line.match(/^(Agent|Nova|Fona|AI|Assistant):/i)) {
+                if (agentMatch) {
                     // Save previous message if exists
-                    if (currentSpeaker && currentText) {
-                        messages.push({ speaker: currentSpeaker, text: currentText.trim() });
+                    if (currentSpeaker && currentText.length > 0) {
+                        messages.push({ 
+                            speaker: currentSpeaker, 
+                            text: currentText.join(' ').trim() 
+                        });
+                        currentText = [];
                     }
                     currentSpeaker = 'agent';
-                    currentText = line.replace(/^(Agent|Nova|Fona|AI|Assistant):\s*/i, '');
-                } else if (line.match(/^(User|Caller|Customer):/i)) {
+                    currentText.push(agentMatch[2]);
+                } else if (userMatch) {
                     // Save previous message if exists
-                    if (currentSpeaker && currentText) {
-                        messages.push({ speaker: currentSpeaker, text: currentText.trim() });
+                    if (currentSpeaker && currentText.length > 0) {
+                        messages.push({ 
+                            speaker: currentSpeaker, 
+                            text: currentText.join(' ').trim() 
+                        });
+                        currentText = [];
                     }
                     currentSpeaker = 'customer';
-                    currentText = line.replace(/^(User|Caller|Customer):\s*/i, '');
+                    currentText.push(userMatch[2]);
                 } else {
-                    // Continuation of current message
-                    if (currentText) {
-                        currentText += ' ' + line;
+                    // Continuation of current message (multi-line message)
+                    if (currentText.length > 0 && currentSpeaker) {
+                        currentText.push(line);
                     } else {
-                        // If no speaker identified yet, assume it continues from previous
-                        // or treat as agent (most common)
-                        if (!currentSpeaker) {
+                        // No speaker identified yet - check context
+                        if (index === 0 || lines[index - 1].trim() === '') {
+                            // First line or after empty line - likely agent message
                             currentSpeaker = 'agent';
+                            currentText.push(line);
+                        } else if (currentSpeaker) {
+                            // Continue with identified speaker
+                            currentText.push(line);
+                        } else {
+                            // Default to agent if uncertain
+                            currentSpeaker = 'agent';
+                            currentText.push(line);
                         }
-                        currentText = line;
                     }
                 }
             });
 
             // Don't forget the last message
-            if (currentSpeaker && currentText) {
-                messages.push({ speaker: currentSpeaker, text: currentText.trim() });
+            if (currentSpeaker && currentText.length > 0) {
+                messages.push({ 
+                    speaker: currentSpeaker, 
+                    text: currentText.join(' ').trim() 
+                });
             }
 
-            // If no structured parsing worked, try alternative formats
+            // If no structured parsing worked, try regex-based approach
             if (messages.length === 0) {
-                // Try splitting by common patterns
                 const altMessages = [];
-                const parts = transcript.split(/(?=Agent:|User:|Nova:|Caller:|Fona:|Customer:)/i);
+                // Match speaker labels anywhere in text
+                const pattern = /(Agent|Nova|Fona|AI|Assistant|User|Caller|Customer):\s*([^\n]+)/gi;
+                let match;
+                let lastIndex = 0;
                 
-                parts.forEach(part => {
-                    part = part.trim();
-                    if (!part) return;
-                    
-                    if (part.match(/^(Agent|Nova|Fona|AI|Assistant):/i)) {
-                        const text = part.replace(/^(Agent|Nova|Fona|AI|Assistant):\s*/i, '').trim();
-                        if (text) altMessages.push({ speaker: 'agent', text });
-                    } else if (part.match(/^(User|Caller|Customer):/i)) {
-                        const text = part.replace(/^(User|Caller|Customer):\s*/i, '').trim();
-                        if (text) altMessages.push({ speaker: 'customer', text });
+                while ((match = pattern.exec(transcript)) !== null) {
+                    // Check for text between matches
+                    if (match.index > lastIndex) {
+                        const betweenText = transcript.substring(lastIndex, match.index).trim();
+                        if (betweenText && altMessages.length > 0) {
+                            // Append to last message
+                            const lastMsg = altMessages[altMessages.length - 1];
+                            lastMsg.text += ' ' + betweenText;
+                        }
                     }
-                });
-
+                    
+                    const speaker = match[1];
+                    const text = match[2].trim();
+                    
+                    if (text) {
+                        const speakerType = /^(Agent|Nova|Fona|AI|Assistant)$/i.test(speaker) ? 'agent' : 'customer';
+                        altMessages.push({ speaker: speakerType, text: text });
+                    }
+                    
+                    lastIndex = pattern.lastIndex;
+                }
+                
                 if (altMessages.length > 0) {
                     return altMessages;
                 }
+            }
 
-                // Last resort: treat entire transcript as agent if can't parse
+            // Still no messages? Return as single agent message
+            if (messages.length === 0) {
                 return [{ speaker: 'agent', text: transcript }];
             }
 
