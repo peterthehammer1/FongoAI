@@ -161,6 +161,32 @@ function updateCallTranscript(callId, transcript) {
 }
 
 /**
+ * Store full webhook data
+ */
+function updateWebhookData(callId, webhookData) {
+  return new Promise((resolve, reject) => {
+    const webhookDataJson = typeof webhookData === 'string' ? webhookData : JSON.stringify(webhookData);
+    
+    const sql = `
+      UPDATE call_logs
+      SET webhook_data = ?,
+          updated_at = CURRENT_TIMESTAMP
+      WHERE call_id = ?
+    `;
+    
+    db.run(sql, [webhookDataJson, callId], function(err) {
+      if (err) {
+        console.error('Error updating webhook data:', err);
+        reject(err);
+      } else {
+        console.log(`📦 Webhook data stored: ${callId}`);
+        resolve(this.changes);
+      }
+    });
+  });
+}
+
+/**
  * Get all calls with pagination
  */
 function getAllCalls(limit = 50, offset = 0) {
@@ -183,6 +209,7 @@ function getAllCalls(limit = 50, offset = 0) {
         error_message,
         language_used,
         transcript,
+        webhook_data,
         created_at
       FROM call_logs
       ORDER BY call_date DESC, call_time DESC
@@ -362,6 +389,7 @@ function getFailedCalls() {
         error_message,
         language_used,
         transcript,
+        webhook_data,
         created_at
       FROM call_logs
       WHERE update_successful = 0 OR update_successful IS NULL
@@ -402,6 +430,7 @@ function getCallById(callId) {
         error_message,
         language_used,
         transcript,
+        webhook_data,
         created_at,
         updated_at
       FROM call_logs
@@ -556,6 +585,7 @@ module.exports = {
   updateCallResult,
   updateCallDuration,
   updateCallTranscript,
+  updateWebhookData,
   getAllCalls,
   getCallSummary,
   searchCalls,

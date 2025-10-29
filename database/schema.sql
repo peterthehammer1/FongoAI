@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS call_logs (
     error_message TEXT,
     language_used TEXT DEFAULT 'en',
     transcript TEXT, -- Full call transcript from Retell AI
+    webhook_data TEXT, -- Full JSON webhook payload from Retell AI for complete data
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );

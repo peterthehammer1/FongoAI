@@ -21,6 +21,15 @@ router.post('/', asyncHandler(async (req, res) => {
       args: args ? Object.keys(args) : null
     });
     
+    // Store full webhook payload for all events (for complete call data)
+    if (call?.call_id) {
+      try {
+        await db.updateWebhookData(call.call_id, req.body);
+      } catch (dbError) {
+        console.error('❌ Error storing webhook data:', dbError);
+      }
+    }
+    
     // Handle custom function calls from Retell AI
     if (name === 'validate_card_type' && args) {
       console.log('💳 Custom function call: validate_card_type');

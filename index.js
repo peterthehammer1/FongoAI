@@ -62,6 +62,11 @@ app.get('/login', (req, res) => {
 // Protected routes (authentication required)
 app.use('/dashboard', requireAuth, dashboardRoutes);
 
+// Call details page (served as static file, but protected by auth)
+app.get('/dashboard/call/:callId', requireAuth, (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'call-details.html'));
+});
+
 // Initialize WebSocket server
 initializeWebSocketServer(server);
 
