@@ -137,6 +137,30 @@ function updateCallDuration(callId, durationSeconds) {
 }
 
 /**
+ * Update call transcript when call is analyzed
+ */
+function updateCallTranscript(callId, transcript) {
+  return new Promise((resolve, reject) => {
+    const sql = `
+      UPDATE call_logs
+      SET transcript = ?,
+          updated_at = CURRENT_TIMESTAMP
+      WHERE call_id = ?
+    `;
+    
+    db.run(sql, [transcript, callId], function(err) {
+      if (err) {
+        console.error('Error updating call transcript:', err);
+        reject(err);
+      } else {
+        console.log(`📝 Call transcript updated: ${callId}`);
+        resolve(this.changes);
+      }
+    });
+  });
+}
+
+/**
  * Get all calls with pagination
  */
 function getAllCalls(limit = 50, offset = 0) {
@@ -158,6 +182,7 @@ function getAllCalls(limit = 50, offset = 0) {
         update_successful,
         error_message,
         language_used,
+        transcript,
         created_at
       FROM call_logs
       ORDER BY call_date DESC, call_time DESC
@@ -452,6 +477,7 @@ module.exports = {
   logCallStart,
   updateCallResult,
   updateCallDuration,
+  updateCallTranscript,
   getAllCalls,
   getCallSummary,
   searchCalls,

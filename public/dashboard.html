@@ -142,6 +142,34 @@
             background: #014486;
         }
         
+        /* Small button styles for table */
+        .btn-sm {
+            padding: 4px 12px;
+            font-size: 12px;
+        }
+        
+        /* General btn styles */
+        .btn {
+            padding: 8px 16px;
+            font-size: 14px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-info {
+            background: #0176d3;
+            color: white;
+        }
+        
+        .btn-info:hover {
+            background: #014486;
+        }
+        
         /* Analytics Modal Styles */
         .modal {
             display: none;
@@ -303,6 +331,11 @@
         .stat-icon.green { background: #ccf3e2; color: #04844b; }
         .stat-icon.orange { background: #ffe1c2; color: #fe9339; }
         .stat-icon.red { background: #fedadc; color: #ea001e; }
+        .stat-icon.purple { background: #e9d9f5; color: #6a1da0; }
+        
+        .stat-card.info {
+            border-top-color: #6a1da0;
+        }
         
         .stat-number {
             font-size: 32px;
@@ -675,6 +708,15 @@
                 <div class="stat-number" id="avgDuration">-</div>
                 <div class="stat-label">Seconds per call</div>
             </div>
+            
+            <div class="stat-card info">
+                <div class="stat-header">
+                    <span class="stat-title">Unique Callers</span>
+                    <div class="stat-icon purple"><i class="fas fa-users"></i></div>
+                </div>
+                <div class="stat-number" id="uniqueCallers">-</div>
+                <div class="stat-label">Different phone numbers</div>
+            </div>
         </div>
 
         <!-- Reports Section -->
@@ -735,11 +777,12 @@
                             <th>New Expiry</th>
                             <th>Duration</th>
                             <th>Status</th>
+                            <th>Transcript</th>
                         </tr>
                     </thead>
                     <tbody id="callsTable">
                         <tr>
-                            <td colspan="8" class="loading">
+                            <td colspan="9" class="loading">
                                 <i class="fas fa-spinner"></i>
                                 <p>Loading calls...</p>
                             </td>
@@ -796,6 +839,7 @@
                     document.getElementById('successfulCalls').textContent = summary.successful_updates || 0;
                     document.getElementById('failedCalls').textContent = summary.failed_updates || 0;
                     document.getElementById('avgDuration').textContent = Math.round(summary.avg_duration || 0);
+                    document.getElementById('uniqueCallers').textContent = summary.unique_callers || 0;
                 }
             } catch (error) {
                 console.error('Error loading summary:', error);
@@ -822,15 +866,22 @@
                                 `${call.card_expiry_month}/${call.card_expiry_year}` : '-'}</td>
                             <td>${call.call_duration ? call.call_duration + 's' : '-'}</td>
                             <td>${formatStatus(call.update_successful, call.error_message)}</td>
+                            <td>
+                                ${call.transcript ? 
+                                    `<button class="btn btn-sm btn-info" onclick="showTranscript(this, '${call.call_id}', '${formatDateTime(call.call_date, call.call_time)}', '${call.caller_number}')" data-transcript="${encodeURIComponent(call.transcript)}">
+                                        <i class="fas fa-file-alt"></i> View
+                                    </button>` 
+                                    : '<span style="color: #706e6b;">-</span>'}
+                            </td>
                         </tr>
                     `).join('');
                 } else {
-                    tbody.innerHTML = '<tr><td colspan="8" class="no-data"><i class="fas fa-inbox" style="font-size: 48px; color: #c9c7c5; margin-bottom: 16px;"></i><p>No calls yet. Make a test call to see data here!</p></td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="9" class="no-data"><i class="fas fa-inbox" style="font-size: 48px; color: #c9c7c5; margin-bottom: 16px;"></i><p>No calls yet. Make a test call to see data here!</p></td></tr>';
                 }
             } catch (error) {
                 console.error('Error loading calls:', error);
                 document.getElementById('callsTable').innerHTML = 
-                    '<tr><td colspan="8" class="no-data">Error loading calls. Please refresh.</td></tr>';
+                    '<tr><td colspan="9" class="no-data">Error loading calls. Please refresh.</td></tr>';
             }
         }
         
@@ -859,6 +910,13 @@
                                 `${call.card_expiry_month}/${call.card_expiry_year}` : '-'}</td>
                             <td>${call.call_duration ? call.call_duration + 's' : '-'}</td>
                             <td>${formatStatus(call.update_successful, call.error_message)}</td>
+                            <td>
+                                ${call.transcript ? 
+                                    `<button class="btn btn-sm btn-info" onclick="showTranscript(this, '${call.call_id}', '${formatDateTime(call.call_date, call.call_time)}', '${call.caller_number}')" data-transcript="${encodeURIComponent(call.transcript)}">
+                                        <i class="fas fa-file-alt"></i> View
+                                    </button>` 
+                                    : '<span style="color: #706e6b;">-</span>'}
+                            </td>
                         </tr>
                     `).join('');
                 } else {
@@ -932,6 +990,46 @@
                     <i class="fas fa-times"></i> Failed
                     <br><small style="font-size: 9px; font-weight: normal; opacity: 0.9;">${displayError}</small>
                 </span>`;
+            }
+        }
+        
+        // Escape HTML for safe display
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML.replace(/`/g, '\\`');
+        }
+        
+        // Show transcript modal
+        function showTranscript(button, callId, dateTime, phoneNumber) {
+            // Get transcript from button data attribute
+            const encodedTranscript = button.getAttribute('data-transcript');
+            const transcript = encodedTranscript ? decodeURIComponent(encodedTranscript) : null;
+            
+            document.getElementById('transcriptCallId').textContent = callId;
+            document.getElementById('transcriptDate').textContent = dateTime;
+            document.getElementById('transcriptPhone').textContent = phoneNumber;
+            document.getElementById('transcriptContent').textContent = transcript || 'No transcript available for this call.';
+            
+            const modal = document.getElementById('transcriptModal');
+            modal.style.display = 'block';
+        }
+        
+        // Close transcript modal
+        function closeTranscript() {
+            document.getElementById('transcriptModal').style.display = 'none';
+        }
+        
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const transcriptModal = document.getElementById('transcriptModal');
+            const analyticsModal = document.getElementById('analyticsModal');
+            if (event.target === transcriptModal) {
+                transcriptModal.style.display = 'none';
+            }
+            if (event.target === analyticsModal) {
+                analyticsModal.style.display = 'none';
             }
         }
         
@@ -1143,6 +1241,26 @@
                         <h3>Success Rate</h3>
                         <canvas id="successChart" width="300" height="200"></canvas>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Transcript Modal -->
+    <div id="transcriptModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-file-alt"></i> Call Transcript</h2>
+                <span class="close" onclick="closeTranscript()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div style="margin-bottom: 16px;">
+                    <strong>Call ID:</strong> <span id="transcriptCallId"></span><br>
+                    <strong>Date:</strong> <span id="transcriptDate"></span><br>
+                    <strong>Phone:</strong> <span id="transcriptPhone"></span>
+                </div>
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; border: 1px solid #e1e5e9; max-height: 500px; overflow-y: auto; white-space: pre-wrap; font-family: 'Courier New', monospace; font-size: 14px; line-height: 1.6;" id="transcriptContent">
+                    <p style="color: #706e6b; font-style: italic;">Loading transcript...</p>
                 </div>
             </div>
         </div>

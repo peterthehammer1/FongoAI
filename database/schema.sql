@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS call_logs (
     update_successful BOOLEAN DEFAULT 0,
     error_message TEXT,
     language_used TEXT DEFAULT 'en',
+    transcript TEXT, -- Full call transcript from Retell AI
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );

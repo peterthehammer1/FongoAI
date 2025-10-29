@@ -264,6 +264,15 @@ router.post('/', asyncHandler(async (req, res) => {
       case 'call_analyzed':
         console.log(`Call analyzed: ${call.call_id}`);
         console.log(`Transcript: ${call.transcript}`);
+        
+        // Store transcript in database
+        if (call.transcript) {
+          try {
+            await db.updateCallTranscript(call.call_id, call.transcript);
+          } catch (dbError) {
+            console.error('❌ Database error storing transcript:', dbError);
+          }
+        }
         break;
         
       case 'credit_card_collected':
