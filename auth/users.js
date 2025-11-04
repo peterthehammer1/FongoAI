@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt');
 // Hashed passwords for security
 // pete@nucleus.com: NucleusAI2025!Secure
 // joe@fongo.com: FongoAdmin2025#Safe
+// cody@fongo.com: Fongo2025!Secure@Cody#
 
 const users = [
   {
@@ -15,6 +16,12 @@ const users = [
     email: 'joe@fongo.com',
     password: '$2b$10$/nbnlivGXusJVgtK3AXliuFMc/o6RTg.u6kW.z/UWLRL0IQInN9qi', // FongoAdmin2025#Safe
     name: 'Joe',
+    role: 'Admin'
+  },
+  {
+    email: 'cody@fongo.com',
+    password: '$2b$10$cG9F.IHReSQBsH6tu4DiPunUA3LrwJZnDKHQx3zP0QgHZgUBAFL76', // Fongo2025!Secure@Cody#
+    name: 'Cody',
     role: 'Admin'
   }
 ];
