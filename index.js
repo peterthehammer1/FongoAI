@@ -3,6 +3,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const http = require('http');
 const path = require('path');
+const fs = require('fs');
 const session = require('express-session');
 const { logger, errorHandler, requestLogger, setupGracefulShutdown } = require('./services/logger');
 require('dotenv').config();
@@ -33,7 +34,9 @@ app.use(cors({
   origin: true,
   credentials: true
 }));
-app.use(express.json());
+// Increase body size limit for Retell AI webhooks (they can be large with transcripts)
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Serve static files (dashboard)
 app.use(express.static(path.join(__dirname, 'public')));
@@ -49,7 +52,17 @@ const { requireAuth } = require('./middleware/auth');
 app.use('/auth', authRoutes);
 app.use('/webhook', webhookRoutes); // Retell AI webhooks don't need auth
 app.use('/llm-websocket', llmRoutes); // WebSocket for LLM
-app.use('/monitoring', requireAuth, require('./routes/monitoring')); // System monitoring
+// System monitoring (optional - only if file exists)
+const monitoringPath = path.join(__dirname, 'routes', 'monitoring.js');
+if (fs.existsSync(monitoringPath)) {
+  try {
+    app.use('/monitoring', requireAuth, require('./routes/monitoring'));
+  } catch (error) {
+    logger.warn('Monitoring route not available', { error: error.message });
+  }
+} else {
+  logger.info('Monitoring route not available (file does not exist)');
+}
 
 // Login page (public)
 app.get('/login', (req, res) => {
@@ -59,13 +72,25 @@ app.get('/login', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
 
-// Protected routes (authentication required)
-app.use('/dashboard', requireAuth, dashboardRoutes);
-
+// Dashboard routes - specific routes must come before router mounting
 // Call details page (served as static file, but protected by auth)
 app.get('/dashboard/call/:callId', requireAuth, (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'call-details.html'));
 });
+
+// Comprehensive call details page (served as static file, but protected by auth)
+app.get('/dashboard/comprehensive-call/:callId', requireAuth, (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'comprehensive-call-details.html'));
+});
+
+// Dashboard homepage route (serve at /dashboard)
+app.get('/dashboard', requireAuth, (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
+});
+
+// Protected routes (authentication required)
+// Mount dashboard API routes - they already have /api prefix in their definitions
+app.use('/dashboard/api', requireAuth, dashboardRoutes);
 
 // Initialize WebSocket server
 initializeWebSocketServer(server);

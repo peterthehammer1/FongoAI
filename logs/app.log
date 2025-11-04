@@ -1,0 +1,4 @@
+[2025-10-30T19:34:09.479Z] [INFO] Server started {"port":3000,"webhookUrl":"http://0.0.0.0:3000/webhook","dashboardUrl":"http://0.0.0.0:3000/"}
+[2025-10-30T19:34:09.485Z] [INFO] Connected to comprehensive SQLite database
+[2025-10-30T19:34:09.492Z] [INFO] Comprehensive database tables created/verified
+[2025-10-30T19:34:13.233Z] [INFO] HTTP Request {"method":"GET","url":"/health","statusCode":200,"duration":"3ms","ip":"127.0.0.1","userAgent":"curl/8.7.1"}

@@ -1,0 +1,819 @@
+#!/bin/bash
+# Create dashboard.html on server - Run this on DigitalOcean server
+
+cd /var/www/nucleusai
+
+echo "Creating dashboard.html file..."
+
+cat > public/dashboard.html << 'DASHBOARD_EOF'
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Call Management Dashboard - Fongo</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #0066cc;
+            --primary-dark: #0052a3;
+            --secondary: #16325c;
+            --success: #04844b;
+            --error: #c23934;
+            --warning: #ffb75d;
+            --text-primary: #16325c;
+            --text-secondary: #706e6b;
+            --border: #d8dde6;
+            --bg-light: #f3f3f3;
+            --bg-white: #ffffff;
+            --shadow: 0 1px 3px rgba(0,0,0,0.12);
+            --shadow-lg: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg-light);
+            color: var(--text-primary);
+            line-height: 1.6;
+            font-size: 14px;
+        }
+
+        /* Top Navigation */
+        .navbar {
+            background: var(--secondary);
+            color: white;
+            padding: 0;
+            box-shadow: var(--shadow-lg);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar-content {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .navbar-brand img {
+            height: 32px;
+        }
+
+        .navbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .user-menu:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .btn-logout {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: white;
+            padding: 6px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+
+        .btn-logout:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        /* Page Header */
+        .page-header {
+            background: var(--bg-white);
+            padding: 24px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow);
+        }
+
+        .page-header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .page-header p {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: var(--bg-white);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            border-left: 4px solid var(--primary);
+        }
+
+        .stat-card.success {
+            border-left-color: var(--success);
+        }
+
+        .stat-card.error {
+            border-left-color: var(--error);
+        }
+
+        .stat-card.warning {
+            border-left-color: var(--warning);
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        /* Filters and Search */
+        .filters-bar {
+            background: var(--bg-white);
+            padding: 16px 24px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow);
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 10px 16px 10px 40px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .filter-select {
+            padding: 10px 16px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+        }
+
+        /* Calls Table */
+        .table-container {
+            background: var(--bg-white);
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: #fafaf9;
+        }
+
+        th {
+            padding: 16px 20px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid var(--border);
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 16px 20px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+
+        tbody tr {
+            transition: background 0.2s;
+            cursor: pointer;
+        }
+
+        tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Status Badges */
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-success {
+            background: #d4edda;
+            color: var(--success);
+        }
+
+        .badge-error {
+            background: #f8d7da;
+            color: var(--error);
+        }
+
+        .badge-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        /* Card Type */
+        .card-type {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            background: #f0f4f8;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* Error Message Preview */
+        .error-preview {
+            color: var(--error);
+            font-size: 13px;
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* Action Buttons */
+        .btn-view {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 4px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .btn-view:hover {
+            background: var(--primary-dark);
+        }
+
+        /* Loading State */
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+
+        .loading i {
+            font-size: 32px;
+            margin-bottom: 16px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 16px;
+            color: var(--border);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .filters-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-box {
+                min-width: 100%;
+            }
+
+            .table-wrapper {
+                overflow-x: scroll;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="navbar-content">
+            <div class="navbar-brand">
+                <img src="/Images/fongo-wp-logo-white.svg" alt="Fongo" onerror="this.style.display='none'">
+                <span>Call Management Dashboard</span>
+            </div>
+            <div class="navbar-actions">
+                <div class="user-menu" onclick="loadUserInfo()">
+                    <div class="user-avatar" id="userAvatar">U</div>
+                    <span id="userName">User</span>
+                </div>
+                <button class="btn-logout" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1>Call Logs</h1>
+            <p>View and manage all incoming calls with complete call details, transcripts, and payment update status</p>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Total Calls</div>
+                <div class="stat-value" id="totalCalls">0</div>
+            </div>
+            <div class="stat-card success">
+                <div class="stat-label">Successful Updates</div>
+                <div class="stat-value" id="successfulCalls">0</div>
+            </div>
+            <div class="stat-card error">
+                <div class="stat-label">Failed Updates</div>
+                <div class="stat-value" id="failedCalls">0</div>
+            </div>
+            <div class="stat-card warning">
+                <div class="stat-label">Avg Duration</div>
+                <div class="stat-value" id="avgDuration">0:00</div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters-bar">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Search by phone number, name, or call ID..." onkeyup="handleSearch(event)">
+            </div>
+            <div class="filter-group">
+                <select class="filter-select" id="statusFilter" onchange="loadCalls()">
+                    <option value="">All Status</option>
+                    <option value="success">Successful</option>
+                    <option value="failed">Failed</option>
+                </select>
+                <select class="filter-select" id="dateFilter" onchange="loadCalls()">
+                    <option value="">All Dates</option>
+                    <option value="today">Today</option>
+                    <option value="week">This Week</option>
+                    <option value="month">This Month</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Calls Table -->
+        <div class="table-container">
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date & Time</th>
+                            <th>Caller</th>
+                            <th>Phone Number</th>
+                            <th>Duration</th>
+                            <th>Payment Status</th>
+                            <th>Card Details</th>
+                            <th>Error</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="callsTable">
+                        <tr>
+                            <td colspan="8" class="loading">
+                                <i class="fas fa-spinner"></i>
+                                <div>Loading calls...</div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let searchTimeout;
+        let allCalls = [];
+
+        // Load user info
+        async function loadUserInfo() {
+            try {
+                const response = await fetch('/auth/status', { credentials: 'include' });
+                const data = await response.json();
+                if (data.authenticated && data.user) {
+                    document.getElementById('userName').textContent = data.user.name || data.user.email;
+                    const initials = data.user.name ? data.user.name.split(' ').map(n => n[0]).join('').toUpperCase() : 'U';
+                    document.getElementById('userAvatar').textContent = initials;
+                }
+            } catch (error) {
+                console.error('Error loading user info:', error);
+            }
+        }
+
+        // Logout
+        async function logout() {
+            try {
+                await fetch('/auth/logout', { method: 'POST', credentials: 'include' });
+                window.location.href = '/login';
+            } catch (error) {
+                console.error('Logout error:', error);
+                window.location.href = '/login';
+            }
+        }
+
+        // Load summary stats
+        async function loadSummary() {
+            try {
+                const response = await fetch('/dashboard/api/summary', { credentials: 'include' });
+                const data = await response.json();
+                
+                if (data.success) {
+                    const s = data.summary;
+                    document.getElementById('totalCalls').textContent = s.total_calls || 0;
+                    document.getElementById('successfulCalls').textContent = s.successful_updates || 0;
+                    document.getElementById('failedCalls').textContent = s.failed_updates || 0;
+                    document.getElementById('avgDuration').textContent = formatDuration(s.avg_duration || 0);
+                }
+            } catch (error) {
+                console.error('Error loading summary:', error);
+            }
+        }
+
+        // Load calls
+        async function loadCalls() {
+            try {
+                const statusFilter = document.getElementById('statusFilter').value;
+                const dateFilter = document.getElementById('dateFilter').value;
+                
+                let url = '/dashboard/api/calls?limit=100';
+                if (statusFilter) {
+                    url += `&status=${statusFilter}`;
+                }
+                
+                const response = await fetch(url, { credentials: 'include' });
+                const data = await response.json();
+                
+                if (data.success) {
+                    allCalls = data.calls;
+                    
+                    // Apply date filter (using EST timezone)
+                    if (dateFilter) {
+                        // Get current date in EST
+                        const formatter = new Intl.DateTimeFormat('en-US', {
+                            timeZone: 'America/New_York',
+                            year: 'numeric',
+                            month: '2-digit',
+                            day: '2-digit'
+                        });
+                        const parts = formatter.formatToParts(new Date());
+                        const todayEST = new Date(
+                            parseInt(parts.find(p => p.type === 'year').value),
+                            parseInt(parts.find(p => p.type === 'month').value) - 1,
+                            parseInt(parts.find(p => p.type === 'day').value)
+                        );
+                        const todayStr = todayEST.toISOString().split('T')[0]; // YYYY-MM-DD
+                        
+                        const weekAgo = new Date(todayEST);
+                        weekAgo.setDate(weekAgo.getDate() - 7);
+                        const weekAgoStr = weekAgo.toISOString().split('T')[0];
+                        
+                        const monthAgo = new Date(todayEST);
+                        monthAgo.setMonth(monthAgo.getMonth() - 1);
+                        const monthAgoStr = monthAgo.toISOString().split('T')[0];
+                        
+                        allCalls = allCalls.filter(call => {
+                            const callDateStr = call.call_date; // Already in YYYY-MM-DD format
+                            switch (dateFilter) {
+                                case 'today':
+                                    return callDateStr >= todayStr;
+                                case 'week':
+                                    return callDateStr >= weekAgoStr;
+                                case 'month':
+                                    return callDateStr >= monthAgoStr;
+                                default:
+                                    return true;
+                            }
+                        });
+                    }
+                    
+                    renderCalls(allCalls);
+                }
+            } catch (error) {
+                console.error('Error loading calls:', error);
+                document.getElementById('callsTable').innerHTML = `
+                    <tr>
+                        <td colspan="8" class="empty-state">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <div>Error loading calls. Please refresh the page.</div>
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        // Render calls table
+        function renderCalls(calls) {
+            const tbody = document.getElementById('callsTable');
+            
+            if (calls.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="empty-state">
+                            <i class="fas fa-inbox"></i>
+                            <div>No calls found</div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            tbody.innerHTML = calls.map(call => `
+                <tr onclick="viewCallDetails('${call.call_id}')">
+                    <td>
+                        <div style="font-weight: 500;">${formatDateTime(call.call_date, call.call_time)}</div>
+                        <div style="font-size: 12px; color: var(--text-secondary);">${formatDate(call.call_date)}</div>
+                    </td>
+                    <td>
+                        <div style="font-weight: 500;">${call.cardholder_name || call.caller_name || '<em style="color: var(--text-secondary);">Not provided</em>'}</div>
+                        ${call.caller_name && call.cardholder_name !== call.caller_name ? `<div style="font-size: 12px; color: var(--text-secondary);">${call.caller_name}</div>` : ''}
+                    </td>
+                    <td>${formatPhoneNumber(call.caller_number)}</td>
+                    <td>${formatDuration(call.call_duration || 0)}</td>
+                    <td>${formatPaymentStatus(call.update_successful, call.error_message)}</td>
+                    <td>
+                        ${call.card_type ? `
+                            <div style="margin-bottom: 4px;">
+                                <span class="card-type">${formatCardType(call.card_type)}</span>
+                            </div>
+                            ${call.card_last_4 ? `<div style="font-size: 12px; color: var(--text-secondary);">•••• ${call.card_last_4}</div>` : ''}
+                            ${call.card_expiry_month && call.card_expiry_year ? `<div style="font-size: 12px; color: var(--text-secondary);">Expires ${call.card_expiry_month}/${call.card_expiry_year}</div>` : ''}
+                        ` : '<em style="color: var(--text-secondary);">No card info</em>'}
+                    </td>
+                    <td>
+                        ${call.error_message ? `
+                            <div class="error-preview" title="${escapeHtml(call.error_message)}">
+                                ${escapeHtml(call.error_message)}
+                            </div>
+                        ` : '-'}
+                    </td>
+                    <td>
+                        <button class="btn-view" onclick="event.stopPropagation(); viewCallDetails('${call.call_id}')">
+                            View Details
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Search handler
+        function handleSearch(event) {
+            clearTimeout(searchTimeout);
+            const query = event.target.value.toLowerCase().trim();
+            
+            if (query === '') {
+                renderCalls(allCalls);
+                return;
+            }
+            
+            searchTimeout = setTimeout(() => {
+                const filtered = allCalls.filter(call => 
+                    (call.caller_number && call.caller_number.toLowerCase().includes(query)) ||
+                    (call.caller_name && call.caller_name.toLowerCase().includes(query)) ||
+                    (call.cardholder_name && call.cardholder_name.toLowerCase().includes(query)) ||
+                    (call.call_id && call.call_id.toLowerCase().includes(query))
+                );
+                renderCalls(filtered);
+            }, 300);
+        }
+
+        // View call details
+        function viewCallDetails(callId) {
+            window.location.href = `/dashboard/call/${callId}`;
+        }
+
+        // Format functions
+        function formatDateTime(date, time) {
+            if (!date) return '-';
+            // Parse as UTC since database stores in UTC
+            const d = new Date(`${date}T${time || '00:00:00'}Z`);
+            return d.toLocaleString('en-US', { 
+                month: 'short', 
+                day: 'numeric', 
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                timeZone: 'America/New_York',
+                hour12: true
+            });
+        }
+
+        function formatDate(date) {
+            if (!date) return '-';
+            const d = new Date(date + 'T00:00:00Z');
+            return d.toLocaleDateString('en-US', { 
+                weekday: 'short',
+                timeZone: 'America/New_York'
+            });
+        }
+
+        function formatPhoneNumber(num) {
+            if (!num) return '-';
+            // Format as (123) 456-7890 or international format
+            const cleaned = num.replace(/\D/g, '');
+            if (cleaned.length === 10) {
+                return `(${cleaned.slice(0,3)}) ${cleaned.slice(3,6)}-${cleaned.slice(6)}`;
+            }
+            return num;
+        }
+
+        function formatDuration(seconds) {
+            if (!seconds || seconds === 0) return '0:00';
+            
+            // Handle milliseconds
+            if (seconds > 7200) { // More than 2 hours, likely in milliseconds
+                seconds = Math.floor(seconds / 1000);
+            }
+            
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            const secs = seconds % 60;
+            
+            if (hours > 0) {
+                return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            }
+            return `${minutes}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function formatPaymentStatus(successful, errorMessage) {
+            if (successful === 1 || successful === true) {
+                return '<span class="badge badge-success">Success</span>';
+            } else if (successful === 0 || successful === false || errorMessage) {
+                return '<span class="badge badge-error">Failed</span>';
+            }
+            return '<span class="badge badge-warning">Pending</span>';
+        }
+
+        function formatCardType(type) {
+            if (!type) return '';
+            const types = {
+                'visa': 'Visa',
+                'mastercard': 'Mastercard',
+                'amex': 'American Express'
+            };
+            return types[type.toLowerCase()] || type;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Initialize
+        loadUserInfo();
+        loadSummary();
+        loadCalls();
+
+        // Auto-refresh every 30 seconds
+        setInterval(() => {
+            loadSummary();
+            loadCalls();
+        }, 30000);
+    </script>
+</body>
+</html>
+DASHBOARD_EOF
+
+echo "✅ dashboard.html created"
+echo ""
+echo "File size: $(stat -c%s public/dashboard.html) bytes"
+echo ""
+echo "Restarting application..."
+pm2 restart nucleusai
+
+sleep 2
+echo ""
+echo "✓ Done! Try accessing http://fongoai.com/dashboard now"
+

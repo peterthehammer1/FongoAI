@@ -1,0 +1,12 @@
+# This file tells Vercel to ignore this project
+# The application is designed for DigitalOcean, not Vercel
+
+# DO NOT DEPLOY TO VERCEL
+# This app requires:
+# - SQLite database (read-write filesystem)
+# - WebSocket server (not supported on Vercel)
+# - Persistent file storage
+# - Session storage
+
+# Point your domain to DigitalOcean instead: 134.122.37.50
+

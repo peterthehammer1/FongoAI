@@ -2,8 +2,11 @@ const express = require('express');
 const axios = require('axios');
 const router = express.Router();
 const db = require('../services/database');
+const dbComprehensive = require('../services/databaseComprehensive');
+const retellDataProcessor = require('../services/retellDataProcessor');
 const { sendAccountLoginLink } = require('../services/sms');
 const { logger, AppError, asyncHandler, handleApiError } = require('../services/logger');
+const { formatErrorForAI, formatErrorForDashboard } = require('../services/errorMessages');
 
 // Store credit card information temporarily
 const creditCardData = new Map();
@@ -27,6 +30,20 @@ router.post('/', asyncHandler(async (req, res) => {
         await db.updateWebhookData(call.call_id, req.body);
       } catch (dbError) {
         console.error('❌ Error storing webhook data:', dbError);
+      }
+    }
+
+    // Process comprehensive Retell AI data
+    if (call?.call_id && ['call_started', 'call_ended', 'call_analyzed'].includes(event)) {
+      try {
+        const processedData = retellDataProcessor.processWebhookEvent(req.body);
+        if (processedData) {
+          await dbComprehensive.storeComprehensiveCallData(processedData);
+          logger.info(`✅ Stored comprehensive data for ${event} event`, { callId: call.call_id });
+        }
+      } catch (comprehensiveError) {
+        logger.error('❌ Error storing comprehensive data:', comprehensiveError);
+        // Don't fail the webhook if comprehensive storage fails
       }
     }
     
@@ -168,7 +185,12 @@ router.post('/', asyncHandler(async (req, res) => {
         const apiResponse = await callFongoAPI(cardData);
         console.log(`✅ Fongo API response:`, apiResponse);
         
-        // Log to database
+        // Log to database with actionable error message
+        const errorMessage = apiResponse.success 
+          ? null 
+          : (apiResponse.data?.error || 'Failed to update credit card');
+        const dashboardErrorMessage = errorMessage ? formatErrorForDashboard(errorMessage) : null;
+        
         await db.updateCallResult(callId, {
           cardType: cardType,
           cardNumber: args.cardNumber,
@@ -176,7 +198,7 @@ router.post('/', asyncHandler(async (req, res) => {
           expiryYear: args.expiryYear,
           cardholderName: null,
           updateSuccessful: apiResponse.success,
-          errorMessage: apiResponse.data?.error || null,
+          errorMessage: dashboardErrorMessage || errorMessage, // Store actionable message for dashboard
           language: 'en' // TODO: detect language from call
         });
         
@@ -186,15 +208,24 @@ router.post('/', asyncHandler(async (req, res) => {
             message: 'Credit card updated successfully'
           });
         } else {
+          // Format error message for AI agent to speak to caller
+          const rawError = apiResponse.data?.error || 'Failed to update credit card';
+          const actionableError = formatErrorForAI(rawError);
+          
           return res.status(200).json({ 
             success: false,
-            error: apiResponse.data?.error || 'Failed to update credit card'
+            error: rawError, // Keep raw error for database
+            actionableError: actionableError, // Clear message for AI to speak
+            dashboardError: formatErrorForDashboard(rawError) // Clear message for dashboard
           });
         }
       } catch (apiError) {
         console.error('❌ Fongo API error:', apiError);
         
-        // Log failed attempt to database
+        // Log failed attempt to database with actionable error message
+        const errorMessage = apiError.message || apiError.toString();
+        const dashboardErrorMessage = formatErrorForDashboard(errorMessage);
+        
         try {
           await db.updateCallResult(callId, {
             cardType: cardType,
@@ -203,16 +234,20 @@ router.post('/', asyncHandler(async (req, res) => {
             expiryYear: args.expiryYear,
             cardholderName: null,
             updateSuccessful: false,
-            errorMessage: apiError.message || apiError.toString(),
+            errorMessage: dashboardErrorMessage, // Store actionable message
             language: 'en'
           });
         } catch (dbError) {
           console.error('❌ Database error:', dbError);
         }
         
+        const actionableError = formatErrorForAI(errorMessage);
+        
         return res.status(200).json({ 
           success: false,
-          error: apiError.message
+          error: errorMessage, // Keep raw error for logging
+          actionableError: actionableError, // Clear message for AI to speak
+          dashboardError: dashboardErrorMessage // Clear message for dashboard
         });
       }
     }
@@ -458,19 +493,90 @@ async function callFongoAPI(cardData) {
         try {
           responseData = JSON.parse(response.data);
         } catch (jsonError) {
-          // If JSON parse fails, try to convert JS object notation to JSON
-          // Replace { success:1 } with {"success":1}
-          const fixedJson = response.data
-            .replace(/\{\s*success\s*:\s*(\d+)\s*\}/g, '{"success":$1}')
-            .replace(/\{\s*success\s*:\s*(\d+)\s*,\s*error\s*:\s*"([^"]*)"\s*\}/g, '{"success":$1,"error":"$2"}');
-          responseData = JSON.parse(fixedJson);
+          // If JSON parse fails, try to extract error message from string
+          // Fongo API returns: { success:0 , error:"FAULT: Invalid credit card number..." }
+          // Extract the actual error message
+          const errorMatch = response.data.match(/error\s*:\s*"([^"]+)"/);
+          const successMatch = response.data.match(/success\s*:\s*(\d+)/);
+          
+          if (errorMatch || successMatch) {
+            responseData = {
+              success: successMatch ? parseInt(successMatch[1]) : 0,
+              error: errorMatch ? errorMatch[1] : 'Unknown error'
+            };
+          } else {
+            // Try to convert JS object notation to JSON
+            // Replace { success:1 } with {"success":1}
+            const fixedJson = response.data
+              .replace(/\{\s*success\s*:\s*(\d+)\s*\}/g, '{"success":$1}')
+              .replace(/\{\s*success\s*:\s*(\d+)\s*,\s*error\s*:\s*"([^"]*)"\s*\}/g, '{"success":$1,"error":"$2"}');
+            responseData = JSON.parse(fixedJson);
+          }
         }
       } else {
         responseData = response.data;
       }
+      
+      // Extract and clean up error messages
+      if (responseData.error) {
+        // Remove "FAULT:" prefix if present
+        responseData.error = responseData.error.replace(/^FAULT:\s*/i, '').trim();
+        
+        // Remove file paths and line numbers (e.g., "at /home/ploeppky/__soap/lib/CustomerNumber.pm line 116.")
+        responseData.error = responseData.error.replace(/\s+at\s+[^\s]+\.pm\s+line\s+\d+\.?/gi, '').trim();
+        
+        // Extract specific error codes and messages
+        const errorCodeMatch = responseData.error.match(/\(error code (\w+)\)/i);
+        if (errorCodeMatch) {
+          const errorCode = errorCodeMatch[1].toLowerCase();
+          
+          // Extract the main error message (before the error code)
+          const mainMessage = responseData.error.split('(')[0].trim();
+          
+          // Map common error codes to user-friendly messages
+          const errorMessages = {
+            'invalid_card': mainMessage || 'Invalid credit card number',
+            'invalid_card_number': mainMessage || 'Invalid credit card number',
+            'customer_not_found': mainMessage || 'Customer account not found',
+            'invalid_expiry': mainMessage || 'Invalid expiry date',
+            'card_expired': mainMessage || 'Credit card has expired',
+            'card_declined': mainMessage || 'Credit card was declined',
+            'invalid_month': mainMessage || 'Invalid expiry month',
+            'invalid_year': mainMessage || 'Invalid expiry year'
+          };
+          
+          // Use mapped message if available, otherwise use the main message (cleaned)
+          if (errorMessages[errorCode]) {
+            responseData.error = errorMessages[errorCode];
+          } else {
+            // Use the main message (before error code and file path)
+            responseData.error = mainMessage || responseData.error.split('(')[0].trim();
+          }
+        } else {
+          // No error code, just clean up the message
+          responseData.error = responseData.error.trim();
+        }
+      }
     } catch (parseError) {
       console.error('Failed to parse API response:', response.data);
-      responseData = { success: 0, error: 'Invalid API response format' };
+      console.error('Parse error details:', parseError.message);
+      
+      // Try to extract error message even if parsing fails
+      const errorMatch = String(response.data).match(/error[:\s]*"([^"]+)"/i) || 
+                         String(response.data).match(/FAULT:\s*([^"]+)/i) ||
+                         String(response.data).match(/error[:\s]*([^,}]+)/i);
+      
+      let extractedError;
+      if (errorMatch && errorMatch[1]) {
+        extractedError = errorMatch[1].trim();
+        // Clean up common error message patterns
+        extractedError = extractedError.replace(/^FAULT:\s*/i, '').trim();
+      } else {
+        // If we can't extract a specific error, provide a more helpful message
+        extractedError = 'There was an issue processing your payment. Please verify your credit card information and try again, or contact support for assistance.';
+      }
+      
+      responseData = { success: 0, error: extractedError };
     }
     
     console.log('Parsed Fongo API response:', responseData);

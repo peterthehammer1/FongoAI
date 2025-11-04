@@ -231,7 +231,7 @@
                 const data = await response.json();
                 
                 if (data.success) {
-                    window.location.href = '/';
+                    window.location.href = '/dashboard';
                 } else {
                     errorDiv.textContent = data.message || 'Invalid email or password';
                     errorDiv.classList.add('show');

@@ -2,7 +2,8 @@
 
 ## 📍 Access the Dashboard
 
-**URL**: `http://134.122.37.50:3000/`
+**URL**: `http://fongoai.com/` or `https://fongoai.com/` (with SSL)
+**Direct IP**: `http://134.122.37.50:3000/` (for testing)
 
 ---
 
@@ -63,7 +64,7 @@ Password: FongoAdmin2025#Safe
 ## 📱 How to Use
 
 ### 1. Login
-1. Go to `http://134.122.37.50:3000/`
+1. Go to `http://fongoai.com/` (or `https://fongoai.com/` with SSL)
 2. Enter your email and password
 3. Click "Sign In"
 
@@ -190,7 +191,7 @@ The Fongo AI Agent Dashboard is now:
 
 ---
 
-**Dashboard URL**: `http://134.122.37.50:3000/`
+**Dashboard URL**: `http://fongoai.com/` or `https://fongoai.com/` (with SSL)
 
 **Login Credentials**:
 - pete@nucleus.com : NucleusAI2025!Secure

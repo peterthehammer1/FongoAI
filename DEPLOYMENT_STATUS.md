@@ -5,12 +5,14 @@
 ### Primary Production Server (DigitalOcean)
 - **IP Address**: `134.122.37.50`
 - **Port**: `3000`
-- **URL**: `http://134.122.37.50:3000/`
-- **Dashboard**: `http://134.122.37.50:3000/`
-- **Webhook URL**: `http://134.122.37.50:3000/webhook` or `https://fongoai.com/webhook` (if SSL configured)
+- **Domain**: `fongoai.com`
+- **Dashboard**: `http://fongoai.com/` or `https://fongoai.com/` (with SSL)
+- **Direct IP**: `http://134.122.37.50:3000/`
+- **Webhook URL**: `http://fongoai.com/webhook` or `https://fongoai.com/webhook` (with SSL)
 - **SSH**: `ssh root@134.122.37.50`
 - **App Directory**: `/var/www/nucleusai`
 - **Process Manager**: PM2 (`nucleusai`)
+- **Nginx**: Reverse proxy configured for `fongoai.com`
 
 ### Retell AI Configuration
 - **Webhook**: `http://134.122.37.50:3000/webhook` → DigitalOcean server

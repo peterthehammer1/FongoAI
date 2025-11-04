@@ -2,9 +2,12 @@ const fs = require('fs');
 const path = require('path');
 
 // Logging configuration
+// Use local logs directory for development, /var/log for production (only if not on Vercel/serverless)
+const isVercel = process.env.VERCEL === '1' || process.env.AWS_LAMBDA_FUNCTION_NAME;
+const logDir = process.env.LOG_DIR || (isVercel ? path.join('/tmp', 'logs') : (process.env.NODE_ENV === 'production' ? '/var/log/nucleusai' : path.join(__dirname, '..', 'logs')));
 const LOG_CONFIG = {
   level: process.env.LOG_LEVEL || 'info',
-  file: process.env.LOG_FILE || '/var/log/nucleusai/app.log',
+  file: process.env.LOG_FILE || path.join(logDir, 'app.log'),
   maxSize: process.env.LOG_MAX_SIZE || '10MB',
   maxFiles: process.env.LOG_MAX_FILES || 5
 };
@@ -18,17 +21,25 @@ const LOG_LEVELS = {
 };
 
 // Ensure log directory exists
-const logDir = path.dirname(LOG_CONFIG.file);
 if (!fs.existsSync(logDir)) {
-  fs.mkdirSync(logDir, { recursive: true });
+  try {
+    fs.mkdirSync(logDir, { recursive: true });
+  } catch (error) {
+    // If we can't create the directory, just log to console
+    console.warn(`Warning: Could not create log directory ${logDir}, logging to console only:`, error.message);
+  }
 }
 
 // Create log stream
 let logStream = null;
 try {
-  logStream = fs.createWriteStream(LOG_CONFIG.file, { flags: 'a' });
+  if (fs.existsSync(logDir)) {
+    logStream = fs.createWriteStream(LOG_CONFIG.file, { flags: 'a' });
+  } else {
+    console.warn('Log directory does not exist, logging to console only');
+  }
 } catch (error) {
-  console.error('Failed to create log file:', error.message);
+  console.warn('Failed to create log file, logging to console only:', error.message);
 }
 
 // Format log message

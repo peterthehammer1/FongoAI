@@ -50,6 +50,7 @@ CREATE INDEX IF NOT EXISTS idx_sms_sent ON sms_logs(sms_sent);
 CREATE INDEX IF NOT EXISTS idx_sms_created ON sms_logs(created_at DESC);
 
 -- View for dashboard summary statistics
+-- Filters out failed calls before Nov 4, 2025 (shows only successful calls from before that date)
 CREATE VIEW IF NOT EXISTS call_summary AS
 SELECT 
     COUNT(*) as total_calls,
@@ -60,5 +61,6 @@ SELECT
     COUNT(CASE WHEN card_type = 'visa' THEN 1 END) as visa_count,
     COUNT(CASE WHEN card_type = 'mastercard' THEN 1 END) as mastercard_count,
     COUNT(CASE WHEN card_type = 'amex' THEN 1 END) as amex_count
-FROM call_logs;
+FROM call_logs
+WHERE (call_date >= '2025-11-04' OR (call_date < '2025-11-04' AND update_successful = 1));
 

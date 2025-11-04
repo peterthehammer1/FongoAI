@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../services/database');
+const dbComprehensive = require('../services/databaseComprehensive');
 
 // Get all calls with pagination
-router.get('/api/calls', async (req, res) => {
+router.get('/calls', async (req, res) => {
   try {
     const limit = parseInt(req.query.limit) || 50;
     const offset = parseInt(req.query.offset) || 0;
@@ -17,7 +18,7 @@ router.get('/api/calls', async (req, res) => {
 });
 
 // Get call summary statistics
-router.get('/api/summary', async (req, res) => {
+router.get('/summary', async (req, res) => {
   try {
     const summary = await db.getCallSummary();
     res.json({ success: true, summary });
@@ -28,7 +29,7 @@ router.get('/api/summary', async (req, res) => {
 });
 
 // Search calls
-router.get('/api/search', async (req, res) => {
+router.get('/search', async (req, res) => {
   try {
     const searchTerm = req.query.q || '';
     if (!searchTerm) {
@@ -44,7 +45,7 @@ router.get('/api/search', async (req, res) => {
 });
 
 // Get analytics data
-router.get('/api/analytics', async (req, res) => {
+router.get('/analytics', async (req, res) => {
   try {
     const analytics = await db.getAnalytics();
     res.json({ success: true, ...analytics });
@@ -55,7 +56,7 @@ router.get('/api/analytics', async (req, res) => {
 });
 
 // Get SMS logs with pagination
-router.get('/api/sms-logs', async (req, res) => {
+router.get('/sms-logs', async (req, res) => {
   try {
     const limit = parseInt(req.query.limit) || 50;
     const offset = parseInt(req.query.offset) || 0;
@@ -69,7 +70,7 @@ router.get('/api/sms-logs', async (req, res) => {
 });
 
 // Get SMS analytics
-router.get('/api/sms-analytics', async (req, res) => {
+router.get('/sms-analytics', async (req, res) => {
   try {
     const smsAnalytics = await db.getSmsAnalytics();
     res.json({ success: true, ...smsAnalytics });
@@ -228,7 +229,7 @@ function analyzeError(errorMessage) {
 }
 
 // Get call details by ID
-router.get('/api/call/:callId', async (req, res) => {
+router.get('/call/:callId', async (req, res) => {
   try {
     const { callId } = req.params;
     const call = await db.getCallById(callId);
@@ -245,7 +246,7 @@ router.get('/api/call/:callId', async (req, res) => {
 });
 
 // Get failed calls report with error analysis
-router.get('/api/failed-calls-report', async (req, res) => {
+router.get('/failed-calls-report', async (req, res) => {
   try {
     const failedCalls = await db.getFailedCalls();
     
@@ -276,6 +277,82 @@ router.get('/api/failed-calls-report', async (req, res) => {
     });
   } catch (error) {
     console.error('Error fetching failed calls report:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ===== COMPREHENSIVE RETELL AI DATA ENDPOINTS =====
+
+// Get comprehensive call data by ID
+router.get('/comprehensive-call/:callId', async (req, res) => {
+  try {
+    const { callId } = req.params;
+    const call = await dbComprehensive.getComprehensiveCallData(callId);
+    
+    if (!call) {
+      return res.status(404).json({ success: false, error: 'Call not found' });
+    }
+    
+    res.json({ success: true, call });
+  } catch (error) {
+    console.error('Error fetching comprehensive call data:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Get all comprehensive calls
+router.get('/comprehensive-calls', async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 100;
+    const calls = await dbComprehensive.getAllComprehensiveCalls({ limit });
+    
+    res.json({ success: true, calls });
+  } catch (error) {
+    console.error('Error fetching comprehensive calls:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Get comprehensive analytics
+router.get('/comprehensive-analytics', async (req, res) => {
+  try {
+    const analytics = await dbComprehensive.getComprehensiveAnalytics();
+    res.json({ success: true, analytics });
+  } catch (error) {
+    console.error('Error fetching comprehensive analytics:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Search comprehensive calls with filters
+router.get('/comprehensive-search', async (req, res) => {
+  try {
+    const filters = {
+      fromNumber: req.query.fromNumber,
+      callStatus: req.query.callStatus,
+      callSuccessful: req.query.callSuccessful ? req.query.callSuccessful === 'true' : undefined,
+      updateSuccessful: req.query.updateSuccessful ? req.query.updateSuccessful === 'true' : undefined,
+      userSentiment: req.query.userSentiment,
+      dateFrom: req.query.dateFrom,
+      dateTo: req.query.dateTo,
+      limit: parseInt(req.query.limit) || 50
+    };
+
+    const calls = await dbComprehensive.searchComprehensiveCalls(filters);
+    res.json({ success: true, calls, filters });
+  } catch (error) {
+    console.error('Error searching comprehensive calls:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Get failed calls with comprehensive analysis
+router.get('/comprehensive-failed-calls', async (req, res) => {
+  try {
+    const failedCalls = await dbComprehensive.getFailedCallsAnalysis();
+    res.json({ success: true, failedCalls });
+  } catch (error) {
+    console.error('Error fetching comprehensive failed calls:', error);
     res.status(500).json({ success: false, error: error.message });
   }
 });
