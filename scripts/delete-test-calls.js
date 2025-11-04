@@ -22,7 +22,12 @@ const testNumbers = [
   '15198040969',
   '+1-519-804-0969',
   '1-519-804-0969',
-  '519-804-0969'
+  '519-804-0969',
+  '+14169131417',
+  '14169131417',
+  '+1-416-913-1417',
+  '1-416-913-1417',
+  '416-913-1417'
 ];
 
 function normalizePhoneNumber(num) {
@@ -49,8 +54,8 @@ function deleteCallsFromDatabase(dbPath, dbName) {
     const normalizedNumbers = testNumbers.map(n => normalizePhoneNumber(n));
     
     db.all(
-      `SELECT call_id FROM call_logs WHERE caller_number IN (${placeholders}) OR caller_number LIKE ? OR caller_number LIKE ?`,
-      [...normalizedNumbers, `%${normalizedNumbers[0]}%`, `%${normalizedNumbers[5]}%`],
+      `SELECT call_id FROM call_logs WHERE caller_number IN (${placeholders}) OR caller_number LIKE ? OR caller_number LIKE ? OR caller_number LIKE ?`,
+      [...normalizedNumbers, `%${normalizedNumbers[0]}%`, `%${normalizedNumbers[5]}%`, `%${normalizedNumbers[10]}%`],
       (err, rows) => {
         if (err) {
           db.close();
@@ -82,8 +87,8 @@ function deleteCallsFromDatabase(dbPath, dbName) {
 
             // Delete from call_logs
             db.run(
-              `DELETE FROM call_logs WHERE caller_number IN (${placeholders}) OR caller_number LIKE ? OR caller_number LIKE ?`,
-              [...normalizedNumbers, `%${normalizedNumbers[0]}%`, `%${normalizedNumbers[5]}%`],
+              `DELETE FROM call_logs WHERE caller_number IN (${placeholders}) OR caller_number LIKE ? OR caller_number LIKE ? OR caller_number LIKE ?`,
+              [...normalizedNumbers, `%${normalizedNumbers[0]}%`, `%${normalizedNumbers[5]}%`, `%${normalizedNumbers[10]}%`],
               function(callErr) {
                 if (callErr) {
                   db.close();
@@ -121,8 +126,8 @@ function deleteCallsFromComprehensiveDatabase(dbPath, dbName) {
     const normalizedNumbers = testNumbers.map(n => normalizePhoneNumber(n));
     
     db.all(
-      `SELECT call_id FROM call_logs_comprehensive WHERE from_number IN (${placeholders}) OR from_number LIKE ? OR from_number LIKE ?`,
-      [...normalizedNumbers, `%${normalizedNumbers[0]}%`, `%${normalizedNumbers[5]}%`],
+      `SELECT call_id FROM call_logs_comprehensive WHERE from_number IN (${placeholders}) OR from_number LIKE ? OR from_number LIKE ? OR from_number LIKE ?`,
+      [...normalizedNumbers, `%${normalizedNumbers[0]}%`, `%${normalizedNumbers[5]}%`, `%${normalizedNumbers[10]}%`],
       (err, rows) => {
         if (err) {
           db.close();
@@ -154,8 +159,8 @@ function deleteCallsFromComprehensiveDatabase(dbPath, dbName) {
 
             // Delete from call_logs_comprehensive
             db.run(
-              `DELETE FROM call_logs_comprehensive WHERE from_number IN (${placeholders}) OR from_number LIKE ? OR from_number LIKE ?`,
-              [...normalizedNumbers, `%${normalizedNumbers[0]}%`, `%${normalizedNumbers[5]}%`],
+              `DELETE FROM call_logs_comprehensive WHERE from_number IN (${placeholders}) OR from_number LIKE ? OR from_number LIKE ? OR from_number LIKE ?`,
+              [...normalizedNumbers, `%${normalizedNumbers[0]}%`, `%${normalizedNumbers[5]}%`, `%${normalizedNumbers[10]}%`],
               function(compErr) {
                 if (compErr) {
                   db.close();
@@ -179,6 +184,7 @@ async function main() {
   console.log('🗑️  Deleting test calls from:');
   console.log('   - +15199918959');
   console.log('   - +15198040969');
+  console.log('   - +14169131417');
   console.log('');
 
   try {
