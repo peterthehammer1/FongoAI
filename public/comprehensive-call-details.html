@@ -691,8 +691,10 @@
             }
             
             // Find sequences of 13-19 consecutive number words (within reasonable distance)
-            // Process from end to start to avoid index shifting issues
-            for (let i = allMatches.length - 13; i >= 0; i--) {
+            // First, find all sequences, then replace them in reverse order to avoid index shifting
+            const sequencesToReplace = [];
+            
+            for (let i = 0; i <= allMatches.length - 13; i++) {
                 // Check if we have a sequence of 13-19 number words
                 let sequence = [];
                 let currentIndex = allMatches[i].index;
@@ -714,22 +716,27 @@
                     if (digits.length >= 13 && digits.length <= 19) {
                         const startIndex = sequence[0].index;
                         const endIndex = sequence[sequence.length - 1].index + sequence[sequence.length - 1].length;
-                        const originalMatch = text.substring(startIndex, endIndex);
                         const last4 = digits.slice(-4);
                         
-                        // Replace the original match with redacted version
-                        text = text.substring(0, startIndex) + 
-                               `**** **** **** ${last4}` + 
-                               text.substring(endIndex);
+                        sequencesToReplace.push({
+                            startIndex: startIndex,
+                            endIndex: endIndex,
+                            replacement: `**** **** **** ${last4}`,
+                            processedIndices: sequence.map(s => s.index)
+                        });
                         
-                        // Remove processed matches from array to avoid double-processing
-                        for (let k = 0; k < sequence.length; k++) {
-                            const idx = allMatches.indexOf(sequence[k]);
-                            if (idx !== -1) allMatches.splice(idx, 1);
-                        }
-                        break; // Process one match at a time
+                        // Skip ahead to avoid overlapping sequences
+                        i += sequence.length - 1;
                     }
                 }
+            }
+            
+            // Replace all sequences in reverse order (from end to start) to avoid index shifting
+            for (let i = sequencesToReplace.length - 1; i >= 0; i--) {
+                const seq = sequencesToReplace[i];
+                text = text.substring(0, seq.startIndex) + 
+                       seq.replacement + 
+                       text.substring(seq.endIndex);
             }
             
             // Now handle numeric credit card numbers (13-19 digits, with optional spaces/dashes)

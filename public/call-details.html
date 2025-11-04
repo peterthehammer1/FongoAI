@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Call Details | Fongo AI Agent Dashboard</title>
+    <title>Call Details - Fongo</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -11,699 +11,865 @@
             padding: 0;
             box-sizing: border-box;
         }
-        
-        body {
-            font-family: 'Salesforce Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: #f3f3f3;
-            min-height: 100vh;
+
+        :root {
+            --primary: #0066cc;
+            --primary-dark: #0052a3;
+            --secondary: #16325c;
+            --success: #04844b;
+            --error: #c23934;
+            --warning: #ffb75d;
+            --text-primary: #16325c;
+            --text-secondary: #706e6b;
+            --border: #d8dde6;
+            --bg-light: #f3f3f3;
+            --bg-white: #ffffff;
+            --shadow: 0 1px 3px rgba(0,0,0,0.12);
+            --shadow-lg: 0 4px 12px rgba(0,0,0,0.15);
         }
-        
-        /* Top Navigation Bar */
-        .top-nav {
-            background: #032d60;
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg-light);
+            color: var(--text-primary);
+            line-height: 1.6;
+            font-size: 14px;
+        }
+
+        /* Navigation */
+        .navbar {
+            background: var(--secondary);
             color: white;
+            padding: 0;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .navbar-content {
+            max-width: 1600px;
+            margin: 0 auto;
             padding: 12px 24px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        
-        .nav-left {
+
+        .navbar-brand {
             display: flex;
             align-items: center;
-            gap: 20px;
+            gap: 12px;
+            font-size: 18px;
+            font-weight: 600;
         }
-        
-        .nav-logo {
-            height: 40px;
-            width: auto;
+
+        .navbar-brand img {
+            height: 32px;
         }
-        
-        .back-btn {
+
+        .btn-back {
             background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
             color: white;
-            border: none;
             padding: 8px 16px;
             border-radius: 4px;
             cursor: pointer;
-            display: flex;
+            font-size: 14px;
+            transition: all 0.2s;
+            display: inline-flex;
             align-items: center;
             gap: 8px;
-            text-decoration: none;
-            transition: background 0.2s;
         }
-        
-        .back-btn:hover {
+
+        .btn-back:hover {
             background: rgba(255,255,255,0.2);
         }
-        
+
+        /* Container */
         .container {
             max-width: 1400px;
             margin: 0 auto;
             padding: 24px;
         }
-        
-        .page-header {
-            background: white;
-            padding: 24px;
+
+        /* Status Banner */
+        .status-banner {
+            background: var(--bg-white);
+            padding: 20px 24px;
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
             margin-bottom: 24px;
+            box-shadow: var(--shadow);
+            border-left: 4px solid var(--primary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
-        
-        .page-header h1 {
-            color: #032d60;
-            font-size: 28px;
-            font-weight: 700;
-            margin-bottom: 8px;
+
+        .status-banner.success {
+            border-left-color: var(--success);
         }
-        
-        /* Info Cards */
+
+        .status-banner.error {
+            border-left-color: var(--error);
+        }
+
+        .status-content h2 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .status-content p {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .status-badge {
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .status-badge.success {
+            background: #d4edda;
+            color: var(--success);
+        }
+
+        .status-badge.error {
+            background: #f8d7da;
+            color: var(--error);
+        }
+
+        /* Info Grid */
         .info-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 16px;
             margin-bottom: 24px;
         }
-        
+
         .info-card {
-            background: white;
+            background: var(--bg-white);
             padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+            box-shadow: var(--shadow);
         }
-        
+
         .info-card h3 {
-            color: #032d60;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .info-value {
+            font-weight: 600;
+            text-align: right;
+        }
+
+        /* Error Card */
+        .error-card {
+            background: #fff5f5;
+            border: 1px solid #fed7d7;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow);
+        }
+
+        .error-card h3 {
+            color: var(--error);
             font-size: 16px;
+            font-weight: 600;
             margin-bottom: 12px;
             display: flex;
             align-items: center;
             gap: 8px;
         }
-        
-        .info-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px solid #f3f3f3;
+
+        .error-card p {
+            color: #742a2a;
+            margin-bottom: 12px;
+            line-height: 1.6;
         }
-        
-        .info-row:last-child {
-            border-bottom: none;
-        }
-        
-        .info-label {
-            color: #706e6b;
-            font-size: 14px;
-        }
-        
-        .info-value {
-            color: #032d60;
-            font-size: 14px;
-            font-weight: 500;
-        }
-        
-        /* Transcript Chat Bubbles */
+
+        /* Transcript Section */
         .transcript-section {
-            background: white;
+            background: var(--bg-white);
             padding: 24px;
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
             margin-bottom: 24px;
+            box-shadow: var(--shadow);
         }
-        
-        .transcript-section h2 {
-            color: #032d60;
-            font-size: 20px;
-            margin-bottom: 20px;
+
+        .transcript-header {
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 8px;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid var(--border);
         }
-        
-        .chat-container {
+
+        .transcript-header h3 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .transcript-container {
             max-height: 600px;
             overflow-y: auto;
             padding: 16px;
             background: #f8f9fa;
             border-radius: 8px;
         }
-        
+
         .message {
-            display: flex;
             margin-bottom: 16px;
-            animation: fadeIn 0.3s ease-in;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
         }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .message.customer {
-            justify-content: flex-end;
-        }
-        
+
         .message.agent {
-            justify-content: flex-start;
+            flex-direction: row;
         }
-        
+
+        .message.customer {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .message.agent .message-avatar {
+            background: var(--primary);
+            color: white;
+        }
+
+        .message.customer .message-avatar {
+            background: var(--text-secondary);
+            color: white;
+        }
+
         .message-bubble {
             max-width: 70%;
             padding: 12px 16px;
-            border-radius: 18px;
-            word-wrap: break-word;
-            position: relative;
+            border-radius: 12px;
+            line-height: 1.5;
         }
-        
-        .message.customer .message-bubble {
-            background: #04844b;
-            color: white;
-            border-bottom-right-radius: 4px;
-        }
-        
+
         .message.agent .message-bubble {
-            background: #0176d3;
+            background: var(--primary);
             color: white;
             border-bottom-left-radius: 4px;
         }
-        
-        .message-label {
+
+        .message.customer .message-bubble {
+            background: #e9ecef;
+            color: var(--text-primary);
+            border-bottom-right-radius: 4px;
+        }
+
+        .message-time {
             font-size: 11px;
-            font-weight: 600;
-            text-transform: uppercase;
-            margin-bottom: 4px;
-            opacity: 0.9;
+            color: var(--text-secondary);
+            margin-top: 4px;
+            padding: 0 4px;
         }
-        
-        .message-text {
-            line-height: 1.5;
-            font-size: 15px;
+
+        .message.agent .message-time {
+            text-align: left;
         }
-        
+
+        .message.customer .message-time {
+            text-align: right;
+        }
+
         /* Webhook Data Section */
         .webhook-section {
-            background: white;
+            background: var(--bg-white);
             padding: 24px;
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+            box-shadow: var(--shadow);
         }
-        
-        .webhook-section h2 {
-            color: #032d60;
-            font-size: 20px;
-            margin-bottom: 20px;
+
+        .webhook-header {
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 8px;
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid var(--border);
         }
-        
-        .json-viewer {
-            background: #f8f9fa;
+
+        .webhook-header h3 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .webhook-content {
+            background: #1e1e1e;
+            color: #d4d4d4;
             padding: 20px;
             border-radius: 8px;
-            border: 1px solid #e1e5e9;
             overflow-x: auto;
             font-family: 'Courier New', monospace;
-            font-size: 13px;
+            font-size: 12px;
             line-height: 1.6;
-            max-height: 500px;
+            max-height: 400px;
             overflow-y: auto;
         }
-        
+
+        .btn-toggle {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+
+        .btn-toggle:hover {
+            background: var(--primary-dark);
+        }
+
+        /* Loading */
         .loading {
             text-align: center;
             padding: 60px 20px;
+            color: var(--text-secondary);
         }
-        
+
         .loading i {
-            font-size: 48px;
-            color: #0176d3;
+            font-size: 32px;
+            margin-bottom: 16px;
             animation: spin 1s linear infinite;
         }
-        
+
         @keyframes spin {
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
         }
-        
-        .error {
-            background: #fedadc;
-            color: #ea001e;
-            padding: 20px;
-            border-radius: 8px;
-            border-left: 4px solid #ea001e;
-            margin: 20px 0;
-        }
-        
-        .no-transcript {
-            text-align: center;
-            padding: 60px 20px;
-            color: #706e6b;
-        }
-        
-        .no-transcript i {
-            font-size: 64px;
-            opacity: 0.3;
-            margin-bottom: 16px;
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .message-bubble {
+                max-width: 85%;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Top Navigation -->
-    <div class="top-nav">
-        <div class="nav-left">
-            <a href="/" class="back-btn">
-                <i class="fas fa-arrow-left"></i> Back to Dashboard
-            </a>
-            <img src="/Images/fongo-wp-logo-white.svg" alt="Fongo" class="nav-logo" onerror="this.style.display='none'">
-            <span>Call Details</span>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="navbar-content">
+            <div class="navbar-brand">
+                <img src="/Images/fongo-wp-logo-white.svg" alt="Fongo" onerror="this.style.display='none'">
+                <span>Call Details</span>
+            </div>
+            <button class="btn-back" onclick="window.location.href='/dashboard'">
+                <i class="fas fa-arrow-left"></i>
+                Back to Dashboard
+            </button>
         </div>
-    </div>
+    </nav>
 
+    <!-- Container -->
     <div class="container">
-        <div id="loading" class="loading">
+        <div id="loadingState" class="loading">
             <i class="fas fa-spinner"></i>
-            <p style="margin-top: 16px; color: #706e6b;">Loading call details...</p>
+            <div>Loading call details...</div>
         </div>
 
-        <div id="content" style="display: none;">
-            <!-- Page Header -->
-            <div class="page-header">
-                <h1><i class="fas fa-phone"></i> Call Details</h1>
-                <p id="callId" style="color: #706e6b; font-family: monospace;"></p>
+        <div id="contentArea" style="display: none;">
+            <!-- Status Banner -->
+            <div class="status-banner" id="statusBanner">
+                <div class="status-content">
+                    <h2 id="statusTitle">Payment Update Status</h2>
+                    <p id="statusDescription">Loading...</p>
+                </div>
+                <div class="status-badge" id="statusBadge">Loading...</div>
             </div>
 
-            <!-- Call Information Cards -->
+            <!-- Error Card -->
+            <div class="error-card" id="errorCard" style="display: none;">
+                <h3><i class="fas fa-exclamation-triangle"></i> Payment Update Failed</h3>
+                <p id="errorMessage"></p>
+            </div>
+
+            <!-- Info Grid -->
             <div class="info-grid">
                 <div class="info-card">
-                    <h3><i class="fas fa-info-circle"></i> Call Information</h3>
+                    <h3>Call Information</h3>
+                    <div class="info-row">
+                        <span class="info-label">Call ID</span>
+                        <span class="info-value" id="callId">-</span>
+                    </div>
                     <div class="info-row">
                         <span class="info-label">Date & Time</span>
                         <span class="info-value" id="callDateTime">-</span>
                     </div>
                     <div class="info-row">
-                        <span class="info-label">Phone Number</span>
-                        <span class="info-value" id="phoneNumber">-</span>
+                        <span class="info-label">Duration</span>
+                        <span class="info-value" id="callDuration">-</span>
                     </div>
                     <div class="info-row">
-                        <span class="info-label">Duration</span>
-                        <span class="info-value" id="duration">-</span>
+                        <span class="info-label">Phone Number</span>
+                        <span class="info-value" id="callerNumber">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Caller Name</span>
+                        <span class="info-value" id="callerName">-</span>
+                    </div>
+                </div>
+
+                <div class="info-card">
+                    <h3>Payment Information</h3>
+                    <div class="info-row">
+                        <span class="info-label">Card Type</span>
+                        <span class="info-value" id="cardType">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Last 4 Digits</span>
+                        <span class="info-value" id="cardLast4">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Expiry Date</span>
+                        <span class="info-value" id="cardExpiry">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Cardholder Name</span>
+                        <span class="info-value" id="cardholderName">-</span>
                     </div>
                     <div class="info-row">
                         <span class="info-label">Language</span>
                         <span class="info-value" id="language">-</span>
                     </div>
-                    <div class="info-row">
-                        <span class="info-label">Status</span>
-                        <span id="status">-</span>
-                    </div>
                 </div>
-
-                <div class="info-card">
-                    <h3><i class="fas fa-credit-card"></i> Payment Information</h3>
-                    <div class="info-row">
-                        <span class="info-label">Customer Name</span>
-                        <span class="info-value" id="customerName">-</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="info-label">Card Type</span>
-                        <span id="cardType">-</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="info-label">Card Last 4</span>
-                        <span class="info-value" id="cardLast4">-</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="info-label">Expiry Date</span>
-                        <span class="info-value" id="expiryDate">-</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Error Message if Failed -->
-            <div id="errorCard" style="display: none;" class="info-card" style="background: #fedadc; border-left: 4px solid #ea001e;">
-                <h3 style="color: #ea001e;"><i class="fas fa-exclamation-triangle"></i> Error Message</h3>
-                <p id="errorMessage" style="color: #032d60; margin-top: 8px;"></p>
             </div>
 
             <!-- Transcript Section -->
             <div class="transcript-section">
-                <h2><i class="fas fa-comments"></i> Call Transcript</h2>
-                <div id="transcriptContainer">
+                <div class="transcript-header">
+                    <h3><i class="fas fa-comments"></i> Call Transcript</h3>
+                </div>
+                <div class="transcript-container" id="transcriptContainer">
                     <div class="loading">
                         <i class="fas fa-spinner"></i>
-                        <p style="margin-top: 16px; color: #706e6b;">Loading transcript...</p>
+                        <div>Loading transcript...</div>
                     </div>
                 </div>
             </div>
 
             <!-- Webhook Data Section -->
             <div class="webhook-section">
-                <h2><i class="fas fa-database"></i> Complete Webhook Data</h2>
-                <div id="webhookDataContainer">
-                    <div class="json-viewer" id="webhookData">Loading webhook data...</div>
+                <div class="webhook-header">
+                    <h3><i class="fas fa-database"></i> Raw Webhook Data</h3>
+                    <button class="btn-toggle" onclick="toggleWebhookData()">
+                        <i class="fas fa-eye"></i> Show/Hide
+                    </button>
                 </div>
+                <div class="webhook-content" id="webhookContent" style="display: none;"></div>
             </div>
-        </div>
-
-        <div id="error" style="display: none;" class="error">
-            <h3><i class="fas fa-exclamation-circle"></i> Error</h3>
-            <p id="errorText"></p>
         </div>
     </div>
 
     <script>
-        // Get call ID from URL path
-        const pathParts = window.location.pathname.split('/');
-        const callId = pathParts[pathParts.length - 1]; // Last part of path
-
-        // Format functions
-        function formatDateTime(date, time) {
-            if (!date || !time) return '-';
-            const d = new Date(`${date}T${time}`);
-            return d.toLocaleString('en-US', { 
-                month: 'short', 
-                day: 'numeric', 
-                year: 'numeric',
-                hour: 'numeric', 
-                minute: '2-digit',
-                hour12: true 
-            });
-        }
-
-        function formatPhoneNumber(number) {
-            if (!number) return '-';
-            const cleaned = number.replace(/\D/g, '');
-            if (cleaned.length === 11) {
-                return `+${cleaned[0]} (${cleaned.slice(1,4)}) ${cleaned.slice(4,7)}-${cleaned.slice(7)}`;
-            }
-            return number;
-        }
-
-        function formatDuration(seconds) {
-            if (!seconds || seconds === 0) return '0:00';
-            const totalSeconds = Math.round(seconds);
-            if (totalSeconds > 7200) {
-                const adjustedSeconds = Math.floor(totalSeconds / 1000);
-                if (adjustedSeconds >= 3600) {
-                    const hours = Math.floor(adjustedSeconds / 3600);
-                    const minutes = Math.floor((adjustedSeconds % 3600) / 60);
-                    const remainingSeconds = adjustedSeconds % 60;
-                    return `${hours}:${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
-                }
-                const minutes = Math.floor(adjustedSeconds / 60);
-                const remainingSeconds = adjustedSeconds % 60;
-                return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
-            }
-            if (totalSeconds >= 3600) {
-                const hours = Math.floor(totalSeconds / 3600);
-                const minutes = Math.floor((totalSeconds % 3600) / 60);
-                const remainingSeconds = totalSeconds % 60;
-                return `${hours}:${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
-            }
-            const minutes = Math.floor(totalSeconds / 60);
-            const remainingSeconds = totalSeconds % 60;
-            return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
-        }
-
-        function formatCardType(type) {
-            if (!type) return '-';
-            const typeMap = {
-                'visa': '<span style="color: #032d60;"><i class="fas fa-credit-card"></i> Visa</span>',
-                'mastercard': '<span style="color: #032d60;"><i class="fas fa-credit-card"></i> MasterCard</span>',
-                'amex': '<span style="color: #032d60;"><i class="fas fa-credit-card"></i> Amex</span>'
-            };
-            return typeMap[type.toLowerCase()] || type;
-        }
-
-        function formatStatus(success, errorMessage) {
-            if (success === null || success === undefined) {
-                return '<span style="color: #fe9339; font-weight: 600;"><i class="fas fa-clock"></i> Pending</span>';
-            }
-            if (success) {
-                return '<span style="color: #04844b; font-weight: 600;"><i class="fas fa-check"></i> Success</span>';
-            } else {
-                return '<span style="color: #ea001e; font-weight: 600;"><i class="fas fa-times"></i> Failed</span>';
-            }
-        }
-
-        // Parse transcript into chat bubbles
-        function parseTranscript(transcript) {
-            if (!transcript || transcript.trim() === '') {
-                return null;
-            }
-
-            const messages = [];
-            // Retell transcript format: "Agent: ... User: ... Agent: ..."
-            // Or could be "Nova: ... Caller: ..." or "Fona: ... Customer: ..."
-            
-            // Split by newlines and process each line
-            const lines = transcript.split(/\n/);
-            let currentSpeaker = null;
-            let currentText = [];
-
-            lines.forEach((line, index) => {
-                line = line.trim();
-                if (!line) {
-                    // Empty line - could be a message separator, but continue current message
-                    return;
-                }
-
-                // Check if line starts with a speaker label
-                const agentMatch = line.match(/^(Agent|Nova|Fona|AI|Assistant):\s*(.+)/i);
-                const userMatch = line.match(/^(User|Caller|Customer):\s*(.+)/i);
-                
-                if (agentMatch) {
-                    // Save previous message if exists
-                    if (currentSpeaker && currentText.length > 0) {
-                        messages.push({ 
-                            speaker: currentSpeaker, 
-                            text: currentText.join(' ').trim() 
-                        });
-                        currentText = [];
-                    }
-                    currentSpeaker = 'agent';
-                    currentText.push(agentMatch[2]);
-                } else if (userMatch) {
-                    // Save previous message if exists
-                    if (currentSpeaker && currentText.length > 0) {
-                        messages.push({ 
-                            speaker: currentSpeaker, 
-                            text: currentText.join(' ').trim() 
-                        });
-                        currentText = [];
-                    }
-                    currentSpeaker = 'customer';
-                    currentText.push(userMatch[2]);
-                } else {
-                    // Continuation of current message (multi-line message)
-                    if (currentText.length > 0 && currentSpeaker) {
-                        currentText.push(line);
-                    } else {
-                        // No speaker identified yet - check context
-                        if (index === 0 || lines[index - 1].trim() === '') {
-                            // First line or after empty line - likely agent message
-                            currentSpeaker = 'agent';
-                            currentText.push(line);
-                        } else if (currentSpeaker) {
-                            // Continue with identified speaker
-                            currentText.push(line);
-                        } else {
-                            // Default to agent if uncertain
-                            currentSpeaker = 'agent';
-                            currentText.push(line);
-                        }
-                    }
-                }
-            });
-
-            // Don't forget the last message
-            if (currentSpeaker && currentText.length > 0) {
-                messages.push({ 
-                    speaker: currentSpeaker, 
-                    text: currentText.join(' ').trim() 
-                });
-            }
-
-            // If no structured parsing worked, try regex-based approach
-            if (messages.length === 0) {
-                const altMessages = [];
-                // Match speaker labels anywhere in text
-                const pattern = /(Agent|Nova|Fona|AI|Assistant|User|Caller|Customer):\s*([^\n]+)/gi;
-                let match;
-                let lastIndex = 0;
-                
-                while ((match = pattern.exec(transcript)) !== null) {
-                    // Check for text between matches
-                    if (match.index > lastIndex) {
-                        const betweenText = transcript.substring(lastIndex, match.index).trim();
-                        if (betweenText && altMessages.length > 0) {
-                            // Append to last message
-                            const lastMsg = altMessages[altMessages.length - 1];
-                            lastMsg.text += ' ' + betweenText;
-                        }
-                    }
-                    
-                    const speaker = match[1];
-                    const text = match[2].trim();
-                    
-                    if (text) {
-                        const speakerType = /^(Agent|Nova|Fona|AI|Assistant)$/i.test(speaker) ? 'agent' : 'customer';
-                        altMessages.push({ speaker: speakerType, text: text });
-                    }
-                    
-                    lastIndex = pattern.lastIndex;
-                }
-                
-                if (altMessages.length > 0) {
-                    return altMessages;
-                }
-            }
-
-            // Still no messages? Return as single agent message
-            if (messages.length === 0) {
-                return [{ speaker: 'agent', text: transcript }];
-            }
-
-            return messages;
-        }
-
-        // Display transcript as chat bubbles
-        function displayTranscript(transcript) {
-            const container = document.getElementById('transcriptContainer');
-            
-            if (!transcript || transcript.trim() === '') {
-                container.innerHTML = `
-                    <div class="no-transcript">
-                        <i class="fas fa-file-alt"></i>
-                        <p>No transcript available for this call.</p>
-                    </div>
-                `;
-                return;
-            }
-
-            const messages = parseTranscript(transcript);
-            
-            if (!messages || messages.length === 0) {
-                // Fallback: display as plain text
-                container.innerHTML = `
-                    <div class="chat-container">
-                        <div class="message agent">
-                            <div class="message-bubble">
-                                <div class="message-label">Agent</div>
-                                <div class="message-text">${transcript.replace(/\n/g, '<br>')}</div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                return;
-            }
-
-            const html = messages.map(msg => {
-                const speakerClass = msg.speaker === 'agent' ? 'agent' : 'customer';
-                const speakerLabel = msg.speaker === 'agent' ? 'Fona (AI Agent)' : 'Customer';
-                
-                return `
-                    <div class="message ${speakerClass}">
-                        <div class="message-bubble">
-                            <div class="message-label">${speakerLabel}</div>
-                            <div class="message-text">${escapeHtml(msg.text)}</div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-
-            container.innerHTML = `<div class="chat-container">${html}</div>`;
-        }
-
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML.replace(/\n/g, '<br>');
-        }
-
-        // Format JSON for display
-        function formatJSON(obj) {
-            return JSON.stringify(obj, null, 2)
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;');
-        }
+        const callId = window.location.pathname.split('/').pop();
 
         // Load call details
         async function loadCallDetails() {
             try {
                 const response = await fetch(`/dashboard/api/call/${callId}`, { credentials: 'include' });
                 const data = await response.json();
-
-                if (!data.success || !data.call) {
-                    document.getElementById('loading').style.display = 'none';
-                    document.getElementById('error').style.display = 'block';
-                    document.getElementById('errorText').textContent = data.error || 'Call not found';
-                    return;
-                }
-
-                const call = data.call;
-
-                // Populate basic info
-                document.getElementById('callId').textContent = `Call ID: ${call.call_id}`;
-                document.getElementById('callDateTime').textContent = formatDateTime(call.call_date, call.call_time);
-                document.getElementById('phoneNumber').textContent = formatPhoneNumber(call.caller_number);
-                document.getElementById('duration').textContent = call.call_duration ? formatDuration(call.call_duration) : '-';
-                document.getElementById('language').textContent = call.language_used || 'en';
-                document.getElementById('status').innerHTML = formatStatus(call.update_successful, call.error_message);
                 
-                document.getElementById('customerName').textContent = call.cardholder_name || call.caller_name || 'Not provided';
-                document.getElementById('cardType').innerHTML = formatCardType(call.card_type);
-                document.getElementById('cardLast4').textContent = call.card_last_4 ? '•••• ' + call.card_last_4 : 'Not provided';
-                document.getElementById('expiryDate').textContent = call.card_expiry_month && call.card_expiry_year ? `${call.card_expiry_month}/${call.card_expiry_year}` : 'Not provided';
+                if (data.success && data.call) {
+                    renderCallDetails(data.call);
+                } else {
+                    document.getElementById('loadingState').innerHTML = `
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <div>Call not found</div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error loading call details:', error);
+                document.getElementById('loadingState').innerHTML = `
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <div>Error loading call details</div>
+                `;
+            }
+        }
 
-                // Show error if failed
+        // Render call details
+        function renderCallDetails(call) {
+            // Hide loading, show content
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('contentArea').style.display = 'block';
+
+            // Status banner
+            const isSuccess = call.update_successful === 1 || call.update_successful === true;
+            const statusBanner = document.getElementById('statusBanner');
+            const statusBadge = document.getElementById('statusBadge');
+            
+            if (isSuccess) {
+                statusBanner.className = 'status-banner success';
+                statusBanner.querySelector('h2').textContent = 'Payment Update Successful';
+                statusBanner.querySelector('p').textContent = 'Credit card information has been successfully updated in the customer\'s account.';
+                statusBadge.className = 'status-badge success';
+                statusBadge.textContent = 'SUCCESS';
+            } else {
+                statusBanner.className = 'status-banner error';
+                statusBanner.querySelector('h2').textContent = 'Payment Update Failed';
+                statusBanner.querySelector('p').textContent = call.error_message || 'The payment update could not be completed. Please review the error details below.';
+                statusBadge.className = 'status-badge error';
+                statusBadge.textContent = 'FAILED';
+                
+                // Show error card
                 if (call.error_message) {
                     document.getElementById('errorCard').style.display = 'block';
                     document.getElementById('errorMessage').textContent = call.error_message;
                 }
+            }
 
-                // Display transcript
-                displayTranscript(call.transcript);
+            // Call information
+            document.getElementById('callId').textContent = call.call_id || '-';
+            document.getElementById('callDateTime').textContent = formatDateTime(call.call_date, call.call_time);
+            document.getElementById('callDuration').textContent = formatDuration(call.call_duration || 0);
+            document.getElementById('callerNumber').textContent = formatPhoneNumber(call.caller_number);
+            document.getElementById('callerName').textContent = call.caller_name || call.cardholder_name || 'Not provided';
 
-                // Display webhook data
-                if (call.webhook_data) {
-                    try {
-                        const webhookData = typeof call.webhook_data === 'string' 
-                            ? JSON.parse(call.webhook_data) 
-                            : call.webhook_data;
-                        document.getElementById('webhookData').innerHTML = `<pre>${formatJSON(webhookData)}</pre>`;
-                    } catch (e) {
-                        document.getElementById('webhookData').textContent = call.webhook_data;
-                    }
-                } else {
-                    document.getElementById('webhookData').textContent = 'No webhook data stored for this call.';
+            // Payment information
+            document.getElementById('cardType').textContent = formatCardType(call.card_type) || '-';
+            document.getElementById('cardLast4').textContent = call.card_last_4 ? `•••• ${call.card_last_4}` : '-';
+            document.getElementById('cardExpiry').textContent = (call.card_expiry_month && call.card_expiry_year) 
+                ? `${call.card_expiry_month}/${call.card_expiry_year}` 
+                : '-';
+            document.getElementById('cardholderName').textContent = call.cardholder_name || '-';
+            document.getElementById('language').textContent = call.language_used || 'en';
+
+            // Transcript
+            if (call.transcript) {
+                renderTranscript(call.transcript);
+            } else {
+                document.getElementById('transcriptContainer').innerHTML = `
+                    <div class="empty-state" style="text-align: center; padding: 40px; color: var(--text-secondary);">
+                        <i class="fas fa-comment-slash"></i>
+                        <div>No transcript available</div>
+                    </div>
+                `;
+            }
+
+            // Webhook data
+            if (call.webhook_data) {
+                try {
+                    const webhookData = typeof call.webhook_data === 'string' 
+                        ? JSON.parse(call.webhook_data) 
+                        : call.webhook_data;
+                    document.getElementById('webhookContent').textContent = JSON.stringify(webhookData, null, 2);
+                } catch (e) {
+                    document.getElementById('webhookContent').textContent = call.webhook_data;
                 }
-
-                document.getElementById('loading').style.display = 'none';
-                document.getElementById('content').style.display = 'block';
-
-            } catch (error) {
-                console.error('Error loading call details:', error);
-                document.getElementById('loading').style.display = 'none';
-                document.getElementById('error').style.display = 'block';
-                document.getElementById('errorText').textContent = 'Error loading call details. Please try again.';
             }
         }
 
-        // Load on page load
-        if (callId) {
-            loadCallDetails();
-        } else {
-            document.getElementById('loading').style.display = 'none';
-            document.getElementById('error').style.display = 'block';
-            document.getElementById('errorText').textContent = 'No call ID provided.';
+        // Redact credit card numbers in text, showing only last 4 digits
+        function redactCreditCardNumbers(text) {
+            if (!text) return text;
+            
+            // First, handle numbers written as words (e.g., "four five two zero three eight...")
+            const numberWords = {
+                'zero': '0', 'one': '1', 'two': '2', 'three': '3', 'four': '4',
+                'five': '5', 'six': '6', 'seven': '7', 'eight': '8', 'nine': '9'
+            };
+            
+            // Strategy: Find sequences of 13+ number words, even if separated by punctuation
+            // Process the text by finding all number words and checking for sequences
+            const numberWordRegex = /\b(zero|one|two|three|four|five|six|seven|eight|nine)\b/gi;
+            const allMatches = [];
+            let match;
+            
+            while ((match = numberWordRegex.exec(text)) !== null) {
+                allMatches.push({
+                    word: match[1].toLowerCase(),
+                    index: match.index,
+                    length: match[0].length
+                });
+            }
+            
+            // Find sequences of 13-19 consecutive number words (within reasonable distance)
+            // First, find all sequences, then replace them in reverse order to avoid index shifting
+            const sequencesToReplace = [];
+            
+            for (let i = 0; i <= allMatches.length - 13; i++) {
+                // Check if we have a sequence of 13-19 number words
+                let sequence = [];
+                let currentIndex = allMatches[i].index;
+                
+                for (let j = i; j < Math.min(i + 19, allMatches.length); j++) {
+                    const distance = allMatches[j].index - currentIndex;
+                    // Allow up to 50 characters between words (for punctuation/spacing)
+                    if (distance <= 50 || j === i) {
+                        sequence.push(allMatches[j]);
+                        currentIndex = allMatches[j].index + allMatches[j].length;
+                    } else {
+                        break;
+                    }
+                }
+                
+                // If we have 13-19 words, this might be a credit card
+                if (sequence.length >= 13 && sequence.length <= 19) {
+                    const digits = sequence.map(m => numberWords[m.word]).join('');
+                    if (digits.length >= 13 && digits.length <= 19) {
+                        const startIndex = sequence[0].index;
+                        const endIndex = sequence[sequence.length - 1].index + sequence[sequence.length - 1].length;
+                        const last4 = digits.slice(-4);
+                        
+                        sequencesToReplace.push({
+                            startIndex: startIndex,
+                            endIndex: endIndex,
+                            replacement: `**** **** **** ${last4}`,
+                            processedIndices: sequence.map(s => s.index)
+                        });
+                        
+                        // Skip ahead to avoid overlapping sequences
+                        i += sequence.length - 1;
+                    }
+                }
+            }
+            
+            // Replace all sequences in reverse order (from end to start) to avoid index shifting
+            for (let i = sequencesToReplace.length - 1; i >= 0; i--) {
+                const seq = sequencesToReplace[i];
+                text = text.substring(0, seq.startIndex) + 
+                       seq.replacement + 
+                       text.substring(seq.endIndex);
+            }
+            
+            // Now handle numeric credit card numbers (13-19 digits, with optional spaces/dashes)
+            // Patterns: 1234567890123456, 1234 5678 9012 3456, 1234-5678-9012-3456
+            const creditCardRegex = /\b(?:\d[ -]?){13,19}\b/g;
+            
+            return text.replace(creditCardRegex, (match) => {
+                // Remove all non-digits
+                const digits = match.replace(/\D/g, '');
+                
+                // Only redact if it's 13-19 digits (likely a credit card)
+                if (digits.length >= 13 && digits.length <= 19) {
+                    // Extract last 4 digits
+                    const last4 = digits.slice(-4);
+                    // Return redacted version with original spacing pattern if present
+                    const hasSpaces = match.includes(' ');
+                    const hasDashes = match.includes('-');
+                    
+                    if (hasSpaces) {
+                        return `**** **** **** ${last4}`;
+                    } else if (hasDashes) {
+                        return `****-****-****-${last4}`;
+                    } else {
+                        return `****${last4}`;
+                    }
+                }
+                
+                // Return original if it doesn't match card pattern
+                return match;
+            });
         }
+
+        // Render transcript
+        function renderTranscript(transcriptText) {
+            const container = document.getElementById('transcriptContainer');
+            
+            // Redact credit card numbers before parsing
+            const redactedTranscript = redactCreditCardNumbers(transcriptText);
+            
+            // Parse transcript into messages
+            const messages = parseTranscript(redactedTranscript);
+            
+            if (messages.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state" style="text-align: center; padding: 40px; color: var(--text-secondary);">
+                        <div>Unable to parse transcript</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = messages.map(msg => `
+                <div class="message ${msg.speaker}">
+                    <div class="message-avatar">${msg.speaker === 'agent' ? 'AI' : 'U'}</div>
+                    <div style="flex: 1;">
+                        <div class="message-bubble">${escapeHtml(msg.text)}</div>
+                        ${msg.timestamp ? `<div class="message-time">${formatTime(msg.timestamp)}</div>` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Parse transcript into messages
+        function parseTranscript(transcript) {
+            if (!transcript) return [];
+            
+            const messages = [];
+            const lines = transcript.split('\n').filter(l => l.trim());
+            
+            let currentSpeaker = null;
+            let currentText = [];
+            
+            lines.forEach(line => {
+                const trimmed = line.trim();
+                if (!trimmed) return;
+                
+                const agentMatch = trimmed.match(/^(Agent|Nova|Fona|AI|Assistant|System):\s*(.+)/i);
+                const userMatch = trimmed.match(/^(User|Caller|Customer|Human):\s*(.+)/i);
+                
+                if (agentMatch) {
+                    if (currentSpeaker && currentText.length > 0) {
+                        messages.push({
+                            speaker: currentSpeaker,
+                            text: redactCreditCardNumbers(currentText.join(' ').trim()),
+                            timestamp: null
+                        });
+                    }
+                    currentSpeaker = 'agent';
+                    currentText = [agentMatch[2]];
+                } else if (userMatch) {
+                    if (currentSpeaker && currentText.length > 0) {
+                        messages.push({
+                            speaker: currentSpeaker,
+                            text: redactCreditCardNumbers(currentText.join(' ').trim()),
+                            timestamp: null
+                        });
+                    }
+                    currentSpeaker = 'customer';
+                    currentText = [userMatch[2]];
+                } else {
+                    if (currentSpeaker) {
+                        currentText.push(trimmed);
+                    } else {
+                        currentSpeaker = 'agent';
+                        currentText = [trimmed];
+                    }
+                }
+            });
+            
+            if (currentSpeaker && currentText.length > 0) {
+                messages.push({
+                    speaker: currentSpeaker,
+                    text: redactCreditCardNumbers(currentText.join(' ').trim()),
+                    timestamp: null
+                });
+            }
+            
+            return messages;
+        }
+
+        // Toggle webhook data
+        function toggleWebhookData() {
+            const content = document.getElementById('webhookContent');
+            content.style.display = content.style.display === 'none' ? 'block' : 'none';
+        }
+
+        // Format functions
+        function formatDateTime(date, time) {
+            if (!date) return '-';
+            // Parse as UTC since database stores in UTC
+            const d = new Date(`${date}T${time || '00:00:00'}Z`);
+            return d.toLocaleString('en-US', { 
+                month: 'long', 
+                day: 'numeric', 
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                timeZone: 'America/New_York',
+                hour12: true
+            });
+        }
+
+        function formatPhoneNumber(num) {
+            if (!num) return '-';
+            const cleaned = num.replace(/\D/g, '');
+            if (cleaned.length === 10) {
+                return `(${cleaned.slice(0,3)}) ${cleaned.slice(3,6)}-${cleaned.slice(6)}`;
+            }
+            return num;
+        }
+
+        function formatDuration(seconds) {
+            if (!seconds || seconds === 0) return '0:00';
+            if (seconds > 7200) seconds = Math.floor(seconds / 1000);
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            const secs = seconds % 60;
+            if (hours > 0) {
+                return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            }
+            return `${minutes}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function formatCardType(type) {
+            if (!type) return '';
+            const types = {
+                'visa': 'Visa',
+                'mastercard': 'Mastercard',
+                'amex': 'American Express'
+            };
+            return types[type.toLowerCase()] || type;
+        }
+
+        function formatTime(timestamp) {
+            if (!timestamp) return '';
+            return new Date(timestamp).toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit',
+                timeZone: 'America/New_York',
+                hour12: true
+            });
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Initialize
+        loadCallDetails();
     </script>
 </body>
 </html>
-
