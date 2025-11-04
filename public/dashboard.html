@@ -665,7 +665,7 @@
                     <td>
                         ${call.error_message ? `
                             <div class="error-preview" title="${escapeHtml(call.error_message)}">
-                                ${escapeHtml(call.error_message)}
+                                ${formatErrorForDashboard(call.error_message)}
                             </div>
                         ` : '-'}
                     </td>

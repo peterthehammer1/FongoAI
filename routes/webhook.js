@@ -185,11 +185,17 @@ router.post('/', asyncHandler(async (req, res) => {
         const apiResponse = await callFongoAPI(cardData);
         console.log(`✅ Fongo API response:`, apiResponse);
         
-        // Log to database with actionable error message
-        const errorMessage = apiResponse.success 
+        // Log to database with both technical and actionable error messages
+        const rawError = apiResponse.success 
           ? null 
           : (apiResponse.data?.error || 'Failed to update credit card');
-        const dashboardErrorMessage = errorMessage ? formatErrorForDashboard(errorMessage) : null;
+        const actionableError = rawError ? formatErrorForDashboard(rawError) : null;
+        
+        // Store both technical error (for billing) and actionable message (for display)
+        // Format: "Technical Error | Actionable Message" for billing department clarity
+        const errorMessageForDB = rawError 
+          ? `${rawError} | ${actionableError}` 
+          : null;
         
         await db.updateCallResult(callId, {
           cardType: cardType,
@@ -198,7 +204,7 @@ router.post('/', asyncHandler(async (req, res) => {
           expiryYear: args.expiryYear,
           cardholderName: null,
           updateSuccessful: apiResponse.success,
-          errorMessage: dashboardErrorMessage || errorMessage, // Store actionable message for dashboard
+          errorMessage: errorMessageForDB, // Store both technical and actionable
           language: 'en' // TODO: detect language from call
         });
         
@@ -222,9 +228,12 @@ router.post('/', asyncHandler(async (req, res) => {
       } catch (apiError) {
         console.error('❌ Fongo API error:', apiError);
         
-        // Log failed attempt to database with actionable error message
-        const errorMessage = apiError.message || apiError.toString();
-        const dashboardErrorMessage = formatErrorForDashboard(errorMessage);
+        // Log failed attempt to database with both technical and actionable error messages
+        const rawError = apiError.message || apiError.toString();
+        const actionableError = formatErrorForDashboard(rawError);
+        
+        // Store both technical error (for billing) and actionable message (for display)
+        const errorMessageForDB = `${rawError} | ${actionableError}`;
         
         try {
           await db.updateCallResult(callId, {
@@ -234,20 +243,20 @@ router.post('/', asyncHandler(async (req, res) => {
             expiryYear: args.expiryYear,
             cardholderName: null,
             updateSuccessful: false,
-            errorMessage: dashboardErrorMessage, // Store actionable message
+            errorMessage: errorMessageForDB, // Store both technical and actionable
             language: 'en'
           });
         } catch (dbError) {
           console.error('❌ Database error:', dbError);
         }
         
-        const actionableError = formatErrorForAI(errorMessage);
+        const actionableErrorForAI = formatErrorForAI(rawError);
         
         return res.status(200).json({ 
           success: false,
-          error: errorMessage, // Keep raw error for logging
-          actionableError: actionableError, // Clear message for AI to speak
-          dashboardError: dashboardErrorMessage // Clear message for dashboard
+          error: rawError, // Keep raw error for logging
+          actionableError: actionableErrorForAI, // Clear message for AI to speak
+          dashboardError: actionableError // Clear message for dashboard
         });
       }
     }

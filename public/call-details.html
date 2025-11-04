@@ -559,10 +559,11 @@
                 statusBadge.className = 'status-badge error';
                 statusBadge.textContent = 'FAILED';
                 
-                // Show error card
+                // Show error card with both technical and actionable messages
                 if (call.error_message) {
                     document.getElementById('errorCard').style.display = 'block';
-                    document.getElementById('errorMessage').textContent = call.error_message;
+                    const errorHtml = formatErrorForCallDetails(call.error_message);
+                    document.getElementById('errorMessage').innerHTML = errorHtml;
                 }
             }
 
@@ -852,6 +853,52 @@
             return types[type.toLowerCase()] || type;
         }
 
+        // Format error message for call details page
+        // Shows both technical error (for billing) and actionable message (for clarity)
+        function formatErrorForCallDetails(errorMessage) {
+            if (!errorMessage) return '';
+            
+            // If error contains " | " separator, split into technical and actionable
+            if (errorMessage.includes(' | ')) {
+                const parts = errorMessage.split(' | ');
+                const technical = parts[0].trim();
+                const actionable = parts[1] ? parts[1].trim() : '';
+                
+                // Show technical error prominently for billing department
+                // Then show actionable message below for context
+                if (actionable && actionable !== technical) {
+                    return `
+                        <div style="margin-bottom: 16px;">
+                            <div style="font-weight: 600; color: var(--error); margin-bottom: 8px; font-size: 16px;">
+                                <i class="fas fa-exclamation-circle"></i> Technical Error
+                            </div>
+                            <div style="background: #fff3f3; padding: 12px; border-radius: 4px; border-left: 3px solid var(--error); margin-bottom: 12px;">
+                                ${escapeHtml(technical)}
+                            </div>
+                            <div style="font-weight: 500; color: var(--text-primary); margin-bottom: 6px;">
+                                What this means for the caller:
+                            </div>
+                            <div style="background: #f9f9f9; padding: 12px; border-radius: 4px; color: var(--text-secondary);">
+                                ${escapeHtml(actionable)}
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    return `<div style="background: #fff3f3; padding: 12px; border-radius: 4px; border-left: 3px solid var(--error);">${escapeHtml(technical)}</div>`;
+                }
+            }
+            
+            // Fallback: just show the error message
+            return `<div style="background: #fff3f3; padding: 12px; border-radius: 4px; border-left: 3px solid var(--error);">${escapeHtml(errorMessage)}</div>`;
+        }
+        
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
         function formatTime(timestamp) {
             if (!timestamp) return '';
             return new Date(timestamp).toLocaleTimeString('en-US', {
@@ -860,12 +907,6 @@
                 timeZone: 'America/New_York',
                 hour12: true
             });
-        }
-
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
         }
 
         // Initialize
