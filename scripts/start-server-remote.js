@@ -8,7 +8,11 @@
 const axios = require('axios');
 require('dotenv').config();
 
-const DO_API_TOKEN = process.env.DIGITALOCEAN_API_TOKEN || 'dop_v1_a5bfaff049867f114191063462d2791059a7d453fc82c2681b6f6cba907edd73';
+const DO_API_TOKEN = process.env.DIGITALOCEAN_API_TOKEN;
+if (!DO_API_TOKEN) {
+  console.error('❌ DIGITALOCEAN_API_TOKEN environment variable is required');
+  process.exit(1);
+}
 const DO_API_BASE = 'https://api.digitalocean.com/v2';
 const SERVER_IP = '134.122.37.50';
 
