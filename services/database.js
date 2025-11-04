@@ -592,12 +592,78 @@ function getAnalytics() {
   });
 }
 
+/**
+ * Check if SMS was sent for a call and update call result if needed
+ */
+function checkAndUpdateSmsStatus(callId) {
+  return new Promise((resolve, reject) => {
+    // First, check if SMS was sent for this call
+    const smsCheckSql = `
+      SELECT COUNT(*) as sms_count
+      FROM sms_logs
+      WHERE call_id = ? AND sms_sent = 1
+    `;
+    
+    db.get(smsCheckSql, [callId], (err, smsRow) => {
+      if (err) {
+        console.error('Error checking SMS status:', err);
+        reject(err);
+        return;
+      }
+      
+      if (smsRow && smsRow.sms_count > 0) {
+        // SMS was sent, check if no credit card update occurred
+        const callCheckSql = `
+          SELECT update_successful, card_type
+          FROM call_logs
+          WHERE call_id = ?
+        `;
+        
+        db.get(callCheckSql, [callId], (err, callRow) => {
+          if (err) {
+            console.error('Error checking call status:', err);
+            reject(err);
+            return;
+          }
+          
+          // If no credit card update occurred (update_successful is NULL and no card_type)
+          if (callRow && (callRow.update_successful === null || callRow.update_successful === undefined) && !callRow.card_type) {
+            // Update call with special status indicating SMS was sent
+            const updateSql = `
+              UPDATE call_logs
+              SET update_successful = NULL,
+                  error_message = 'Not a Fongo Phone. Sent SMS.',
+                  updated_at = CURRENT_TIMESTAMP
+              WHERE call_id = ?
+            `;
+            
+            db.run(updateSql, [callId], function(updateErr) {
+              if (updateErr) {
+                console.error('Error updating call with SMS status:', updateErr);
+                reject(updateErr);
+              } else {
+                console.log(`✅ Updated call ${callId} with SMS status: Not a Fongo Phone. Sent SMS.`);
+                resolve(true);
+              }
+            });
+          } else {
+            resolve(false);
+          }
+        });
+      } else {
+        resolve(false);
+      }
+    });
+  });
+}
+
 module.exports = {
   logCallStart,
   updateCallResult,
   updateCallDuration,
   updateCallTranscript,
   updateWebhookData,
+  checkAndUpdateSmsStatus,
   getAllCalls,
   getCallSummary,
   searchCalls,

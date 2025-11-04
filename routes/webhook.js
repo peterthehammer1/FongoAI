@@ -310,6 +310,14 @@ router.post('/', asyncHandler(async (req, res) => {
           console.error('❌ Database error updating call duration:', dbError);
         }
         
+        // Check if SMS was sent and update call status if no credit card update occurred
+        try {
+          await db.checkAndUpdateSmsStatus(call.call_id);
+        } catch (smsStatusError) {
+          console.error('❌ Database error checking SMS status:', smsStatusError);
+          // Don't fail the webhook if this check fails
+        }
+        
         // Clean up stored data
         creditCardData.delete(call.call_id);
         break;
