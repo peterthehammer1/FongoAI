@@ -736,14 +736,17 @@
         function formatDuration(seconds) {
             if (!seconds || seconds === 0) return '0:00';
             
-            // Handle milliseconds
+            // Handle milliseconds - if value is very large, assume it's in milliseconds
             if (seconds > 7200) { // More than 2 hours, likely in milliseconds
-                seconds = Math.floor(seconds / 1000);
+                seconds = seconds / 1000;
             }
+            
+            // Round to avoid floating point precision issues
+            seconds = Math.round(seconds);
             
             const hours = Math.floor(seconds / 3600);
             const minutes = Math.floor((seconds % 3600) / 60);
-            const secs = seconds % 60;
+            const secs = Math.floor(seconds % 60);
             
             if (hours > 0) {
                 return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
