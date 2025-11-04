@@ -193,26 +193,30 @@ function getAllCalls(limit = 50, offset = 0) {
   return new Promise((resolve, reject) => {
     const sql = `
       SELECT 
-        id,
-        call_id,
-        caller_name,
-        caller_number,
-        call_date,
-        call_time,
-        call_duration,
-        card_type,
-        card_last_4,
-        card_expiry_month,
-        card_expiry_year,
-        cardholder_name,
-        update_successful,
-        error_message,
-        language_used,
-        transcript,
-        webhook_data,
-        created_at
-      FROM call_logs
-      ORDER BY call_date DESC, call_time DESC
+        c.id,
+        c.call_id,
+        c.caller_name,
+        c.caller_number,
+        c.call_date,
+        c.call_time,
+        c.call_duration,
+        c.card_type,
+        c.card_last_4,
+        c.card_expiry_month,
+        c.card_expiry_year,
+        c.cardholder_name,
+        c.update_successful,
+        c.error_message,
+        c.language_used,
+        c.transcript,
+        c.webhook_data,
+        c.created_at,
+        CASE WHEN MAX(s.sms_sent) = 1 THEN 1 ELSE 0 END as sms_sent
+      FROM call_logs c
+      LEFT JOIN sms_logs s ON c.call_id = s.call_id
+      WHERE (c.call_date >= '2025-11-04' OR (c.call_date < '2025-11-04' AND c.update_successful = 1))
+      GROUP BY c.id
+      ORDER BY c.call_date DESC, c.call_time DESC
       LIMIT ? OFFSET ?
     `;
     
@@ -252,28 +256,32 @@ function searchCalls(searchTerm) {
   return new Promise((resolve, reject) => {
     const sql = `
       SELECT 
-        id,
-        call_id,
-        caller_name,
-        caller_number,
-        call_date,
-        call_time,
-        call_duration,
-        card_type,
-        card_last_4,
-        card_expiry_month,
-        card_expiry_year,
-        cardholder_name,
-        update_successful,
-        error_message,
-        language_used,
-        created_at
-      FROM call_logs
-      WHERE caller_number LIKE ? 
-         OR caller_name LIKE ?
-         OR cardholder_name LIKE ?
-         OR call_date LIKE ?
-      ORDER BY call_date DESC, call_time DESC
+        c.id,
+        c.call_id,
+        c.caller_name,
+        c.caller_number,
+        c.call_date,
+        c.call_time,
+        c.call_duration,
+        c.card_type,
+        c.card_last_4,
+        c.card_expiry_month,
+        c.card_expiry_year,
+        c.cardholder_name,
+        c.update_successful,
+        c.error_message,
+        c.language_used,
+        c.created_at,
+        CASE WHEN MAX(s.sms_sent) = 1 THEN 1 ELSE 0 END as sms_sent
+      FROM call_logs c
+      LEFT JOIN sms_logs s ON c.call_id = s.call_id
+      WHERE (c.call_date >= '2025-11-04' OR (c.call_date < '2025-11-04' AND c.update_successful = 1))
+         AND (c.caller_number LIKE ? 
+         OR c.caller_name LIKE ?
+         OR c.cardholder_name LIKE ?
+         OR c.call_date LIKE ?)
+      GROUP BY c.id
+      ORDER BY c.call_date DESC, c.call_time DESC
       LIMIT 100
     `;
     
@@ -482,16 +490,17 @@ function getAnalytics() {
   return new Promise((resolve, reject) => {
     const analytics = {};
     
-    // Get hourly call distribution for the last 24 hours
-    const hourlyQuery = `
-      SELECT 
-        strftime('%H', datetime(call_date || ' ' || call_time)) as hour,
-        COUNT(*) as call_count
-      FROM call_logs 
-      WHERE datetime(call_date || ' ' || call_time) >= datetime('now', '-24 hours')
-      GROUP BY hour
-      ORDER BY hour
-    `;
+      // Get hourly call distribution for the last 24 hours
+      const hourlyQuery = `
+        SELECT 
+          strftime('%H', datetime(call_date || ' ' || call_time)) as hour,
+          COUNT(*) as call_count
+        FROM call_logs 
+        WHERE datetime(call_date || ' ' || call_time) >= datetime('now', '-24 hours')
+          AND (call_date >= '2025-11-04' OR (call_date < '2025-11-04' AND update_successful = 1))
+        GROUP BY hour
+        ORDER BY hour
+      `;
     
     db.all(hourlyQuery, [], (err, hourlyRows) => {
       if (err) {
@@ -522,10 +531,11 @@ function getAnalytics() {
       // Get success/failure counts
       const successQuery = `
         SELECT 
-          SUM(CASE WHEN success = 1 THEN 1 ELSE 0 END) as successful_calls,
-          SUM(CASE WHEN success = 0 THEN 1 ELSE 0 END) as failed_calls
+          SUM(CASE WHEN update_successful = 1 THEN 1 ELSE 0 END) as successful_calls,
+          SUM(CASE WHEN update_successful = 0 THEN 1 ELSE 0 END) as failed_calls
         FROM call_logs 
-        WHERE success IS NOT NULL
+        WHERE update_successful IS NOT NULL
+          AND (call_date >= '2025-11-04' OR (call_date < '2025-11-04' AND update_successful = 1))
       `;
       
       db.get(successQuery, [], (err, successRow) => {
@@ -540,11 +550,12 @@ function getAnalytics() {
         // Get card type distribution
         const cardTypeQuery = `
           SELECT 
-            SUM(CASE WHEN card_type = 'Visa' THEN 1 ELSE 0 END) as visa_count,
-            SUM(CASE WHEN card_type = 'Mastercard' THEN 1 ELSE 0 END) as mastercard_count,
-            SUM(CASE WHEN card_type = 'American Express' THEN 1 ELSE 0 END) as amex_count
+            SUM(CASE WHEN card_type = 'visa' THEN 1 ELSE 0 END) as visa_count,
+            SUM(CASE WHEN card_type = 'mastercard' THEN 1 ELSE 0 END) as mastercard_count,
+            SUM(CASE WHEN card_type = 'amex' THEN 1 ELSE 0 END) as amex_count
           FROM call_logs 
           WHERE card_type IS NOT NULL
+            AND (call_date >= '2025-11-04' OR (call_date < '2025-11-04' AND update_successful = 1))
         `;
         
         db.get(cardTypeQuery, [], (err, cardTypeRow) => {
@@ -559,9 +570,10 @@ function getAnalytics() {
           
           // Get average call duration
           const durationQuery = `
-            SELECT AVG(duration_seconds) as avg_duration
+            SELECT AVG(call_duration) as avg_duration
             FROM call_logs 
-            WHERE duration_seconds IS NOT NULL AND duration_seconds > 0
+            WHERE call_duration IS NOT NULL AND call_duration > 0
+              AND (call_date >= '2025-11-04' OR (call_date < '2025-11-04' AND update_successful = 1))
           `;
           
           db.get(durationQuery, [], (err, durationRow) => {

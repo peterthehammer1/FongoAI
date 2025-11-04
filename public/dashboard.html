@@ -485,6 +485,7 @@
                             <th>Date & Time</th>
                             <th>Phone Number</th>
                             <th>Duration</th>
+                            <th>SMS Sent</th>
                             <th>Payment Status</th>
                             <th>Card Details</th>
                             <th>Error</th>
@@ -493,7 +494,7 @@
                     </thead>
                     <tbody id="callsTable">
                         <tr>
-                            <td colspan="7" class="loading">
+                            <td colspan="8" class="loading">
                                 <i class="fas fa-spinner"></i>
                                 <div>Loading calls...</div>
                             </td>
@@ -615,7 +616,7 @@
                 console.error('Error loading calls:', error);
                 document.getElementById('callsTable').innerHTML = `
                     <tr>
-                        <td colspan="7" class="empty-state">
+                        <td colspan="8" class="empty-state">
                             <i class="fas fa-exclamation-triangle"></i>
                             <div>Error loading calls. Please refresh the page.</div>
                         </td>
@@ -631,7 +632,7 @@
             if (calls.length === 0) {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="7" class="empty-state">
+                        <td colspan="8" class="empty-state">
                             <i class="fas fa-inbox"></i>
                             <div>No calls found</div>
                         </td>
@@ -648,6 +649,9 @@
                     </td>
                     <td>${formatPhoneNumber(call.caller_number)}</td>
                     <td>${formatDuration(call.call_duration || 0)}</td>
+                    <td style="text-align: center;">
+                        ${call.sms_sent === 1 ? '<i class="fas fa-check-circle" style="color: var(--success); font-size: 18px;" title="SMS sent"></i>' : '-'}
+                    </td>
                     <td>${formatPaymentStatus(call.update_successful, call.error_message)}</td>
                     <td>
                         ${call.card_type ? `
