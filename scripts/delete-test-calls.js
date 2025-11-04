@@ -35,6 +35,11 @@ function normalizePhoneNumber(num) {
   return num.replace(/[^\d+]/g, '');
 }
 
+// Extract just the digits from a phone number (for LIKE queries)
+function extractDigits(num) {
+  return num.replace(/\D/g, '');
+}
+
 function deleteCallsFromDatabase(dbPath, dbName) {
   return new Promise((resolve, reject) => {
     const db = new sqlite3.Database(dbPath, (err) => {
@@ -50,12 +55,27 @@ function deleteCallsFromDatabase(dbPath, dbName) {
     });
 
     // First, get all matching call_ids
-    const placeholders = testNumbers.map(() => '?').join(',');
-    const normalizedNumbers = testNumbers.map(n => normalizePhoneNumber(n));
+    // Use digit-only pattern matching for robust matching
+    const digits1 = extractDigits(testNumbers[0]); // +15199918959
+    const digits2 = extractDigits(testNumbers[5]); // +15198040969
+    const digits3 = extractDigits(testNumbers[10]); // +14169131417
     
     db.all(
-      `SELECT call_id FROM call_logs WHERE caller_number IN (${placeholders}) OR caller_number LIKE ? OR caller_number LIKE ? OR caller_number LIKE ?`,
-      [...normalizedNumbers, `%${normalizedNumbers[0]}%`, `%${normalizedNumbers[5]}%`, `%${normalizedNumbers[10]}%`],
+      `SELECT call_id, caller_number FROM call_logs 
+       WHERE caller_number LIKE ? 
+          OR caller_number LIKE ? 
+          OR caller_number LIKE ?
+          OR REPLACE(REPLACE(REPLACE(REPLACE(caller_number, '+', ''), '-', ''), ' ', ''), '(', '') LIKE ?
+          OR REPLACE(REPLACE(REPLACE(REPLACE(caller_number, '+', ''), '-', ''), ' ', ''), '(', '') LIKE ?
+          OR REPLACE(REPLACE(REPLACE(REPLACE(caller_number, '+', ''), '-', ''), ' ', ''), '(', '') LIKE ?`,
+      [
+        `%${digits1}%`, 
+        `%${digits2}%`, 
+        `%${digits3}%`,
+        `%${digits1}%`,
+        `%${digits2}%`,
+        `%${digits3}%`
+      ],
       (err, rows) => {
         if (err) {
           db.close();
@@ -85,10 +105,27 @@ function deleteCallsFromDatabase(dbPath, dbName) {
               console.log(`   Deleted ${this.changes} SMS log entries`);
             }
 
-            // Delete from call_logs
+            // Delete from call_logs using the same pattern
+            const digits1 = extractDigits(testNumbers[0]);
+            const digits2 = extractDigits(testNumbers[5]);
+            const digits3 = extractDigits(testNumbers[10]);
+            
             db.run(
-              `DELETE FROM call_logs WHERE caller_number IN (${placeholders}) OR caller_number LIKE ? OR caller_number LIKE ? OR caller_number LIKE ?`,
-              [...normalizedNumbers, `%${normalizedNumbers[0]}%`, `%${normalizedNumbers[5]}%`, `%${normalizedNumbers[10]}%`],
+              `DELETE FROM call_logs 
+               WHERE caller_number LIKE ? 
+                  OR caller_number LIKE ? 
+                  OR caller_number LIKE ?
+                  OR REPLACE(REPLACE(REPLACE(REPLACE(caller_number, '+', ''), '-', ''), ' ', ''), '(', '') LIKE ?
+                  OR REPLACE(REPLACE(REPLACE(REPLACE(caller_number, '+', ''), '-', ''), ' ', ''), '(', '') LIKE ?
+                  OR REPLACE(REPLACE(REPLACE(REPLACE(caller_number, '+', ''), '-', ''), ' ', ''), '(', '') LIKE ?`,
+              [
+                `%${digits1}%`, 
+                `%${digits2}%`, 
+                `%${digits3}%`,
+                `%${digits1}%`,
+                `%${digits2}%`,
+                `%${digits3}%`
+              ],
               function(callErr) {
                 if (callErr) {
                   db.close();
@@ -122,12 +159,26 @@ function deleteCallsFromComprehensiveDatabase(dbPath, dbName) {
       }
     });
 
-    const placeholders = testNumbers.map(() => '?').join(',');
-    const normalizedNumbers = testNumbers.map(n => normalizePhoneNumber(n));
+    const digits1 = extractDigits(testNumbers[0]);
+    const digits2 = extractDigits(testNumbers[5]);
+    const digits3 = extractDigits(testNumbers[10]);
     
     db.all(
-      `SELECT call_id FROM call_logs_comprehensive WHERE from_number IN (${placeholders}) OR from_number LIKE ? OR from_number LIKE ? OR from_number LIKE ?`,
-      [...normalizedNumbers, `%${normalizedNumbers[0]}%`, `%${normalizedNumbers[5]}%`, `%${normalizedNumbers[10]}%`],
+      `SELECT call_id, from_number FROM call_logs_comprehensive 
+       WHERE from_number LIKE ? 
+          OR from_number LIKE ? 
+          OR from_number LIKE ?
+          OR REPLACE(REPLACE(REPLACE(REPLACE(from_number, '+', ''), '-', ''), ' ', ''), '(', '') LIKE ?
+          OR REPLACE(REPLACE(REPLACE(REPLACE(from_number, '+', ''), '-', ''), ' ', ''), '(', '') LIKE ?
+          OR REPLACE(REPLACE(REPLACE(REPLACE(from_number, '+', ''), '-', ''), ' ', ''), '(', '') LIKE ?`,
+      [
+        `%${digits1}%`, 
+        `%${digits2}%`, 
+        `%${digits3}%`,
+        `%${digits1}%`,
+        `%${digits2}%`,
+        `%${digits3}%`
+      ],
       (err, rows) => {
         if (err) {
           db.close();
@@ -157,10 +208,27 @@ function deleteCallsFromComprehensiveDatabase(dbPath, dbName) {
               console.log(`   Deleted ${this.changes} webhook event entries`);
             }
 
-            // Delete from call_logs_comprehensive
+            // Delete from call_logs_comprehensive using the same pattern
+            const digits1 = extractDigits(testNumbers[0]);
+            const digits2 = extractDigits(testNumbers[5]);
+            const digits3 = extractDigits(testNumbers[10]);
+            
             db.run(
-              `DELETE FROM call_logs_comprehensive WHERE from_number IN (${placeholders}) OR from_number LIKE ? OR from_number LIKE ? OR from_number LIKE ?`,
-              [...normalizedNumbers, `%${normalizedNumbers[0]}%`, `%${normalizedNumbers[5]}%`, `%${normalizedNumbers[10]}%`],
+              `DELETE FROM call_logs_comprehensive 
+               WHERE from_number LIKE ? 
+                  OR from_number LIKE ? 
+                  OR from_number LIKE ?
+                  OR REPLACE(REPLACE(REPLACE(REPLACE(from_number, '+', ''), '-', ''), ' ', ''), '(', '') LIKE ?
+                  OR REPLACE(REPLACE(REPLACE(REPLACE(from_number, '+', ''), '-', ''), ' ', ''), '(', '') LIKE ?
+                  OR REPLACE(REPLACE(REPLACE(REPLACE(from_number, '+', ''), '-', ''), ' ', ''), '(', '') LIKE ?`,
+              [
+                `%${digits1}%`, 
+                `%${digits2}%`, 
+                `%${digits3}%`,
+                `%${digits1}%`,
+                `%${digits2}%`,
+                `%${digits3}%`
+              ],
               function(compErr) {
                 if (compErr) {
                   db.close();
