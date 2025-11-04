@@ -232,10 +232,59 @@ function analyzeError(errorMessage) {
 router.get('/call/:callId', async (req, res) => {
   try {
     const { callId } = req.params;
+    
+    // Get from main database
     const call = await db.getCallById(callId);
     
     if (!call) {
       return res.status(404).json({ success: false, error: 'Call not found' });
+    }
+    
+    // Try to get comprehensive data
+    try {
+      const comprehensiveCall = await dbComprehensive.getComprehensiveCallData(callId);
+      if (comprehensiveCall) {
+        // Merge comprehensive data into call object
+        Object.assign(call, {
+          // Core Call Data
+          call_type: comprehensiveCall.call_type || call.call_type,
+          call_status: comprehensiveCall.call_status || call.call_status,
+          from_number: comprehensiveCall.from_number || call.caller_number,
+          to_number: comprehensiveCall.to_number,
+          direction: comprehensiveCall.direction,
+          agent_id: comprehensiveCall.agent_id,
+          agent_name: comprehensiveCall.agent_name || call.agent_name,
+          agent_version: comprehensiveCall.agent_version,
+          start_timestamp: comprehensiveCall.start_timestamp,
+          end_timestamp: comprehensiveCall.end_timestamp,
+          duration_ms: comprehensiveCall.duration_ms,
+          call_duration: comprehensiveCall.duration_ms ? Math.floor(comprehensiveCall.duration_ms / 1000) : call.call_duration,
+          disconnection_reason: comprehensiveCall.disconnection_reason,
+          
+          // Transcript & Recording Data
+          transcript_object: comprehensiveCall.transcript_object,
+          transcript_with_tool_calls: comprehensiveCall.transcript_with_tool_calls,
+          scrubbed_transcript_with_tool_calls: comprehensiveCall.scrubbed_transcript_with_tool_calls,
+          recording_url: comprehensiveCall.recording_url,
+          recording_multi_channel_url: comprehensiveCall.recording_multi_channel_url,
+          scrubbed_recording_url: comprehensiveCall.scrubbed_recording_url,
+          scrubbed_recording_multi_channel_url: comprehensiveCall.scrubbed_recording_multi_channel_url,
+          
+          // Analysis & Insights
+          call_analysis: comprehensiveCall.call_analysis,
+          call_summary: comprehensiveCall.call_summary,
+          user_sentiment: comprehensiveCall.user_sentiment,
+          call_successful: comprehensiveCall.call_successful,
+          in_voicemail: comprehensiveCall.in_voicemail,
+          custom_analysis_data: comprehensiveCall.custom_analysis_data,
+          
+          // Use comprehensive transcript if available
+          transcript: comprehensiveCall.transcript || call.transcript
+        });
+      }
+    } catch (compError) {
+      // If comprehensive database doesn't exist or has an error, just use main database data
+      console.log('Comprehensive data not available:', compError.message);
     }
     
     res.json({ success: true, call });

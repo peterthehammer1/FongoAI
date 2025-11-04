@@ -212,6 +212,81 @@
             line-height: 1.6;
         }
 
+        /* Comprehensive Sections */
+        .comprehensive-section {
+            background: var(--bg-white);
+            border-radius: 8px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .section-header {
+            padding: 20px 24px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            transition: background 0.2s;
+        }
+
+        .section-header:hover {
+            background: var(--bg-light);
+        }
+
+        .section-header h3 {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-header i.fa-chevron-down {
+            transition: transform 0.3s;
+        }
+
+        .section-header.collapsed i.fa-chevron-down {
+            transform: rotate(-90deg);
+        }
+
+        .section-content {
+            padding: 24px;
+            display: block;
+        }
+
+        .section-content.collapsed {
+            display: none;
+        }
+
+        .info-card h4 {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .btn-small {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background 0.2s;
+        }
+
+        .btn-small:hover {
+            background: var(--primary-dark);
+        }
+
         /* Transcript Section */
         .transcript-section {
             background: var(--bg-white);
@@ -483,6 +558,164 @@
                 </div>
             </div>
 
+            <!-- Core Call Data Section -->
+            <div class="comprehensive-section" id="coreCallDataSection" style="display: none;">
+                <div class="section-header" onclick="toggleSection('coreCallData')">
+                    <h3><i class="fas fa-phone"></i> Core Call Data</h3>
+                    <i class="fas fa-chevron-down" id="coreCallDataIcon"></i>
+                </div>
+                <div class="section-content" id="coreCallDataContent">
+                    <div class="info-grid">
+                        <div class="info-card">
+                            <h4>Call Details</h4>
+                            <div class="info-row">
+                                <span class="info-label">Call Type</span>
+                                <span class="info-value" id="callType">-</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Call Status</span>
+                                <span class="info-value" id="callStatus">-</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Direction</span>
+                                <span class="info-value" id="direction">-</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">From Number</span>
+                                <span class="info-value" id="fromNumber">-</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">To Number</span>
+                                <span class="info-value" id="toNumber">-</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Disconnection Reason</span>
+                                <span class="info-value" id="disconnectionReason">-</span>
+                            </div>
+                        </div>
+                        <div class="info-card">
+                            <h4>Agent Information</h4>
+                            <div class="info-row">
+                                <span class="info-label">Agent ID</span>
+                                <span class="info-value" id="agentId">-</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Agent Name</span>
+                                <span class="info-value" id="agentName">-</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Agent Version</span>
+                                <span class="info-value" id="agentVersion">-</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Start Time</span>
+                                <span class="info-value" id="startTimestamp">-</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">End Time</span>
+                                <span class="info-value" id="endTimestamp">-</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Duration (ms)</span>
+                                <span class="info-value" id="durationMs">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Transcript & Recording Section -->
+            <div class="comprehensive-section" id="transcriptRecordingSection" style="display: none;">
+                <div class="section-header" onclick="toggleSection('transcriptRecording')">
+                    <h3><i class="fas fa-file-audio"></i> Transcript & Recording Data</h3>
+                    <i class="fas fa-chevron-down" id="transcriptRecordingIcon"></i>
+                </div>
+                <div class="section-content" id="transcriptRecordingContent">
+                    <div class="info-grid">
+                        <div class="info-card">
+                            <h4>Recordings</h4>
+                            <div class="info-row" id="recordingUrlRow" style="display: none;">
+                                <span class="info-label">Recording URL</span>
+                                <span class="info-value"><a href="#" id="recordingUrl" target="_blank">Listen</a></span>
+                            </div>
+                            <div class="info-row" id="recordingMultiChannelRow" style="display: none;">
+                                <span class="info-label">Multi-Channel Recording</span>
+                                <span class="info-value"><a href="#" id="recordingMultiChannelUrl" target="_blank">Listen</a></span>
+                            </div>
+                            <div class="info-row" id="scrubbedRecordingRow" style="display: none;">
+                                <span class="info-label">Scrubbed Recording</span>
+                                <span class="info-value"><a href="#" id="scrubbedRecordingUrl" target="_blank">Listen</a></span>
+                            </div>
+                            <div class="info-row" id="scrubbedMultiChannelRow" style="display: none;">
+                                <span class="info-label">Scrubbed Multi-Channel</span>
+                                <span class="info-value"><a href="#" id="scrubbedMultiChannelUrl" target="_blank">Listen</a></span>
+                            </div>
+                        </div>
+                        <div class="info-card">
+                            <h4>Transcript Variants</h4>
+                            <div class="info-row">
+                                <span class="info-label">Plain Text</span>
+                                <span class="info-value" id="transcriptAvailable">Available</span>
+                            </div>
+                            <div class="info-row" id="transcriptObjectRow" style="display: none;">
+                                <span class="info-label">Structured Transcript</span>
+                                <span class="info-value"><button class="btn-small" onclick="showTranscriptObject()">View</button></span>
+                            </div>
+                            <div class="info-row" id="transcriptToolCallsRow" style="display: none;">
+                                <span class="info-label">With Tool Calls</span>
+                                <span class="info-value"><button class="btn-small" onclick="showTranscriptWithToolCalls()">View</button></span>
+                            </div>
+                            <div class="info-row" id="scrubbedTranscriptRow" style="display: none;">
+                                <span class="info-label">Scrubbed (PII Removed)</span>
+                                <span class="info-value"><button class="btn-small" onclick="showScrubbedTranscript()">View</button></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analysis & Insights Section -->
+            <div class="comprehensive-section" id="analysisSection" style="display: none;">
+                <div class="section-header" onclick="toggleSection('analysis')">
+                    <h3><i class="fas fa-chart-line"></i> Analysis & Insights</h3>
+                    <i class="fas fa-chevron-down" id="analysisIcon"></i>
+                </div>
+                <div class="section-content" id="analysisContent">
+                    <div class="info-grid">
+                        <div class="info-card">
+                            <h4>Call Analysis</h4>
+                            <div class="info-row">
+                                <span class="info-label">Call Successful</span>
+                                <span class="info-value" id="callSuccessful">-</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">User Sentiment</span>
+                                <span class="info-value" id="userSentiment">-</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">In Voicemail</span>
+                                <span class="info-value" id="inVoicemail">-</span>
+                            </div>
+                            <div class="info-row" id="callSummaryRow" style="display: none;">
+                                <span class="info-label">Call Summary</span>
+                                <span class="info-value" id="callSummary" style="white-space: pre-wrap; text-align: left;">-</span>
+                            </div>
+                        </div>
+                        <div class="info-card">
+                            <h4>Detailed Analysis</h4>
+                            <div class="info-row" id="callAnalysisRow" style="display: none;">
+                                <span class="info-label">Full Analysis</span>
+                                <span class="info-value"><button class="btn-small" onclick="showCallAnalysis()">View</button></span>
+                            </div>
+                            <div class="info-row" id="customAnalysisRow" style="display: none;">
+                                <span class="info-label">Custom Analysis</span>
+                                <span class="info-value"><button class="btn-small" onclick="showCustomAnalysis()">View</button></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Transcript Section -->
             <div class="transcript-section">
                 <div class="transcript-header">
@@ -595,6 +828,9 @@
                 `;
             }
 
+            // Populate comprehensive data
+            populateComprehensiveData(call);
+
             // Webhook data
             if (call.webhook_data) {
                 try {
@@ -606,6 +842,198 @@
                     document.getElementById('webhookContent').textContent = call.webhook_data;
                 }
             }
+        }
+
+        // Populate comprehensive Retell AI data
+        function populateComprehensiveData(call) {
+            // Core Call Data
+            if (call.call_type || call.call_status || call.direction || call.from_number || call.to_number || call.disconnection_reason || 
+                call.agent_id || call.agent_name || call.agent_version || call.start_timestamp || call.end_timestamp || call.duration_ms) {
+                document.getElementById('coreCallDataSection').style.display = 'block';
+                
+                document.getElementById('callType').textContent = call.call_type || '-';
+                document.getElementById('callStatus').textContent = call.call_status || '-';
+                document.getElementById('direction').textContent = call.direction || '-';
+                document.getElementById('fromNumber').textContent = formatPhoneNumber(call.from_number || call.caller_number || '-');
+                document.getElementById('toNumber').textContent = formatPhoneNumber(call.to_number || '-');
+                document.getElementById('disconnectionReason').textContent = call.disconnection_reason || '-';
+                
+                document.getElementById('agentId').textContent = call.agent_id || '-';
+                document.getElementById('agentName').textContent = call.agent_name || '-';
+                document.getElementById('agentVersion').textContent = call.agent_version || '-';
+                document.getElementById('startTimestamp').textContent = call.start_timestamp 
+                    ? formatTimestamp(call.start_timestamp) : '-';
+                document.getElementById('endTimestamp').textContent = call.end_timestamp 
+                    ? formatTimestamp(call.end_timestamp) : '-';
+                document.getElementById('durationMs').textContent = call.duration_ms 
+                    ? `${call.duration_ms.toLocaleString()}ms (${formatDuration(Math.floor(call.duration_ms / 1000))})` : '-';
+            }
+
+            // Transcript & Recording Data
+            if (call.recording_url || call.recording_multi_channel_url || call.scrubbed_recording_url || 
+                call.transcript_object || call.transcript_with_tool_calls || call.scrubbed_transcript_with_tool_calls) {
+                document.getElementById('transcriptRecordingSection').style.display = 'block';
+                
+                if (call.recording_url) {
+                    document.getElementById('recordingUrlRow').style.display = 'flex';
+                    document.getElementById('recordingUrl').href = call.recording_url;
+                }
+                if (call.recording_multi_channel_url) {
+                    document.getElementById('recordingMultiChannelRow').style.display = 'flex';
+                    document.getElementById('recordingMultiChannelUrl').href = call.recording_multi_channel_url;
+                }
+                if (call.scrubbed_recording_url) {
+                    document.getElementById('scrubbedRecordingRow').style.display = 'flex';
+                    document.getElementById('scrubbedRecordingUrl').href = call.scrubbed_recording_url;
+                }
+                if (call.scrubbed_recording_multi_channel_url) {
+                    document.getElementById('scrubbedMultiChannelRow').style.display = 'flex';
+                    document.getElementById('scrubbedMultiChannelUrl').href = call.scrubbed_recording_multi_channel_url;
+                }
+                
+                if (call.transcript_object) {
+                    document.getElementById('transcriptObjectRow').style.display = 'flex';
+                    window.transcriptObject = call.transcript_object;
+                }
+                if (call.transcript_with_tool_calls) {
+                    document.getElementById('transcriptToolCallsRow').style.display = 'flex';
+                    window.transcriptWithToolCalls = call.transcript_with_tool_calls;
+                }
+                if (call.scrubbed_transcript_with_tool_calls) {
+                    document.getElementById('scrubbedTranscriptRow').style.display = 'flex';
+                    window.scrubbedTranscript = call.scrubbed_transcript_with_tool_calls;
+                }
+            }
+
+            // Analysis & Insights
+            if (call.call_successful !== undefined || call.user_sentiment || call.in_voicemail || 
+                call.call_summary || call.call_analysis || call.custom_analysis_data) {
+                document.getElementById('analysisSection').style.display = 'block';
+                
+                document.getElementById('callSuccessful').textContent = call.call_successful !== undefined 
+                    ? (call.call_successful ? 'Yes' : 'No') : '-';
+                document.getElementById('userSentiment').textContent = call.user_sentiment || '-';
+                document.getElementById('inVoicemail').textContent = call.in_voicemail !== undefined 
+                    ? (call.in_voicemail ? 'Yes' : 'No') : '-';
+                
+                if (call.call_summary) {
+                    document.getElementById('callSummaryRow').style.display = 'flex';
+                    document.getElementById('callSummary').textContent = call.call_summary;
+                }
+                
+                if (call.call_analysis) {
+                    document.getElementById('callAnalysisRow').style.display = 'flex';
+                    window.callAnalysis = call.call_analysis;
+                }
+                
+                if (call.custom_analysis_data) {
+                    document.getElementById('customAnalysisRow').style.display = 'flex';
+                    window.customAnalysis = call.custom_analysis_data;
+                }
+            }
+        }
+
+        // Toggle section visibility
+        function toggleSection(sectionName) {
+            const section = document.getElementById(`${sectionName}Section`);
+            const content = document.getElementById(`${sectionName}Content`);
+            const icon = document.getElementById(`${sectionName}Icon`);
+            const header = content.previousElementSibling;
+            
+            if (content.classList.contains('collapsed')) {
+                content.classList.remove('collapsed');
+                header.classList.remove('collapsed');
+                icon.style.transform = '';
+            } else {
+                content.classList.add('collapsed');
+                header.classList.add('collapsed');
+                icon.style.transform = 'rotate(-90deg)';
+            }
+        }
+
+        // Show detailed data in modal or new window
+        function showTranscriptObject() {
+            if (window.transcriptObject) {
+                const data = typeof window.transcriptObject === 'string' 
+                    ? JSON.parse(window.transcriptObject) 
+                    : window.transcriptObject;
+                showJSONModal('Structured Transcript', data);
+            }
+        }
+
+        function showTranscriptWithToolCalls() {
+            if (window.transcriptWithToolCalls) {
+                showTextModal('Transcript with Tool Calls', window.transcriptWithToolCalls);
+            }
+        }
+
+        function showScrubbedTranscript() {
+            if (window.scrubbedTranscript) {
+                showTextModal('Scrubbed Transcript (PII Removed)', window.scrubbedTranscript);
+            }
+        }
+
+        function showCallAnalysis() {
+            if (window.callAnalysis) {
+                const data = typeof window.callAnalysis === 'string' 
+                    ? JSON.parse(window.callAnalysis) 
+                    : window.callAnalysis;
+                showJSONModal('Call Analysis', data);
+            }
+        }
+
+        function showCustomAnalysis() {
+            if (window.customAnalysis) {
+                const data = typeof window.customAnalysis === 'string' 
+                    ? JSON.parse(window.customAnalysis) 
+                    : window.customAnalysis;
+                showJSONModal('Custom Analysis Data', data);
+            }
+        }
+
+        function showJSONModal(title, data) {
+            const modal = document.createElement('div');
+            modal.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 20px;';
+            modal.innerHTML = `
+                <div style="background: white; border-radius: 8px; max-width: 800px; max-height: 90vh; overflow: auto; padding: 24px; position: relative;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                        <h3 style="margin: 0;">${title}</h3>
+                        <button onclick="this.closest('div[style*=\"position: fixed\"]').remove()" style="background: var(--error); color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">Close</button>
+                    </div>
+                    <pre style="background: #f5f5f5; padding: 16px; border-radius: 4px; overflow: auto; max-height: 70vh;">${JSON.stringify(data, null, 2)}</pre>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        function showTextModal(title, text) {
+            const modal = document.createElement('div');
+            modal.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 20px;';
+            modal.innerHTML = `
+                <div style="background: white; border-radius: 8px; max-width: 800px; max-height: 90vh; overflow: auto; padding: 24px; position: relative;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                        <h3 style="margin: 0;">${title}</h3>
+                        <button onclick="this.closest('div[style*=\"position: fixed\"]').remove()" style="background: var(--error); color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">Close</button>
+                    </div>
+                    <div style="background: #f5f5f5; padding: 16px; border-radius: 4px; white-space: pre-wrap; font-family: monospace; max-height: 70vh; overflow: auto;">${escapeHtml(text)}</div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        function formatTimestamp(timestamp) {
+            if (!timestamp) return '-';
+            const date = new Date(timestamp);
+            return date.toLocaleString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                timeZone: 'America/New_York',
+                hour12: true
+            });
         }
 
         // Redact credit card numbers in text, showing only last 4 digits
