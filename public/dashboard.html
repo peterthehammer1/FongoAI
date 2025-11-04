@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fongo AI Agent Dashboard | NUCLEUS AI</title>
+    <title>Call Management Dashboard - Fongo</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -11,783 +11,491 @@
             padding: 0;
             box-sizing: border-box;
         }
-        
-        body {
-            font-family: 'Salesforce Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: #f3f3f3;
-            min-height: 100vh;
+
+        :root {
+            --primary: #0066cc;
+            --primary-dark: #0052a3;
+            --secondary: #16325c;
+            --success: #04844b;
+            --error: #c23934;
+            --warning: #ffb75d;
+            --text-primary: #16325c;
+            --text-secondary: #706e6b;
+            --border: #d8dde6;
+            --bg-light: #f3f3f3;
+            --bg-white: #ffffff;
+            --shadow: 0 1px 3px rgba(0,0,0,0.12);
+            --shadow-lg: 0 4px 12px rgba(0,0,0,0.15);
         }
-        
-        /* Top Navigation Bar */
-        .top-nav {
-            background: #032d60;
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg-light);
+            color: var(--text-primary);
+            line-height: 1.6;
+            font-size: 14px;
+        }
+
+        /* Top Navigation */
+        .navbar {
+            background: var(--secondary);
             color: white;
+            padding: 0;
+            box-shadow: var(--shadow-lg);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar-content {
+            max-width: 1600px;
+            margin: 0 auto;
             padding: 12px 24px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        
-        .nav-left {
+
+        .navbar-brand {
             display: flex;
             align-items: center;
-            gap: 20px;
-        }
-        
-        .nav-logo {
-            height: 40px;
-            width: auto;
-        }
-        
-        .nav-title {
+            gap: 12px;
             font-size: 18px;
             font-weight: 600;
-            color: white;
         }
-        
-        .nav-right {
+
+        .navbar-brand img {
+            height: 32px;
+        }
+
+        .navbar-actions {
             display: flex;
             align-items: center;
-            gap: 20px;
+            gap: 16px;
         }
-        
-        .user-info {
+
+        .user-menu {
             display: flex;
             align-items: center;
             gap: 10px;
-            font-size: 14px;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.2s;
         }
-        
+
+        .user-menu:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
         .user-avatar {
             width: 32px;
             height: 32px;
             border-radius: 50%;
-            background: #0066cc;
+            background: var(--primary);
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 600;
-            font-size: 14px;
+            font-size: 13px;
         }
-        
-        .logout-btn {
+
+        .btn-logout {
             background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.3);
+            border: 1px solid rgba(255,255,255,0.2);
             color: white;
-            padding: 8px 16px;
+            padding: 6px 16px;
             border-radius: 4px;
             cursor: pointer;
             font-size: 13px;
             transition: all 0.2s;
         }
-        
-        .logout-btn:hover {
+
+        .btn-logout:hover {
             background: rgba(255,255,255,0.2);
         }
-        
+
         /* Main Container */
         .container {
             max-width: 1600px;
             margin: 0 auto;
             padding: 24px;
         }
-        
+
         /* Page Header */
         .page-header {
-            background: white;
+            background: var(--bg-white);
             padding: 24px;
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
             margin-bottom: 24px;
-            border-left: 4px solid #0066cc;
+            box-shadow: var(--shadow);
         }
-        
+
         .page-header h1 {
-            color: #032d60;
             font-size: 28px;
-            font-weight: 700;
+            font-weight: 600;
+            color: var(--text-primary);
             margin-bottom: 8px;
         }
-        
+
         .page-header p {
-            color: #706e6b;
+            color: var(--text-secondary);
             font-size: 14px;
         }
-        
-        .header-actions {
-            display: flex;
-            gap: 12px;
-            margin-top: 16px;
-        }
-        
-        .header-actions .btn {
-            padding: 8px 16px;
-            font-size: 14px;
-            border-radius: 6px;
-            border: none;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.2s ease;
-        }
-        
-        .header-actions .btn-info {
-            background: #0176d3;
-            color: white;
-        }
-        
-        .header-actions .btn-info:hover {
-            background: #014486;
-        }
-        
-        /* Small button styles for table */
-        .btn-sm {
-            padding: 4px 12px;
-            font-size: 12px;
-        }
-        
-        /* General btn styles */
-        .btn {
-            padding: 8px 16px;
-            font-size: 14px;
-            border-radius: 6px;
-            border: none;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            transition: all 0.2s ease;
-        }
-        
-        .btn-info {
-            background: #0176d3;
-            color: white;
-        }
-        
-        .btn-info:hover {
-            background: #014486;
-        }
-        
-        /* Analytics Modal Styles */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.5);
-        }
-        
-        .modal-content {
-            background-color: white;
-            margin: 5% auto;
-            padding: 0;
-            border-radius: 8px;
-            width: 90%;
-            max-width: 1200px;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-        
-        .modal-header {
-            background: #032d60;
-            color: white;
-            padding: 20px;
-            border-radius: 8px 8px 0 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .modal-header h2 {
-            margin: 0;
-            font-size: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .close {
-            color: white;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-            line-height: 1;
-        }
-        
-        .close:hover {
-            opacity: 0.7;
-        }
-        
-        .modal-body {
-            padding: 20px;
-        }
-        
-        .analytics-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-        
-        .analytics-card {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 8px;
-            border: 1px solid #e1e5e9;
-        }
-        
-        .analytics-card h3 {
-            margin: 0 0 15px 0;
-            color: #032d60;
-            font-size: 16px;
-        }
-        
-        @media (max-width: 768px) {
-            .analytics-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .modal-content {
-                width: 95%;
-                margin: 2% auto;
-            }
-        }
-        
-        .breadcrumb {
-            color: #706e6b;
-            font-size: 12px;
-            margin-bottom: 8px;
-        }
-        
-        .breadcrumb a {
-            color: #0066cc;
-            text-decoration: none;
-        }
-        
-        /* Stats Grid - Salesforce Style */
+
+        /* Stats Grid */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 16px;
             margin-bottom: 24px;
         }
-        
+
         .stat-card {
-            background: white;
+            background: var(--bg-white);
             padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
-            border-top: 3px solid #0066cc;
-            transition: all 0.3s;
+            box-shadow: var(--shadow);
+            border-left: 4px solid var(--primary);
         }
-        
-        .stat-card:hover {
-            box-shadow: 0 4px 8px rgba(0,0,0,0.12);
-            transform: translateY(-2px);
-        }
-        
+
         .stat-card.success {
-            border-top-color: #04844b;
+            border-left-color: var(--success);
         }
-        
-        .stat-card.warning {
-            border-top-color: #ffb75d;
-        }
-        
+
         .stat-card.error {
-            border-top-color: #ea001e;
+            border-left-color: var(--error);
         }
-        
-        .stat-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
+
+        .stat-card.warning {
+            border-left-color: var(--warning);
         }
-        
-        .stat-title {
-            color: #706e6b;
+
+        .stat-label {
             font-size: 12px;
-            font-weight: 600;
+            color: var(--text-secondary);
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            margin-bottom: 8px;
+            font-weight: 600;
         }
-        
-        .stat-icon {
-            width: 36px;
-            height: 36px;
-            border-radius: 4px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-        }
-        
-        .stat-icon.blue { background: #e1f4fc; color: #0066cc; }
-        .stat-icon.green { background: #ccf3e2; color: #04844b; }
-        .stat-icon.orange { background: #ffe1c2; color: #fe9339; }
-        .stat-icon.red { background: #fedadc; color: #ea001e; }
-        .stat-icon.purple { background: #e9d9f5; color: #6a1da0; }
-        
-        .stat-card.info {
-            border-top-color: #6a1da0;
-        }
-        
-        .stat-number {
+
+        .stat-value {
             font-size: 32px;
             font-weight: 700;
-            color: #032d60;
-            margin-bottom: 4px;
+            color: var(--text-primary);
         }
-        
-        .stat-label {
-            color: #706e6b;
-            font-size: 13px;
-        }
-        
-        /* Reports Section */
-        .reports-section {
-            background: white;
-            padding: 24px;
+
+        /* Filters and Search */
+        .filters-bar {
+            background: var(--bg-white);
+            padding: 16px 24px;
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
             margin-bottom: 24px;
-        }
-        
-        .section-title {
-            color: #032d60;
-            font-size: 18px;
-            font-weight: 700;
-            margin-bottom: 16px;
+            box-shadow: var(--shadow);
             display: flex;
+            gap: 16px;
             align-items: center;
-            gap: 10px;
-        }
-        
-        .report-buttons {
-            display: flex;
-            gap: 12px;
             flex-wrap: wrap;
         }
-        
-        .report-btn {
-            background: white;
-            border: 1px solid #c9c7c5;
-            color: #032d60;
-            padding: 10px 20px;
-            border-radius: 4px;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .report-btn:hover {
-            background: #f3f3f3;
-            border-color: #0066cc;
-            color: #0066cc;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        
-        .report-btn i {
-            font-size: 14px;
-        }
-        
-        /* Search Bar */
-        .search-section {
-            background: white;
-            padding: 20px 24px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
-            margin-bottom: 24px;
-        }
-        
-        .search-wrapper {
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
             position: relative;
-            max-width: 500px;
         }
-        
-        .search-input {
+
+        .search-box input {
             width: 100%;
-            padding: 12px 16px 12px 40px;
-            border: 1px solid #c9c7c5;
+            padding: 10px 16px 10px 40px;
+            border: 1px solid var(--border);
             border-radius: 4px;
             font-size: 14px;
-            transition: all 0.2s;
         }
-        
-        .search-input:focus {
-            outline: none;
-            border-color: #0066cc;
-            box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
-        }
-        
-        .search-icon {
+
+        .search-box i {
             position: absolute;
             left: 14px;
             top: 50%;
             transform: translateY(-50%);
-            color: #706e6b;
-            font-size: 14px;
+            color: var(--text-secondary);
         }
-        
-        /* Table Container - Salesforce Style */
-        .table-container {
+
+        .filter-group {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .filter-select {
+            padding: 10px 16px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-size: 14px;
             background: white;
+            cursor: pointer;
+        }
+
+        /* Calls Table */
+        .table-container {
+            background: var(--bg-white);
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+            box-shadow: var(--shadow);
             overflow: hidden;
         }
-        
-        .table-header {
-            padding: 20px 24px;
-            border-bottom: 1px solid #e5e5e5;
-        }
-        
-        .table-header h2 {
-            color: #032d60;
-            font-size: 18px;
-            font-weight: 700;
-        }
-        
+
         .table-wrapper {
             overflow-x: auto;
         }
-        
+
         table {
             width: 100%;
             border-collapse: collapse;
         }
-        
+
         thead {
             background: #fafaf9;
-            border-bottom: 2px solid #e5e5e5;
         }
-        
+
         th {
             padding: 16px 20px;
             text-align: left;
-            font-weight: 700;
+            font-weight: 600;
             font-size: 12px;
-            color: #032d60;
+            color: var(--text-secondary);
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            border-bottom: 2px solid var(--border);
+            white-space: nowrap;
         }
-        
-        tbody tr {
-            border-bottom: 1px solid #e5e5e5;
-            transition: background 0.2s;
-        }
-        
-        tbody tr:hover {
-            background: #fafaf9;
-        }
-        
+
         td {
             padding: 16px 20px;
-            font-size: 13px;
-            color: #032d60;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 14px;
+            color: var(--text-primary);
         }
-        
+
+        tbody tr {
+            transition: background 0.2s;
+            cursor: pointer;
+        }
+
+        tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
         /* Status Badges */
-        .status-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 6px 12px;
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
             border-radius: 12px;
-            font-size: 11px;
-            font-weight: 700;
+            font-size: 12px;
+            font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
-        
-        .status-badge.success {
-            background: #ccf3e2;
-            color: #027e46;
+
+        .badge-success {
+            background: #d4edda;
+            color: var(--success);
         }
-        
-        .status-badge.failed {
-            background: #fedadc;
-            color: #ba0517;
-            max-width: 200px;
-            line-height: 1.4;
-            padding: 8px 12px;
+
+        .badge-error {
+            background: #f8d7da;
+            color: var(--error);
         }
-        
-        .status-badge.failed small {
-            display: block;
-            margin-top: 4px;
-            font-weight: 400;
-            opacity: 0.85;
+
+        .badge-warning {
+            background: #fff3cd;
+            color: #856404;
         }
-        
-        .status-badge.pending {
-            background: #ffe1c2;
-            color: #85380d;
-        }
-        
-        /* Card Type Badges */
+
+        /* Card Type */
         .card-type {
             display: inline-flex;
             align-items: center;
             gap: 6px;
             padding: 4px 10px;
+            background: #f0f4f8;
             border-radius: 4px;
-            font-size: 11px;
+            font-size: 12px;
             font-weight: 600;
+            color: var(--text-primary);
         }
-        
-        .card-type.visa {
-            background: #e8f4f8;
-            color: #004c99;
+
+        /* Error Message Preview */
+        .error-preview {
+            color: var(--error);
+            font-size: 13px;
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
-        
-        .card-type.mastercard {
-            background: #fff4e6;
-            color: #b8860b;
+
+        /* Action Buttons */
+        .btn-view {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 4px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
         }
-        
-        .card-type.amex {
-            background: #e8f4f8;
-            color: #006fcf;
+
+        .btn-view:hover {
+            background: var(--primary-dark);
         }
-        
-        /* Loading & Empty States */
-        .loading, .no-data {
+
+        /* Loading State */
+        .loading {
             text-align: center;
             padding: 60px 20px;
-            color: #706e6b;
+            color: var(--text-secondary);
         }
-        
+
         .loading i {
             font-size: 32px;
-            color: #0066cc;
+            margin-bottom: 16px;
             animation: spin 1s linear infinite;
         }
-        
+
         @keyframes spin {
+            from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
         }
-        
-        /* Refresh Button */
-        .refresh-button {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            background: #0066cc;
-            color: white;
-            width: 56px;
-            height: 56px;
-            border-radius: 50%;
-            border: none;
-            font-size: 20px;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0, 102, 204, 0.4);
-            transition: all 0.3s;
-            z-index: 1000;
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
         }
-        
-        .refresh-button:hover {
-            transform: scale(1.1);
-            box-shadow: 0 6px 16px rgba(0, 102, 204, 0.5);
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 16px;
+            color: var(--border);
         }
-        
-        .refresh-button:active {
-            transform: scale(0.95);
-        }
-        
-        /* Responsive Design */
+
+        /* Responsive */
         @media (max-width: 768px) {
             .stats-grid {
                 grid-template-columns: 1fr;
             }
-            
-            .report-buttons {
+
+            .filters-bar {
                 flex-direction: column;
+                align-items: stretch;
             }
-            
-            .report-btn {
-                width: 100%;
-                justify-content: center;
+
+            .search-box {
+                min-width: 100%;
             }
-            
-            .nav-title {
-                display: none;
-            }
-            
-            .container {
-                padding: 16px;
+
+            .table-wrapper {
+                overflow-x: scroll;
             }
         }
     </style>
 </head>
 <body>
-    <!-- Top Navigation -->
-    <div class="top-nav">
-        <div class="nav-left">
-            <img src="/Images/fongo-wp-logo-white.svg" alt="Fongo" class="nav-logo" onerror="this.style.display='none'">
-            <span class="nav-title">AI Agent Dashboard</span>
-        </div>
-        <div class="nav-right">
-            <div class="user-info">
-                <div class="user-avatar" id="userAvatar">U</div>
-                <span id="userName">User</span>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="navbar-content">
+            <div class="navbar-brand">
+                <img src="/Images/fongo-wp-logo-white.svg" alt="Fongo" onerror="this.style.display='none'">
+                <span>Call Management Dashboard</span>
             </div>
-            <button class="logout-btn" onclick="logout()">
-                <i class="fas fa-sign-out-alt"></i> Logout
-            </button>
+            <div class="navbar-actions">
+                <div class="user-menu" onclick="loadUserInfo()">
+                    <div class="user-avatar" id="userAvatar">U</div>
+                    <span id="userName">User</span>
+                </div>
+                <button class="btn-logout" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
         </div>
-    </div>
+    </nav>
 
+    <!-- Main Container -->
     <div class="container">
         <!-- Page Header -->
         <div class="page-header">
-            <div class="breadcrumb">
-                <a href="/">Home</a> / Dashboard
-            </div>
-            <h1><i class="fas fa-chart-line"></i> Call Analytics Dashboard</h1>
-            <p>Real-time monitoring and analytics for Fongo AI Agent credit card updates • Powered by NUCLEUS AI</p>
-            <div class="header-actions">
-                <button class="btn btn-info" onclick="showAnalytics()">
-                    <i class="fas fa-chart-bar"></i> Advanced Analytics
-                </button>
-                <button class="btn btn-secondary" onclick="showFailedCallsReport()" style="background: #ea001e; border-color: #ea001e;">
-                    <i class="fas fa-exclamation-triangle"></i> Failed Calls Report
-                </button>
-                <button class="btn btn-secondary" onclick="window.open('/monitoring', '_blank')">
-                    <i class="fas fa-server"></i> System Monitoring
-                </button>
-                <button class="btn btn-secondary" onclick="refreshData()">
-                    <i class="fas fa-sync-alt"></i> Refresh
-                </button>
-                <button class="btn btn-primary" onclick="exportData()">
-                    <i class="fas fa-download"></i> Export CSV
-                </button>
-            </div>
+            <h1>Call Logs</h1>
+            <p>View and manage all incoming calls with complete call details, transcripts, and payment update status</p>
         </div>
 
         <!-- Stats Grid -->
-        <div class="stats-grid" id="statsGrid">
+        <div class="stats-grid">
             <div class="stat-card">
-                <div class="stat-header">
-                    <span class="stat-title">Total Calls</span>
-                    <div class="stat-icon blue"><i class="fas fa-phone"></i></div>
-                </div>
-                <div class="stat-number" id="totalCalls">-</div>
-                <div class="stat-label">All time</div>
+                <div class="stat-label">Total Calls</div>
+                <div class="stat-value" id="totalCalls">0</div>
             </div>
-            
             <div class="stat-card success">
-                <div class="stat-header">
-                    <span class="stat-title">Successful</span>
-                    <div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
-                </div>
-                <div class="stat-number" id="successfulCalls">-</div>
-                <div class="stat-label">Updates completed</div>
+                <div class="stat-label">Successful Updates</div>
+                <div class="stat-value" id="successfulCalls">0</div>
             </div>
-            
             <div class="stat-card error">
-                <div class="stat-header">
-                    <span class="stat-title">Failed</span>
-                    <div class="stat-icon red"><i class="fas fa-times-circle"></i></div>
-                </div>
-                <div class="stat-number" id="failedCalls">-</div>
-                <div class="stat-label">Errors encountered</div>
+                <div class="stat-label">Failed Updates</div>
+                <div class="stat-value" id="failedCalls">0</div>
             </div>
-            
             <div class="stat-card warning">
-                <div class="stat-header">
-                    <span class="stat-title">Avg Duration</span>
-                    <div class="stat-icon orange"><i class="fas fa-clock"></i></div>
-                </div>
-                <div class="stat-number" id="avgDuration">-</div>
-                <div class="stat-label">Average per call</div>
-            </div>
-            
-            <div class="stat-card info">
-                <div class="stat-header">
-                    <span class="stat-title">Unique Callers</span>
-                    <div class="stat-icon purple"><i class="fas fa-users"></i></div>
-                </div>
-                <div class="stat-number" id="uniqueCallers">-</div>
-                <div class="stat-label">Different phone numbers</div>
+                <div class="stat-label">Avg Duration</div>
+                <div class="stat-value" id="avgDuration">0:00</div>
             </div>
         </div>
 
-        <!-- Reports Section -->
-        <div class="reports-section">
-            <h2 class="section-title">
-                <i class="fas fa-file-export"></i>
-                Reports & Export
-            </h2>
-            <div class="report-buttons">
-                <button class="report-btn" onclick="exportToday()">
-                    <i class="fas fa-calendar-day"></i> Today's Calls
-                </button>
-                <button class="report-btn" onclick="exportWeek()">
-                    <i class="fas fa-calendar-week"></i> This Week
-                </button>
-                <button class="report-btn" onclick="exportMonth()">
-                    <i class="fas fa-calendar-alt"></i> This Month
-                </button>
-                <button class="report-btn" onclick="exportAll()">
-                    <i class="fas fa-database"></i> Export All (CSV)
-                </button>
-                <button class="report-btn" onclick="showSuccessRate()">
-                    <i class="fas fa-chart-pie"></i> Success Rate
-                </button>
-                <button class="report-btn" onclick="showCardTypeBreakdown()">
-                    <i class="fas fa-credit-card"></i> Card Types
-                </button>
+        <!-- Filters -->
+        <div class="filters-bar">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Search by phone number or call ID..." onkeyup="handleSearch(event)">
             </div>
-        </div>
-
-        <!-- Search Section -->
-        <div class="search-section">
-            <div class="search-wrapper">
-                <i class="fas fa-search search-icon"></i>
-                <input 
-                    type="text" 
-                    class="search-input" 
-                    id="searchInput" 
-                    placeholder="Search by phone, customer name, or date (YYYY-MM-DD)..."
-                >
+            <div class="filter-group">
+                <select class="filter-select" id="statusFilter" onchange="loadCalls()">
+                    <option value="">All Status</option>
+                    <option value="success">Successful</option>
+                    <option value="failed">Failed</option>
+                </select>
+                <select class="filter-select" id="dateFilter" onchange="loadCalls()">
+                    <option value="">All Dates</option>
+                    <option value="today">Today</option>
+                    <option value="week">This Week</option>
+                    <option value="month">This Month</option>
+                </select>
             </div>
         </div>
 
         <!-- Calls Table -->
         <div class="table-container">
-            <div class="table-header">
-                <h2><i class="fas fa-list"></i> Recent Calls</h2>
-            </div>
             <div class="table-wrapper">
                 <table>
                     <thead>
                         <tr>
                             <th>Date & Time</th>
-                            <th>Customer</th>
                             <th>Phone Number</th>
-                            <th>Card Type</th>
-                            <th>Last 4 Digits</th>
-                            <th>New Expiry</th>
                             <th>Duration</th>
-                            <th>Status</th>
-                            <th>Transcript</th>
+                            <th>Payment Status</th>
+                            <th>Card Details</th>
+                            <th>Error</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody id="callsTable">
                         <tr>
-                            <td colspan="9" class="loading">
+                            <td colspan="7" class="loading">
                                 <i class="fas fa-spinner"></i>
-                                <p>Loading calls...</p>
+                                <div>Loading calls...</div>
                             </td>
                         </tr>
                     </tbody>
@@ -796,14 +504,10 @@
         </div>
     </div>
 
-    <!-- Refresh Button -->
-    <button class="refresh-button" onclick="loadData()" title="Refresh Data">
-        <i class="fas fa-sync-alt"></i>
-    </button>
-
     <script>
         let searchTimeout;
-        
+        let allCalls = [];
+
         // Load user info
         async function loadUserInfo() {
             try {
@@ -818,8 +522,8 @@
                 console.error('Error loading user info:', error);
             }
         }
-        
-        // Logout function
+
+        // Logout
         async function logout() {
             try {
                 await fetch('/auth/logout', { method: 'POST', credentials: 'include' });
@@ -829,7 +533,7 @@
                 window.location.href = '/login';
             }
         }
-        
+
         // Load summary stats
         async function loadSummary() {
             try {
@@ -837,753 +541,251 @@
                 const data = await response.json();
                 
                 if (data.success) {
-                    const summary = data.summary;
-                    document.getElementById('totalCalls').textContent = summary.total_calls || 0;
-                    document.getElementById('successfulCalls').textContent = summary.successful_updates || 0;
-                    document.getElementById('failedCalls').textContent = summary.failed_updates || 0;
-                    document.getElementById('avgDuration').textContent = formatDuration(summary.avg_duration || 0);
-                    document.getElementById('uniqueCallers').textContent = summary.unique_callers || 0;
+                    const s = data.summary;
+                    document.getElementById('totalCalls').textContent = s.total_calls || 0;
+                    document.getElementById('successfulCalls').textContent = s.successful_updates || 0;
+                    document.getElementById('failedCalls').textContent = s.failed_updates || 0;
+                    document.getElementById('avgDuration').textContent = formatDuration(s.avg_duration || 0);
                 }
             } catch (error) {
                 console.error('Error loading summary:', error);
             }
         }
-        
+
         // Load calls
         async function loadCalls() {
             try {
-                const response = await fetch('/dashboard/api/calls?limit=100', { credentials: 'include' });
+                const statusFilter = document.getElementById('statusFilter').value;
+                const dateFilter = document.getElementById('dateFilter').value;
+                
+                let url = '/dashboard/api/calls?limit=100';
+                if (statusFilter) {
+                    url += `&status=${statusFilter}`;
+                }
+                
+                const response = await fetch(url, { credentials: 'include' });
                 const data = await response.json();
                 
-                const tbody = document.getElementById('callsTable');
-                
-                if (data.success && data.calls.length > 0) {
-                    tbody.innerHTML = data.calls.map(call => `
-                        <tr class="call-row" onclick="window.location.href='/dashboard/call/${call.call_id}'" style="cursor: pointer; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor='#f8f9fa';" onmouseout="this.style.backgroundColor='';">
-                            <td>${formatDateTime(call.call_date, call.call_time)}</td>
-                            <td><strong>${call.cardholder_name || call.caller_name || '<em>Not provided</em>'}</strong></td>
-                            <td>${formatPhoneNumber(call.caller_number)}</td>
-                            <td>${formatCardType(call.card_type)}</td>
-                            <td>${call.card_last_4 ? '<strong>•••• ' + call.card_last_4 + '</strong>' : '-'}</td>
-                            <td>${call.card_expiry_month && call.card_expiry_year ? 
-                                `${call.card_expiry_month}/${call.card_expiry_year}` : '-'}</td>
-                            <td>${call.call_duration ? formatDuration(call.call_duration) : '-'}</td>
-                            <td>${formatStatus(call.update_successful, call.error_message)}</td>
-                            <td>
-                                ${call.transcript ? 
-                                    `<button class="btn btn-sm btn-info" onclick="event.stopPropagation(); showTranscript(this, '${call.call_id}', '${formatDateTime(call.call_date, call.call_time)}', '${call.caller_number}')" data-transcript="${encodeURIComponent(call.transcript)}">
-                                        <i class="fas fa-file-alt"></i> View
-                                    </button>` 
-                                    : '<span style="color: #706e6b;">-</span>'}
-                            </td>
-                        </tr>
-                    `).join('');
-                } else {
-                    tbody.innerHTML = '<tr><td colspan="9" class="no-data"><i class="fas fa-inbox" style="font-size: 48px; color: #c9c7c5; margin-bottom: 16px;"></i><p>No calls yet. Make a test call to see data here!</p></td></tr>';
+                if (data.success) {
+                    allCalls = data.calls;
+                    
+                    // Apply date filter (using EST timezone)
+                    if (dateFilter) {
+                        // Get current date in EST
+                        const formatter = new Intl.DateTimeFormat('en-US', {
+                            timeZone: 'America/New_York',
+                            year: 'numeric',
+                            month: '2-digit',
+                            day: '2-digit'
+                        });
+                        const parts = formatter.formatToParts(new Date());
+                        const todayEST = new Date(
+                            parseInt(parts.find(p => p.type === 'year').value),
+                            parseInt(parts.find(p => p.type === 'month').value) - 1,
+                            parseInt(parts.find(p => p.type === 'day').value)
+                        );
+                        const todayStr = todayEST.toISOString().split('T')[0]; // YYYY-MM-DD
+                        
+                        const weekAgo = new Date(todayEST);
+                        weekAgo.setDate(weekAgo.getDate() - 7);
+                        const weekAgoStr = weekAgo.toISOString().split('T')[0];
+                        
+                        const monthAgo = new Date(todayEST);
+                        monthAgo.setMonth(monthAgo.getMonth() - 1);
+                        const monthAgoStr = monthAgo.toISOString().split('T')[0];
+                        
+                        allCalls = allCalls.filter(call => {
+                            const callDateStr = call.call_date; // Already in YYYY-MM-DD format
+                            switch (dateFilter) {
+                                case 'today':
+                                    return callDateStr >= todayStr;
+                                case 'week':
+                                    return callDateStr >= weekAgoStr;
+                                case 'month':
+                                    return callDateStr >= monthAgoStr;
+                                default:
+                                    return true;
+                            }
+                        });
+                    }
+                    
+                    renderCalls(allCalls);
                 }
             } catch (error) {
                 console.error('Error loading calls:', error);
-                document.getElementById('callsTable').innerHTML = 
-                    '<tr><td colspan="9" class="no-data">Error loading calls. Please refresh.</td></tr>';
+                document.getElementById('callsTable').innerHTML = `
+                    <tr>
+                        <td colspan="7" class="empty-state">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <div>Error loading calls. Please refresh the page.</div>
+                        </td>
+                    </tr>
+                `;
             }
         }
-        
-        // Search calls
-        async function searchCalls(query) {
-            if (!query.trim()) {
-                loadCalls();
+
+        // Render calls table
+        function renderCalls(calls) {
+            const tbody = document.getElementById('callsTable');
+            
+            if (calls.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="empty-state">
+                            <i class="fas fa-inbox"></i>
+                            <div>No calls found</div>
+                        </td>
+                    </tr>
+                `;
                 return;
             }
             
-            try {
-                const response = await fetch(`/dashboard/api/search?q=${encodeURIComponent(query)}`, { credentials: 'include' });
-                const data = await response.json();
-                
-                const tbody = document.getElementById('callsTable');
-                
-                if (data.success && data.calls.length > 0) {
-                    tbody.innerHTML = data.calls.map(call => `
-                        <tr class="call-row" onclick="window.location.href='/dashboard/call/${call.call_id}'" style="cursor: pointer; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor='#f8f9fa';" onmouseout="this.style.backgroundColor='';">
-                            <td>${formatDateTime(call.call_date, call.call_time)}</td>
-                            <td><strong>${call.cardholder_name || call.caller_name || '<em>Not provided</em>'}</strong></td>
-                            <td>${formatPhoneNumber(call.caller_number)}</td>
-                            <td>${formatCardType(call.card_type)}</td>
-                            <td>${call.card_last_4 ? '<strong>•••• ' + call.card_last_4 + '</strong>' : '-'}</td>
-                            <td>${call.card_expiry_month && call.card_expiry_year ? 
-                                `${call.card_expiry_month}/${call.card_expiry_year}` : '-'}</td>
-                            <td>${call.call_duration ? formatDuration(call.call_duration) : '-'}</td>
-                            <td>${formatStatus(call.update_successful, call.error_message)}</td>
-                            <td>
-                                ${call.transcript ? 
-                                    `<button class="btn btn-sm btn-info" onclick="event.stopPropagation(); showTranscript(this, '${call.call_id}', '${formatDateTime(call.call_date, call.call_time)}', '${call.caller_number}')" data-transcript="${encodeURIComponent(call.transcript)}">
-                                        <i class="fas fa-file-alt"></i> View
-                                    </button>` 
-                                    : '<span style="color: #706e6b;">-</span>'}
-                            </td>
-                        </tr>
-                    `).join('');
-                } else {
-                    tbody.innerHTML = '<tr><td colspan="8" class="no-data">No results found</td></tr>';
-                }
-            } catch (error) {
-                console.error('Error searching calls:', error);
-            }
+            tbody.innerHTML = calls.map(call => `
+                <tr onclick="viewCallDetails('${call.call_id}')">
+                    <td>
+                        <div style="font-weight: 500;">${formatDateTime(call.call_date, call.call_time)}</div>
+                        <div style="font-size: 12px; color: var(--text-secondary);">${formatDate(call.call_date)}</div>
+                    </td>
+                    <td>${formatPhoneNumber(call.caller_number)}</td>
+                    <td>${formatDuration(call.call_duration || 0)}</td>
+                    <td>${formatPaymentStatus(call.update_successful, call.error_message)}</td>
+                    <td>
+                        ${call.card_type ? `
+                            <div style="margin-bottom: 4px;">
+                                <span class="card-type">${formatCardType(call.card_type)}</span>
+                            </div>
+                            ${call.card_last_4 ? `<div style="font-size: 12px; color: var(--text-secondary);">•••• ${call.card_last_4}</div>` : ''}
+                            ${call.card_expiry_month && call.card_expiry_year ? `<div style="font-size: 12px; color: var(--text-secondary);">Expires ${call.card_expiry_month}/${call.card_expiry_year}</div>` : ''}
+                        ` : '<em style="color: var(--text-secondary);">No card info</em>'}
+                    </td>
+                    <td>
+                        ${call.error_message ? `
+                            <div class="error-preview" title="${escapeHtml(call.error_message)}">
+                                ${escapeHtml(call.error_message)}
+                            </div>
+                        ` : '-'}
+                    </td>
+                    <td>
+                        <button class="btn-view" onclick="event.stopPropagation(); viewCallDetails('${call.call_id}')">
+                            View Details
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
         }
-        
-        // Format date and time
+
+        // Search handler
+        function handleSearch(event) {
+            clearTimeout(searchTimeout);
+            const query = event.target.value.toLowerCase().trim();
+            
+            if (query === '') {
+                renderCalls(allCalls);
+                return;
+            }
+            
+            searchTimeout = setTimeout(() => {
+                const filtered = allCalls.filter(call => 
+                    (call.caller_number && call.caller_number.toLowerCase().includes(query)) ||
+                    (call.call_id && call.call_id.toLowerCase().includes(query))
+                );
+                renderCalls(filtered);
+            }, 300);
+        }
+
+        // View call details
+        function viewCallDetails(callId) {
+            window.location.href = `/dashboard/call/${callId}`;
+        }
+
+        // Format functions
         function formatDateTime(date, time) {
-            if (!date || !time) return '-';
-            const d = new Date(`${date}T${time}`);
+            if (!date) return '-';
+            // Parse as UTC since database stores in UTC
+            const d = new Date(`${date}T${time || '00:00:00'}Z`);
             return d.toLocaleString('en-US', { 
                 month: 'short', 
                 day: 'numeric', 
                 year: 'numeric',
-                hour: 'numeric', 
+                hour: '2-digit',
                 minute: '2-digit',
-                hour12: true 
+                timeZone: 'America/New_York',
+                hour12: true
             });
         }
-        
-        // Format phone number
-        function formatPhoneNumber(number) {
-            if (!number) return '-';
-            const cleaned = number.replace(/\D/g, '');
-            if (cleaned.length === 11) {
-                return `+${cleaned[0]} (${cleaned.slice(1,4)}) ${cleaned.slice(4,7)}-${cleaned.slice(7)}`;
-            }
-            return number;
+
+        function formatDate(date) {
+            if (!date) return '-';
+            const d = new Date(date + 'T00:00:00Z');
+            return d.toLocaleDateString('en-US', { 
+                weekday: 'short',
+                timeZone: 'America/New_York'
+            });
         }
-        
-        // Format duration in seconds to HH:MM:SS or MM:SS format
+
+        function formatPhoneNumber(num) {
+            if (!num) return '-';
+            // Format as (123) 456-7890 or international format
+            const cleaned = num.replace(/\D/g, '');
+            if (cleaned.length === 10) {
+                return `(${cleaned.slice(0,3)}) ${cleaned.slice(3,6)}-${cleaned.slice(6)}`;
+            }
+            return num;
+        }
+
         function formatDuration(seconds) {
             if (!seconds || seconds === 0) return '0:00';
-            const totalSeconds = Math.round(seconds);
             
-            // If duration is suspiciously large (over 2 hours), it might be in milliseconds or wrong
-            // Divide by 1000 if it looks like milliseconds
-            let adjustedSeconds = totalSeconds;
-            if (totalSeconds > 7200) { // More than 2 hours seems wrong for a phone call
-                adjustedSeconds = Math.floor(totalSeconds / 1000);
-                // If still too large after dividing, just show it as-is but note it might be wrong
-                if (adjustedSeconds > 7200) {
-                    const hours = Math.floor(totalSeconds / 3600);
-                    const mins = Math.floor((totalSeconds % 3600) / 60);
-                    const secs = totalSeconds % 60;
-                    return `${hours}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')} (check)`;
-                }
+            // Handle milliseconds
+            if (seconds > 7200) { // More than 2 hours, likely in milliseconds
+                seconds = Math.floor(seconds / 1000);
             }
             
-            // If over 60 minutes, show as HH:MM:SS
-            if (adjustedSeconds >= 3600) {
-                const hours = Math.floor(adjustedSeconds / 3600);
-                const minutes = Math.floor((adjustedSeconds % 3600) / 60);
-                const remainingSeconds = adjustedSeconds % 60;
-                return `${hours}:${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
-            }
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            const secs = seconds % 60;
             
-            // Otherwise show as MM:SS
-            const minutes = Math.floor(adjustedSeconds / 60);
-            const remainingSeconds = adjustedSeconds % 60;
-            return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+            if (hours > 0) {
+                return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            }
+            return `${minutes}:${secs.toString().padStart(2, '0')}`;
         }
-        
-        // Format card type
+
+        function formatPaymentStatus(successful, errorMessage) {
+            if (successful === 1 || successful === true) {
+                return '<span class="badge badge-success">Success</span>';
+            } else if (successful === 0 || successful === false || errorMessage) {
+                return '<span class="badge badge-error">Failed</span>';
+            }
+            return '<span class="badge badge-warning">Pending</span>';
+        }
+
         function formatCardType(type) {
-            if (!type) return '-';
-            const typeMap = {
-                'visa': '<span class="card-type visa"><i class="fas fa-credit-card"></i> Visa</span>',
-                'mastercard': '<span class="card-type mastercard"><i class="fas fa-credit-card"></i> MasterCard</span>',
-                'amex': '<span class="card-type amex"><i class="fas fa-credit-card"></i> Amex</span>'
+            if (!type) return '';
+            const types = {
+                'visa': 'Visa',
+                'mastercard': 'Mastercard',
+                'amex': 'American Express'
             };
-            return typeMap[type.toLowerCase()] || type;
+            return types[type.toLowerCase()] || type;
         }
-        
-        // Format status
-        function formatStatus(success, errorMessage) {
-            if (success === null || success === undefined) {
-                return '<span class="status-badge pending"><i class="fas fa-clock"></i> Pending</span>';
-            }
-            if (success) {
-                return '<span class="status-badge success"><i class="fas fa-check"></i> Success</span>';
-            } else {
-                // Format error message for display
-                let displayError = errorMessage || 'Unknown error';
-                
-                // Clean up common error messages for better readability
-                if (displayError.includes('Customer not found')) {
-                    displayError = 'Customer not found in system';
-                } else if (displayError.includes('FAULT:')) {
-                    // Extract meaningful part of FAULT errors
-                    displayError = displayError.replace(/FAULT:\s*/i, '').split('\n')[0].trim();
-                }
-                
-                // Truncate very long errors
-                if (displayError.length > 100) {
-                    displayError = displayError.substring(0, 97) + '...';
-                }
-                
-                return `<span class="status-badge failed" title="${errorMessage || 'Unknown error'}">
-                    <i class="fas fa-times"></i> Failed
-                    <br><small style="font-size: 9px; font-weight: normal; opacity: 0.9;">${displayError}</small>
-                </span>`;
-            }
-        }
-        
-        // Escape HTML for safe display
+
         function escapeHtml(text) {
-            if (!text) return '';
             const div = document.createElement('div');
             div.textContent = text;
-            return div.innerHTML.replace(/`/g, '\\`');
+            return div.innerHTML;
         }
-        
-        // Show transcript modal
-        function showTranscript(button, callId, dateTime, phoneNumber) {
-            // Get transcript from button data attribute
-            const encodedTranscript = button.getAttribute('data-transcript');
-            const transcript = encodedTranscript ? decodeURIComponent(encodedTranscript) : null;
-            
-            document.getElementById('transcriptCallId').textContent = callId;
-            document.getElementById('transcriptDate').textContent = dateTime;
-            document.getElementById('transcriptPhone').textContent = phoneNumber;
-            document.getElementById('transcriptContent').textContent = transcript || 'No transcript available for this call.';
-            
-            const modal = document.getElementById('transcriptModal');
-            modal.style.display = 'block';
-        }
-        
-        // Close transcript modal
-        function closeTranscript() {
-            document.getElementById('transcriptModal').style.display = 'none';
-        }
-        
-        // Show failed calls report
-        async function showFailedCallsReport() {
-            const modal = document.getElementById('failedCallsReportModal');
-            modal.style.display = 'block';
-            
-            try {
-                const response = await fetch('/dashboard/api/failed-calls-report', { credentials: 'include' });
-                const data = await response.json();
-                
-                if (data.success) {
-                    displayFailedCallsReport(data);
-                } else {
-                    document.getElementById('failedCallsReportContent').innerHTML = 
-                        '<div style="padding: 40px; text-align: center;"><p style="color: #ea001e;">Error loading report: ' + data.error + '</p></div>';
-                }
-            } catch (error) {
-                console.error('Error loading failed calls report:', error);
-                document.getElementById('failedCallsReportContent').innerHTML = 
-                    '<div style="padding: 40px; text-align: center;"><p style="color: #ea001e;">Error loading report. Please try again.</p></div>';
-            }
-        }
-        
-        // Display failed calls report
-        function displayFailedCallsReport(data) {
-            const content = document.getElementById('failedCallsReportContent');
-            
-            if (data.totalFailed === 0) {
-                content.innerHTML = '<div style="padding: 40px; text-align: center;"><i class="fas fa-check-circle" style="font-size: 64px; color: #04844b;"></i><h3 style="margin-top: 20px;">No Failed Calls!</h3><p>All calls have been successful.</p></div>';
-                return;
-            }
-            
-            let html = `
-                <div style="margin-bottom: 24px;">
-                    <h3 style="color: #032d60; margin-bottom: 8px;">Total Failed Calls: <strong style="color: #ea001e;">${data.totalFailed}</strong></h3>
-                </div>
-            `;
-            
-            // Group by category
-            const categories = Object.keys(data.byCategory);
-            categories.forEach(category => {
-                const calls = data.byCategory[category];
-                html += `
-                    <div style="margin-bottom: 32px; border: 1px solid #e1e5e9; border-radius: 8px; overflow: hidden;">
-                        <div style="background: #f8f9fa; padding: 16px; border-bottom: 1px solid #e1e5e9;">
-                            <h4 style="margin: 0; color: #032d60;">
-                                <i class="fas fa-tag"></i> ${category} 
-                                <span style="font-size: 14px; color: #706e6b;">(${calls.length} call${calls.length !== 1 ? 's' : ''})</span>
-                            </h4>
-                            <p style="margin: 8px 0 0 0; color: #706e6b; font-size: 14px;">${calls[0].errorAnalysis.description}</p>
-                        </div>
-                        <div style="padding: 16px;">
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
-                                <div>
-                                    <strong style="color: #032d60; display: block; margin-bottom: 8px;">Possible Causes:</strong>
-                                    <ul style="margin: 0; padding-left: 20px; color: #706e6b;">
-                                        ${calls[0].errorAnalysis.possibleCauses.map(cause => `<li>${cause}</li>`).join('')}
-                                    </ul>
-                                </div>
-                                <div>
-                                    <strong style="color: #032d60; display: block; margin-bottom: 8px;">Recommended Solutions:</strong>
-                                    <ul style="margin: 0; padding-left: 20px; color: #706e6b;">
-                                        ${calls[0].errorAnalysis.solutions.map(solution => `<li>${solution}</li>`).join('')}
-                                    </ul>
-                                </div>
-                            </div>
-                            <div style="margin-top: 16px;">
-                                <strong style="color: #032d60; display: block; margin-bottom: 8px;">Affected Calls:</strong>
-                                <div style="max-height: 300px; overflow-y: auto;">
-                                    <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
-                                        <thead>
-                                            <tr style="background: #f8f9fa;">
-                                                <th style="padding: 8px; text-align: left; border-bottom: 1px solid #e1e5e9;">Date/Time</th>
-                                                <th style="padding: 8px; text-align: left; border-bottom: 1px solid #e1e5e9;">Phone</th>
-                                                <th style="padding: 8px; text-align: left; border-bottom: 1px solid #e1e5e9;">Card Type</th>
-                                                <th style="padding: 8px; text-align: left; border-bottom: 1px solid #e1e5e9;">Error</th>
-                                                <th style="padding: 8px; text-align: left; border-bottom: 1px solid #e1e5e9;">Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                `;
-                
-                calls.forEach(call => {
-                    html += `
-                                            <tr style="border-bottom: 1px solid #f3f3f3;">
-                                                <td style="padding: 8px;">${formatDateTime(call.call_date, call.call_time)}</td>
-                                                <td style="padding: 8px;">${formatPhoneNumber(call.caller_number)}</td>
-                                                <td style="padding: 8px;">${formatCardType(call.card_type)}</td>
-                                                <td style="padding: 8px; color: #ea001e; font-size: 12px;">${call.error_message || 'No error message'}</td>
-                                                <td style="padding: 8px;">
-                                                    ${call.transcript ? `<button class="btn btn-sm btn-info" onclick="showTranscript(this, '${call.call_id}', '${formatDateTime(call.call_date, call.call_time)}', '${call.caller_number}')" data-transcript="${encodeURIComponent(call.transcript)}" style="padding: 4px 8px; font-size: 11px;"><i class="fas fa-file-alt"></i> Transcript</button>` : '-'}
-                                                </td>
-                                            </tr>
-                    `;
-                });
-                
-                html += `
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
-            
-            content.innerHTML = html;
-        }
-        
-        // Close failed calls report modal
-        function closeFailedCallsReport() {
-            document.getElementById('failedCallsReportModal').style.display = 'none';
-        }
-        
-        // Show call details
-        async function showCallDetails(callId) {
-            const modal = document.getElementById('callDetailsModal');
-            modal.style.display = 'block';
-            
-            const content = document.getElementById('callDetailsContent');
-            content.innerHTML = '<div style="text-align: center; padding: 40px;"><i class="fas fa-spinner fa-spin" style="font-size: 48px; color: #0176d3;"></i><p style="margin-top: 16px;">Loading call details...</p></div>';
-            
-            try {
-                const response = await fetch(`/dashboard/api/call/${callId}`, { credentials: 'include' });
-                const data = await response.json();
-                
-                if (data.success && data.call) {
-                    displayCallDetails(data.call);
-                } else {
-                    content.innerHTML = `<div style="padding: 40px; text-align: center;"><p style="color: #ea001e;">Error loading call: ${data.error || 'Unknown error'}</p></div>`;
-                }
-            } catch (error) {
-                console.error('Error loading call details:', error);
-                content.innerHTML = '<div style="padding: 40px; text-align: center;"><p style="color: #ea001e;">Error loading call details. Please try again.</p></div>';
-            }
-        }
-        
-        // Display call details
-        function displayCallDetails(call) {
-            const content = document.getElementById('callDetailsContent');
-            
-            const html = `
-                <div style="display: grid; gap: 24px;">
-                    <!-- Call Information Section -->
-                    <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; border: 1px solid #e1e5e9;">
-                        <h3 style="margin: 0 0 16px 0; color: #032d60; display: flex; align-items: center; gap: 8px;">
-                            <i class="fas fa-info-circle"></i> Call Information
-                        </h3>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px;">
-                            <div>
-                                <strong style="color: #706e6b; display: block; margin-bottom: 4px; font-size: 12px;">Call ID</strong>
-                                <span style="color: #032d60; font-family: monospace;">${call.call_id}</span>
-                            </div>
-                            <div>
-                                <strong style="color: #706e6b; display: block; margin-bottom: 4px; font-size: 12px;">Date & Time</strong>
-                                <span style="color: #032d60;">${formatDateTime(call.call_date, call.call_time)}</span>
-                            </div>
-                            <div>
-                                <strong style="color: #706e6b; display: block; margin-bottom: 4px; font-size: 12px;">Phone Number</strong>
-                                <span style="color: #032d60;">${formatPhoneNumber(call.caller_number)}</span>
-                            </div>
-                            <div>
-                                <strong style="color: #706e6b; display: block; margin-bottom: 4px; font-size: 12px;">Duration</strong>
-                                <span style="color: #032d60;">${call.call_duration ? formatDuration(call.call_duration) : '-'}</span>
-                            </div>
-                            <div>
-                                <strong style="color: #706e6b; display: block; margin-bottom: 4px; font-size: 12px;">Language</strong>
-                                <span style="color: #032d60;">${call.language_used || 'en'}</span>
-                            </div>
-                            <div>
-                                <strong style="color: #706e6b; display: block; margin-bottom: 4px; font-size: 12px;">Status</strong>
-                                <span>${formatStatus(call.update_successful, call.error_message)}</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Customer & Card Information -->
-                    <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; border: 1px solid #e1e5e9;">
-                        <h3 style="margin: 0 0 16px 0; color: #032d60; display: flex; align-items: center; gap: 8px;">
-                            <i class="fas fa-credit-card"></i> Payment Information
-                        </h3>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px;">
-                            <div>
-                                <strong style="color: #706e6b; display: block; margin-bottom: 4px; font-size: 12px;">Customer Name</strong>
-                                <span style="color: #032d60;">${call.cardholder_name || call.caller_name || 'Not provided'}</span>
-                            </div>
-                            <div>
-                                <strong style="color: #706e6b; display: block; margin-bottom: 4px; font-size: 12px;">Card Type</strong>
-                                <span style="color: #032d60;">${formatCardType(call.card_type)}</span>
-                            </div>
-                            <div>
-                                <strong style="color: #706e6b; display: block; margin-bottom: 4px; font-size: 12px;">Card Last 4</strong>
-                                <span style="color: #032d60;">${call.card_last_4 ? '•••• ' + call.card_last_4 : 'Not provided'}</span>
-                            </div>
-                            <div>
-                                <strong style="color: #706e6b; display: block; margin-bottom: 4px; font-size: 12px;">Expiry Date</strong>
-                                <span style="color: #032d60;">${call.card_expiry_month && call.card_expiry_year ? `${call.card_expiry_month}/${call.card_expiry_year}` : 'Not provided'}</span>
-                            </div>
-                        </div>
-                        ${call.error_message ? `
-                        <div style="margin-top: 16px; padding: 12px; background: #fedadc; border-left: 4px solid #ea001e; border-radius: 4px;">
-                            <strong style="color: #ea001e; display: block; margin-bottom: 4px;">Error Message</strong>
-                            <span style="color: #032d60;">${call.error_message}</span>
-                        </div>
-                        ` : ''}
-                    </div>
-                    
-                    <!-- Transcript Section -->
-                    <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; border: 1px solid #e1e5e9;">
-                        <h3 style="margin: 0 0 16px 0; color: #032d60; display: flex; align-items: center; gap: 8px;">
-                            <i class="fas fa-file-alt"></i> Full Call Transcript
-                        </h3>
-                        ${call.transcript ? `
-                            <div style="background: white; padding: 20px; border-radius: 4px; border: 1px solid #e1e5e9; max-height: 500px; overflow-y: auto; white-space: pre-wrap; font-family: 'Courier New', monospace; font-size: 14px; line-height: 1.6; color: #032d60;">
-                                ${call.transcript}
-                            </div>
-                        ` : `
-                            <div style="padding: 40px; text-align: center; color: #706e6b;">
-                                <i class="fas fa-file-alt" style="font-size: 48px; opacity: 0.3; margin-bottom: 16px;"></i>
-                                <p>No transcript available for this call.</p>
-                            </div>
-                        `}
-                    </div>
-                    
-                    <!-- Timestamps -->
-                    <div style="padding: 12px; background: #f8f9fa; border-radius: 4px; font-size: 12px; color: #706e6b; display: flex; justify-content: space-between;">
-                        <span>Created: ${new Date(call.created_at).toLocaleString()}</span>
-                        ${call.updated_at ? `<span>Updated: ${new Date(call.updated_at).toLocaleString()}</span>` : ''}
-                    </div>
-                </div>
-            `;
-            
-            content.innerHTML = html;
-        }
-        
-        // Close call details modal
-        function closeCallDetails() {
-            document.getElementById('callDetailsModal').style.display = 'none';
-        }
-        
-        // Close modal when clicking outside
-        window.onclick = function(event) {
-            const transcriptModal = document.getElementById('transcriptModal');
-            const analyticsModal = document.getElementById('analyticsModal');
-            const failedCallsModal = document.getElementById('failedCallsReportModal');
-            const callDetailsModal = document.getElementById('callDetailsModal');
-            if (event.target === transcriptModal) {
-                transcriptModal.style.display = 'none';
-            }
-            if (event.target === analyticsModal) {
-                analyticsModal.style.display = 'none';
-            }
-            if (event.target === failedCallsModal) {
-                failedCallsModal.style.display = 'none';
-            }
-            if (event.target === callDetailsModal) {
-                callDetailsModal.style.display = 'none';
-            }
-        }
-        
-        // Load all data
-        function loadData() {
-            loadUserInfo();
+
+        // Initialize
+        loadUserInfo();
+        loadSummary();
+        loadCalls();
+
+        // Auto-refresh every 30 seconds
+        setInterval(() => {
             loadSummary();
             loadCalls();
-        }
-        
-        // Search input handler
-        document.getElementById('searchInput').addEventListener('input', (e) => {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => {
-                searchCalls(e.target.value);
-            }, 500);
-        });
-        
-        // Report Functions
-        async function exportToday() {
-            const today = new Date().toISOString().split('T')[0];
-            exportDataAsCSV(`fongo-calls-${today}.csv`, await getFilteredCalls(today, today));
-        }
-        
-        async function exportWeek() {
-            const today = new Date();
-            const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
-            const filename = `fongo-calls-week-${weekAgo.toISOString().split('T')[0]}-to-${today.toISOString().split('T')[0]}.csv`;
-            exportDataAsCSV(filename, await getAllCallsForExport());
-        }
-        
-        async function exportMonth() {
-            const today = new Date();
-            const monthAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
-            const filename = `fongo-calls-month-${monthAgo.toISOString().split('T')[0]}-to-${today.toISOString().split('T')[0]}.csv`;
-            exportDataAsCSV(filename, await getAllCallsForExport());
-        }
-        
-        async function exportAll() {
-            exportDataAsCSV('fongo-calls-all-data.csv', await getAllCallsForExport());
-        }
-        
-        async function getAllCallsForExport() {
-            const response = await fetch('/dashboard/api/calls?limit=10000', { credentials: 'include' });
-            const data = await response.json();
-            return data.calls || [];
-        }
-        
-        async function getFilteredCalls(startDate, endDate) {
-            const allCalls = await getAllCallsForExport();
-            return allCalls.filter(call => {
-                return call.call_date >= startDate && call.call_date <= endDate;
-            });
-        }
-        
-        function exportDataAsCSV(filename, calls) {
-            const headers = ['Date', 'Time', 'Customer', 'Phone', 'Card Type', 'Last 4', 'Expiry', 'Duration', 'Status', 'Error'];
-            const rows = calls.map(call => [
-                call.call_date,
-                call.call_time,
-                call.cardholder_name || call.caller_name || '',
-                call.caller_number,
-                call.card_type || '',
-                call.card_last_4 || '',
-                call.card_expiry_month && call.card_expiry_year ? `${call.card_expiry_month}/${call.card_expiry_year}` : '',
-                call.call_duration ? formatDuration(call.call_duration) : '',
-                call.update_successful ? 'Success' : 'Failed',
-                call.error_message || ''
-            ]);
-            
-            const csvContent = [headers, ...rows]
-                .map(row => row.map(cell => `"${cell}"`).join(','))
-                .join('\n');
-            
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = filename;
-            link.click();
-        }
-        
-        async function showSuccessRate() {
-            const response = await fetch('/dashboard/api/summary', { credentials: 'include' });
-            const data = await response.json();
-            const summary = data.summary;
-            
-            const successRate = summary.total_calls > 0 
-                ? ((summary.successful_updates / summary.total_calls) * 100).toFixed(1)
-                : 0;
-            
-            alert(`📊 Success Rate Report\n\n` +
-                  `Total Calls: ${summary.total_calls}\n` +
-                  `Successful: ${summary.successful_updates}\n` +
-                  `Failed: ${summary.failed_updates}\n` +
-                  `Success Rate: ${successRate}%\n\n` +
-                  `Average Duration: ${formatDuration(summary.avg_duration || 0)}`);
-        }
-        
-        async function showCardTypeBreakdown() {
-            const response = await fetch('/dashboard/api/summary', { credentials: 'include' });
-            const data = await response.json();
-            const summary = data.summary;
-            
-            const total = summary.visa_count + summary.mastercard_count + summary.amex_count;
-            const visaPct = total > 0 ? ((summary.visa_count / total) * 100).toFixed(1) : 0;
-            const mcPct = total > 0 ? ((summary.mastercard_count / total) * 100).toFixed(1) : 0;
-            const amexPct = total > 0 ? ((summary.amex_count / total) * 100).toFixed(1) : 0;
-            
-            alert(`💳 Card Type Breakdown\n\n` +
-                  `Visa: ${summary.visa_count} (${visaPct}%)\n` +
-                  `MasterCard: ${summary.mastercard_count} (${mcPct}%)\n` +
-                  `American Express: ${summary.amex_count} (${amexPct}%)\n\n` +
-                  `Total Cards: ${total}`);
-        }
-        
-        // Analytics Modal Functions
-        function showAnalytics() {
-            const modal = document.getElementById('analyticsModal');
-            modal.style.display = 'block';
-            loadAnalyticsData();
-        }
-        
-        function closeAnalytics() {
-            const modal = document.getElementById('analyticsModal');
-            modal.style.display = 'none';
-        }
-        
-        async function loadAnalyticsData() {
-            try {
-                const response = await fetch('/dashboard/api/analytics', { credentials: 'include' });
-                const data = await response.json();
-                
-                // Update analytics charts
-                updateAnalyticsCharts(data);
-            } catch (error) {
-                console.error('Error loading analytics:', error);
-            }
-        }
-        
-        function updateAnalyticsCharts(data) {
-            // Update hourly chart
-            const hourlyCtx = document.getElementById('hourlyChart').getContext('2d');
-            new Chart(hourlyCtx, {
-                type: 'line',
-                data: {
-                    labels: data.hourly_labels || [],
-                    datasets: [{
-                        label: 'Calls per Hour',
-                        data: data.hourly_calls || [],
-                        borderColor: '#0176d3',
-                        backgroundColor: 'rgba(1, 118, 211, 0.1)',
-                        tension: 0.4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        y: { beginAtZero: true }
-                    }
-                }
-            });
-            
-            // Update success rate chart
-            const successCtx = document.getElementById('successChart').getContext('2d');
-            new Chart(successCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Successful', 'Failed'],
-                    datasets: [{
-                        data: [data.successful_calls || 0, data.failed_calls || 0],
-                        backgroundColor: ['#4caf50', '#f44336']
-                    }]
-                },
-                options: {
-                    responsive: true
-                }
-            });
-        }
-        
-        // Close modal when clicking outside
-        window.onclick = function(event) {
-            const modal = document.getElementById('analyticsModal');
-            if (event.target === modal) {
-                modal.style.display = 'none';
-            }
-        }
-        
-        // Initial load
-        loadData();
-        
-        // Auto-refresh every 30 seconds
-        setInterval(loadData, 30000);
+        }, 30000);
     </script>
-    
-    <!-- Analytics Modal -->
-    <div id="analyticsModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2><i class="fas fa-chart-bar"></i> Advanced Analytics</h2>
-                <span class="close" onclick="closeAnalytics()">&times;</span>
-            </div>
-            <div class="modal-body">
-                <div class="analytics-grid">
-                    <div class="analytics-card">
-                        <h3>Call Volume by Hour</h3>
-                        <canvas id="hourlyChart" width="400" height="200"></canvas>
-                    </div>
-                    <div class="analytics-card">
-                        <h3>Success Rate</h3>
-                        <canvas id="successChart" width="300" height="200"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Failed Calls Report Modal -->
-    <div id="failedCallsReportModal" class="modal">
-        <div class="modal-content" style="max-width: 1400px;">
-            <div class="modal-header">
-                <h2><i class="fas fa-exclamation-triangle"></i> Failed Calls Report</h2>
-                <span class="close" onclick="closeFailedCallsReport()">&times;</span>
-            </div>
-            <div class="modal-body">
-                <div id="failedCallsReportContent">
-                    <div style="text-align: center; padding: 40px;">
-                        <i class="fas fa-spinner fa-spin" style="font-size: 48px; color: #0176d3;"></i>
-                        <p style="margin-top: 16px;">Loading failed calls report...</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Call Details Modal -->
-    <div id="callDetailsModal" class="modal">
-        <div class="modal-content" style="max-width: 1200px;">
-            <div class="modal-header">
-                <h2><i class="fas fa-phone"></i> Call Details</h2>
-                <span class="close" onclick="closeCallDetails()">&times;</span>
-            </div>
-            <div class="modal-body" id="callDetailsContent">
-                <div style="text-align: center; padding: 40px;">
-                    <i class="fas fa-spinner fa-spin" style="font-size: 48px; color: #0176d3;"></i>
-                    <p style="margin-top: 16px;">Loading call details...</p>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Transcript Modal -->
-    <div id="transcriptModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2><i class="fas fa-file-alt"></i> Call Transcript</h2>
-                <span class="close" onclick="closeTranscript()">&times;</span>
-            </div>
-            <div class="modal-body">
-                <div style="margin-bottom: 16px;">
-                    <strong>Call ID:</strong> <span id="transcriptCallId"></span><br>
-                    <strong>Date:</strong> <span id="transcriptDate"></span><br>
-                    <strong>Phone:</strong> <span id="transcriptPhone"></span>
-                </div>
-                <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; border: 1px solid #e1e5e9; max-height: 500px; overflow-y: auto; white-space: pre-wrap; font-family: 'Courier New', monospace; font-size: 14px; line-height: 1.6;" id="transcriptContent">
-                    <p style="color: #706e6b; font-style: italic;">Loading transcript...</p>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Chart.js CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </body>
 </html>
