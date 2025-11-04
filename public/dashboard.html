@@ -332,10 +332,11 @@
         .error-preview {
             color: var(--error);
             font-size: 13px;
-            max-width: 300px;
-            overflow: hidden;
+            max-width: 400px;
+            overflow: visible;
             text-overflow: ellipsis;
-            white-space: nowrap;
+            white-space: normal;
+            line-height: 1.4;
         }
 
         /* Action Buttons */
@@ -781,6 +782,54 @@
             const div = document.createElement('div');
             div.textContent = text;
             return div.innerHTML;
+        }
+
+        // Format error message for dashboard display
+        // Handles error messages in format: "Technical Error | Actionable Message"
+        function formatErrorForDashboard(errorMessage) {
+            if (!errorMessage) return '-';
+            
+            // If error contains " | " separator, use the actionable part (after the separator)
+            if (errorMessage.includes(' | ')) {
+                const parts = errorMessage.split(' | ');
+                return parts.length > 1 ? parts[1].trim() : parts[0].trim();
+            }
+            
+            // Otherwise, try to extract a user-friendly message
+            // Remove common technical prefixes
+            let cleaned = errorMessage.trim();
+            
+            // Remove FAULT prefix
+            cleaned = cleaned.replace(/^FAULT:\s*/i, '');
+            
+            // Remove file paths
+            cleaned = cleaned.replace(/\s+at\s+[^\s]+\.pm\s+line\s+\d+\.?/gi, '');
+            
+            // Map common error patterns to user-friendly messages
+            const lowerError = cleaned.toLowerCase();
+            
+            if (lowerError.includes('invalid card') || lowerError.includes('card number')) {
+                return 'The credit card number provided is not valid. Please check the card number and make sure all digits are correct.';
+            }
+            
+            if (lowerError.includes('expired') || lowerError.includes('expiry')) {
+                return 'The credit card expiry date is invalid or the card has expired. Please use a different card or check the expiry date.';
+            }
+            
+            if (lowerError.includes('declined')) {
+                return 'The credit card was declined by your bank. Please contact your bank or use a different payment method.';
+            }
+            
+            if (lowerError.includes('customer not found') || lowerError.includes('account')) {
+                return 'I couldn\'t find an account associated with the phone number. Please make sure you\'re calling from your Fongo Home Phone number.';
+            }
+            
+            if (lowerError.includes('fault') || lowerError.includes('server error') || lowerError.includes('timeout')) {
+                return 'There was a technical issue processing your payment. Please try again in a few minutes.';
+            }
+            
+            // Return cleaned error or default message
+            return cleaned || 'There was an issue processing your payment. Please try again or contact support.';
         }
 
         // Initialize
