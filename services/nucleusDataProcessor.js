@@ -5,7 +5,7 @@ const { logger } = require('./logger');
  * Handles all 30+ data fields from Nucleus AI webhooks
  */
 
-class RetellDataProcessor {
+class NucleusDataProcessor {
   constructor() {
     this.supportedEvents = ['call_started', 'call_ended', 'call_analyzed'];
   }
@@ -325,4 +325,4 @@ class RetellDataProcessor {
   }
 }
 
-module.exports = new RetellDataProcessor();
+module.exports = new NucleusDataProcessor();

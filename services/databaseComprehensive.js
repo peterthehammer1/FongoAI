@@ -27,7 +27,7 @@ class DatabaseComprehensive {
 
   createTables() {
     const fs = require('fs');
-    const schemaPath = path.join(__dirname, '..', 'database', 'retell-comprehensive-schema.sql');
+    const schemaPath = path.join(__dirname, '..', 'database', 'nucleus-comprehensive-schema.sql');
     
     try {
       const schema = fs.readFileSync(schemaPath, 'utf8');

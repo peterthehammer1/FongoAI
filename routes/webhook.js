@@ -3,7 +3,7 @@ const axios = require('axios');
 const router = express.Router();
 const db = require('../services/database');
 const dbComprehensive = require('../services/databaseComprehensive');
-const retellDataProcessor = require('../services/retellDataProcessor');
+const nucleusDataProcessor = require('../services/nucleusDataProcessor');
 const { sendAccountLoginLink } = require('../services/sms');
 const { logger, AppError, asyncHandler, handleApiError } = require('../services/logger');
 const { formatErrorForAI, formatErrorForDashboard } = require('../services/errorMessages');
@@ -36,7 +36,7 @@ router.post('/', asyncHandler(async (req, res) => {
     // Process comprehensive Nucleus AI data
     if (call?.call_id && ['call_started', 'call_ended', 'call_analyzed'].includes(event)) {
       try {
-        const processedData = retellDataProcessor.processWebhookEvent(req.body);
+        const processedData = nucleusDataProcessor.processWebhookEvent(req.body);
         if (processedData) {
           await dbComprehensive.storeComprehensiveCallData(processedData);
           logger.info(`✅ Stored comprehensive data for ${event} event`, { callId: call.call_id });

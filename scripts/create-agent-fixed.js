@@ -18,7 +18,7 @@ async function createRetellAgentFixed() {
     console.log('🔑 API Key:', process.env.RETELL_API_KEY.substring(0, 10) + '...');
 
     // Load configuration
-    const configPath = path.join(__dirname, '..', 'retell-agent-config.json');
+    const configPath = path.join(__dirname, '..', 'nucleus-agent-config.json');
     const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
 
     console.log('🤖 Creating Retell AI Agent with FIXED API...');

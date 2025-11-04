@@ -18,7 +18,7 @@ async function createRetellAgent() {
     }
 
     // Load configuration
-    const configPath = path.join(__dirname, '..', 'retell-agent-config.json');
+    const configPath = path.join(__dirname, '..', 'nucleus-agent-config.json');
     const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
 
     console.log('🤖 Creating Retell AI Agent via HTTP API...');

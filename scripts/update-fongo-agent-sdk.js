@@ -24,7 +24,7 @@ async function updateFongoAgentSDK() {
     });
 
     // Load our configuration
-    const configPath = path.join(__dirname, '..', 'retell-agent-config.json');
+    const configPath = path.join(__dirname, '..', 'nucleus-agent-config.json');
     const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
 
     // Prepare the update payload

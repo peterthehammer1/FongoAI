@@ -9,7 +9,7 @@ const { RetellClient } = require('retell-sdk');
 async function updateRetellAgent() {
   try {
     // Load configuration
-    const configPath = path.join(__dirname, '..', 'retell-agent-config.json');
+    const configPath = path.join(__dirname, '..', 'nucleus-agent-config.json');
     const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
     
     // Initialize Retell client
