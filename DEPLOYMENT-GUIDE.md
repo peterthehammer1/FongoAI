@@ -100,9 +100,9 @@ Domain: nucleusai.com
 Purpose: Fongo Credit Card AI Agent
 ```
 
-## 📞 **Step 8: Update Retell AI Agent**
+## 📞 **Step 8: Update Nucleus AI Agent**
 
-1. Import the updated `retell-agent-config.json`
+1. Import the updated `nucleus-agent-config.json`
 2. Assign to phone number: `+12892714328`
 3. Test with a real call
 

@@ -1,7 +1,7 @@
--- Comprehensive Retell AI Data Storage Schema
--- This schema captures ALL data fields from Retell AI webhooks
+-- Comprehensive Nucleus AI Data Storage Schema
+-- This schema captures ALL data fields from Nucleus AI webhooks
 
--- Enhanced call_logs table with all Retell AI fields
+-- Enhanced call_logs table with all Nucleus AI fields
 CREATE TABLE IF NOT EXISTS call_logs_comprehensive (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     

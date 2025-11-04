@@ -104,7 +104,7 @@ Professional table with:
 - JSON responses for AJAX requests
 
 ### API Security
-- Webhook endpoints remain public for Retell AI
+- Webhook endpoints remain public for Nucleus AI
 - Dashboard API endpoints require authentication
 - Session validation on every request
 
@@ -146,7 +146,7 @@ Professional table with:
 ├── routes/
 │   ├── auth.js                  # Login/logout endpoints
 │   ├── dashboard.js             # Dashboard API
-│   ├── webhook.js               # Retell AI webhooks
+│   ├── webhook.js               # Nucleus AI webhooks
 │   └── llm.js                   # WebSocket for LLM
 ├── public/
 │   ├── login.html               # Login page

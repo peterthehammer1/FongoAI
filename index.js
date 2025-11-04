@@ -34,7 +34,7 @@ app.use(cors({
   origin: true,
   credentials: true
 }));
-// Increase body size limit for Retell AI webhooks (they can be large with transcripts)
+// Increase body size limit for Nucleus AI webhooks (they can be large with transcripts)
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
@@ -50,7 +50,7 @@ const { requireAuth } = require('./middleware/auth');
 
 // Public routes (no authentication required)
 app.use('/auth', authRoutes);
-app.use('/webhook', webhookRoutes); // Retell AI webhooks don't need auth
+app.use('/webhook', webhookRoutes); // Nucleus AI webhooks don't need auth
 app.use('/llm-websocket', llmRoutes); // WebSocket for LLM
 // System monitoring (optional - only if file exists)
 const monitoringPath = path.join(__dirname, 'routes', 'monitoring.js');

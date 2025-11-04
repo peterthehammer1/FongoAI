@@ -77,7 +77,7 @@ After updating the webhook URLs:
 
 ### If calls still don't appear:
 
-1. **Check Retell AI Dashboard**:
+1. **Check Nucleus AI Dashboard**:
    - Verify webhook URL is saved: `http://fongoai.com/webhook`
    - Check if there are any webhook delivery errors
 

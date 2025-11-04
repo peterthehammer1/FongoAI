@@ -78,7 +78,7 @@ Your beautiful real-time dashboard is now live and tracking all AI agent calls!
 ### Table: `call_logs`
 ```sql
 - id: Auto-incrementing primary key
-- call_id: Unique Retell AI call ID
+- call_id: Unique Nucleus AI call ID
 - caller_name: Caller's name (if provided)
 - caller_number: Phone number
 - call_date: Date of call (YYYY-MM-DD)

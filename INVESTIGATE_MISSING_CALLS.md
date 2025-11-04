@@ -12,7 +12,7 @@ You're absolutely right - if the webhook URL was only updated TODAY, then:
 ### 1. Old Webhook URL Wasn't Accessible
 - Server might have been down
 - Firewall might have blocked access
-- Port 3000 might not have been accessible from Retell AI
+- Port 3000 might not have been accessible from Nucleus AI
 
 ### 2. Server Was Down During That Period
 - PM2 process might have crashed
@@ -24,10 +24,10 @@ You're absolutely right - if the webhook URL was only updated TODAY, then:
 - Database file might have been locked
 - Permissions issues
 
-### 4. Retell AI Webhook Delivery Failed
-- Retell AI might not have been able to reach the old URL
+### 4. Nucleus AI Webhook Delivery Failed
+- Nucleus AI might not have been able to reach the old URL
 - Webhook delivery might have failed silently
-- Retell AI might have retried but given up
+- Nucleus AI might have retried but given up
 
 ## Investigation Steps
 
@@ -52,16 +52,16 @@ last reboot
 pm2 list
 ```
 
-## Check Retell AI Dashboard
+## Check Nucleus AI Dashboard
 
-1. **Go to Retell AI Dashboard**
+1. **Go to Nucleus AI Dashboard**
 2. **Check webhook delivery logs** for:
    - Oct 29 - Nov 3 period
    - Any failed webhook deliveries
    - Call logs for that period
 
 3. **Verify calls were actually made**:
-   - Check Retell AI call logs
+   - Check Nucleus AI call logs
    - See if calls were made but webhooks failed
    - Check webhook delivery status
 
@@ -81,12 +81,12 @@ pm2 list
 
 **Check**: Test old URL: `curl http://134.122.37.50:3000/webhook`
 
-### Scenario 3: Retell AI Couldn't Reach Server
-- Retell AI's servers couldn't access the IP
+### Scenario 3: Nucleus AI Couldn't Reach Server
+- Nucleus AI's servers couldn't access the IP
 - DNS/network routing issues
 - Webhook delivery timed out
 
-**Check**: Retell AI dashboard for webhook delivery errors
+**Check**: Nucleus AI dashboard for webhook delivery errors
 
 ## Quick Diagnostic Commands
 
@@ -119,7 +119,7 @@ last reboot | head -3
 
 1. **If PM2 shows many restarts** → Server was unstable
 2. **If no webhook logs during gap** → Webhooks weren't received
-3. **If Retell shows failed deliveries** → Webhook URL was inaccessible
+3. **If Nucleus shows failed deliveries** → Webhook URL was inaccessible
 4. **If calls exist but weren't logged** → Database error
 
 Run the investigation commands and share the results - that will tell us exactly what happened!

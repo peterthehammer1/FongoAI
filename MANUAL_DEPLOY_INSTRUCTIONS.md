@@ -157,6 +157,6 @@ After deployment, you should be able to access:
 After deployment:
 1. Test login at `http://fongoai.com/`
 2. Verify dashboard loads correctly
-3. Update Retell AI webhook URL to `http://fongoai.com/webhook` (or `https://` if SSL is set up)
-4. Update Retell AI LLM WebSocket URL to `ws://fongoai.com/llm-websocket` (or `wss://` if SSL is set up)
+3. Update Nucleus AI webhook URL to `http://fongoai.com/webhook` (or `https://` if SSL is set up)
+4. Update Nucleus AI LLM WebSocket URL to `ws://fongoai.com/llm-websocket` (or `wss://` if SSL is set up)
 

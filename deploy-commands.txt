@@ -1,0 +1,16 @@
+# Copy and paste these commands into your DigitalOcean server console:
+
+cd /var/www/nucleusai
+
+# Download files from GitHub
+curl -o routes/webhook.js https://raw.githubusercontent.com/peterthehammer1/FongoAI/main/routes/webhook.js
+curl -o public/dashboard.html https://raw.githubusercontent.com/peterthehammer1/FongoAI/main/public/dashboard.html
+curl -o public/call-details.html https://raw.githubusercontent.com/peterthehammer1/FongoAI/main/public/call-details.html
+curl -o services/errorMessages.js https://raw.githubusercontent.com/peterthehammer1/FongoAI/main/services/errorMessages.js
+
+# Restart application
+pm2 restart nucleusai
+
+# Verify
+pm2 status
+echo "✅ Deployment complete! Check https://fongoai.com/dashboard"

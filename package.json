@@ -1,7 +1,7 @@
 {
   "name": "fongo-credit-card-agent",
   "version": "1.0.0",
-  "description": "AI Agent for handling credit card updates via Retell AI",
+  "description": "AI Agent for handling credit card updates via Nucleus AI",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",

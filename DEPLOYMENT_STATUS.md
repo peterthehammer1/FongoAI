@@ -14,9 +14,9 @@
 - **Process Manager**: PM2 (`nucleusai`)
 - **Nginx**: Reverse proxy configured for `fongoai.com`
 
-### Retell AI Configuration
+### Nucleus AI Configuration
 - **Webhook**: `http://134.122.37.50:3000/webhook` → DigitalOcean server
-- **Agent ID**: (see Retell dashboard)
+- **Agent ID**: (see Nucleus dashboard)
 
 ### Vercel Deployment
 - **Status**: ❌ NOT USED (old deployment, can be removed)

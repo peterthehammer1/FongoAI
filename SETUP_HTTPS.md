@@ -99,9 +99,9 @@ sudo certbot renew --dry-run
 sudo systemctl status certbot.timer
 ```
 
-## Step 8: Update Retell AI Configuration
+## Step 8: Update Nucleus AI Configuration
 
-After HTTPS is working, update your Retell AI agent:
+After HTTPS is working, update your Nucleus AI agent:
 
 - **Webhook URL**: `https://fongoai.com/webhook`
 - **LLM WebSocket URL**: `wss://fongoai.com/llm-websocket` (note: `wss://` not `ws://`)
@@ -151,8 +151,8 @@ sudo certbot certonly --nginx -d fongoai.com -d www.fongoai.com
 Once HTTPS is working:
 
 1. ✅ Test: `https://fongoai.com/dashboard`
-2. ✅ Update Retell AI webhook URLs to use `https://`
-3. ✅ Update Retell AI WebSocket URL to use `wss://`
+2. ✅ Update Nucleus AI webhook URLs to use `https://`
+3. ✅ Update Nucleus AI WebSocket URL to use `wss://`
 4. ✅ Verify automatic redirect from HTTP to HTTPS
 
 Your site will now be secure with a valid SSL certificate! 🔒

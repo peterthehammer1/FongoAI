@@ -134,7 +134,7 @@ Shows all calls with:
 - ✅ All passwords are encrypted (bcrypt)
 - ✅ Sessions expire after 24 hours
 - ✅ Dashboard is protected - login required
-- ✅ Webhooks remain public for Retell AI
+- ✅ Webhooks remain public for Nucleus AI
 - ✅ HttpOnly cookies prevent XSS attacks
 
 ---

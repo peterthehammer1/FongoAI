@@ -330,7 +330,7 @@ router.get('/failed-calls-report', async (req, res) => {
   }
 });
 
-// ===== COMPREHENSIVE RETELL AI DATA ENDPOINTS =====
+// ===== COMPREHENSIVE NUCLEUS AI DATA ENDPOINTS =====
 
 // Get comprehensive call data by ID
 router.get('/comprehensive-call/:callId', async (req, res) => {

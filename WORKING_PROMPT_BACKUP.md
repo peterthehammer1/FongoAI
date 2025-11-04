@@ -190,14 +190,14 @@ Then call end_call function.
 
 ## Configuration Details
 
-### Retell AI Agent Configuration
+### Nucleus AI Agent Configuration
 - **Agent ID**: `agent_c0b3d0217ea4dbcd6feb9c690c`
 - **Agent Name**: Fongo Credit Card Update Agent
 - **Voice**: 11labs-Grace
 - **Language**: en-US (with multilingual support)
 - **Phone Number**: +1 (289) 271-4328
 - **Webhook URL**: `http://134.122.37.50:3000/webhook`
-- **LLM Type**: Retell Built-in LLM (GPT 4.1)
+- **LLM Type**: Nucleus Built-in LLM (GPT 4.1)
 - **LLM ID**: `llm_032f7695dec437cf376cc9c43bb9`
 - **DTMF Enabled**: Yes (`allow_user_dtmf: true`)
 
@@ -262,7 +262,7 @@ curl -X PATCH "https://api.retellai.com/update-retell-llm/llm_032f7695dec437cf37
   -d @WORKING_PROMPT_BACKUP.json
 ```
 
-2. **Publish the restored LLM in Retell AI dashboard**
+2. **Publish the restored LLM in Nucleus AI dashboard**
 
 3. **Restore webhook code from Git:**
 ```bash

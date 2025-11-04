@@ -7,7 +7,7 @@ The logs show **413 errors** on Oct 29 at 14:03:20:
 [ERROR] Unhandled error {"message":"request entity too large","statusCode":413
 ```
 
-**Root Cause**: Retell AI webhooks with full transcripts are larger than the default Express.js body size limit (100kb). When Retell AI sends `call_analyzed` events with full transcripts, they get rejected.
+**Root Cause**: Nucleus AI webhooks with full transcripts are larger than the default Express.js body size limit (100kb). When Nucleus AI sends `call_analyzed` events with full transcripts, they get rejected.
 
 ## Fix Applied
 
@@ -68,7 +68,7 @@ pm2 logs nucleusai --lines 20
 
 ## Why This Happened
 
-Retell AI sends comprehensive webhook data including:
+Nucleus AI sends comprehensive webhook data including:
 - Full call transcripts (can be 50-200KB+)
 - Call analysis data
 - Transcript objects with timestamps

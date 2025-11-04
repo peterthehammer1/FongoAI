@@ -54,7 +54,7 @@
 - **Domain**: `fongoai.com` and `www.fongoai.com`
 - **Routes**:
   - `/` → Dashboard (port 3000)
-  - `/webhook` → Retell AI webhooks (port 3000)
+  - `/webhook` → Nucleus AI webhooks (port 3000)
   - `/llm-websocket` → WebSocket for LLM (port 3000)
   - `/health` → Health check endpoint (port 3000)
   - `/dashboard` → Dashboard (port 3000)
@@ -81,11 +81,11 @@ DOMAIN=fongoai.com
 - **Main database**: `/var/www/nucleusai/database/calls.db`
   - Stores call logs, payment info, transcripts
 - **Comprehensive database**: `/var/www/nucleusai/database/fongo_comprehensive.db`
-  - Stores all 30+ Retell AI webhook data fields
+  - Stores all 30+ Nucleus AI webhook data fields
 
 ### **Database Tables**
 - `call_logs` - Main call information
-- `call_logs_comprehensive` - Complete Retell AI data
+- `call_logs_comprehensive` - Complete Nucleus AI data
 - `sms_logs` - SMS tracking
 - `webhook_events` - Webhook event tracking
 
@@ -95,8 +95,8 @@ DOMAIN=fongoai.com
 
 ### **Public Endpoints**
 - **Health Check**: `http://134.122.37.50:3000/health`
-- **Webhook**: `http://134.122.37.50:3000/webhook` (for Retell AI)
-- **WebSocket**: `ws://134.122.37.50:3000/llm-websocket` (for Retell AI LLM)
+- **Webhook**: `http://134.122.37.50:3000/webhook` (for Nucleus AI)
+- **WebSocket**: `ws://134.122.37.50:3000/llm-websocket` (for Nucleus AI LLM)
 
 ### **Protected Endpoints** (Require Authentication)
 - **Dashboard**: `http://134.122.37.50:3000/` or `http://134.122.37.50:3000/dashboard`
@@ -256,7 +256,7 @@ ssh root@134.122.37.50 "ss -tlnp | grep 3000"
 
 ---
 
-## 📞 Retell AI Configuration
+## 📞 Nucleus AI Configuration
 
 ### **Webhook URL**
 - Current: `http://134.122.37.50:3000/webhook`

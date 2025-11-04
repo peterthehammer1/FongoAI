@@ -164,10 +164,10 @@ The dashboard will be accessible at:
 - **Webhook**: `http://fongoai.com/webhook` (or `https://fongoai.com/webhook` with SSL)
 - **Health Check**: `http://fongoai.com/health` (or `https://fongoai.com/health` with SSL)
 
-## Update Retell AI Webhook URL
+## Update Nucleus AI Webhook URL
 
-After deployment, update the Retell AI agent configuration:
-1. Go to Retell AI Dashboard
+After deployment, update the Nucleus AI agent configuration:
+1. Go to Nucleus AI Dashboard
 2. Update webhook URL to: `https://fongoai.com/webhook` (or `http://fongoai.com/webhook` if no SSL)
 3. Update LLM WebSocket URL to: `wss://fongoai.com/llm-websocket` (or `ws://fongoai.com/llm-websocket` if no SSL)
 

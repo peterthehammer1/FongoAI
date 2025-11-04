@@ -4,18 +4,17 @@
 No calls showing in dashboard after Oct 29, 2025 at 3:19 PM
 
 ## Root Cause
-The Retell AI agent is configured with the old IP-based webhook URL:
+The Nucleus AI agent is configured with the old IP-based webhook URL:
 - **Current**: `http://134.122.37.50:3000/webhook`
 - **Should be**: `http://fongoai.com/webhook`
 
-If the webhook URL isn't accessible, Retell AI can't send call data, so calls aren't logged.
+If the webhook URL isn't accessible, Nucleus AI can't send call data, so calls aren't logged.
 
-## Solution: Update Retell AI Agent Configuration
+## Solution: Update Nucleus AI Agent Configuration
 
-### Option 1: Update via Retell AI Dashboard (Recommended)
+### Option 1: Update via Nucleus AI Dashboard (Recommended)
 
-1. **Go to Retell AI Dashboard**
-   - https://dashboard.retellai.com
+1. **Go to Nucleus AI Dashboard**
 
 2. **Find your agent**: "Fongo Credit Card Update Agent"
 
@@ -74,7 +73,7 @@ sqlite3 database/calls.db "SELECT call_id, caller_number, call_date, call_time F
 
 ## Important Notes
 
-1. **Webhook URL must be accessible** - Retell AI needs to reach your server
+1. **Webhook URL must be accessible** - Nucleus AI needs to reach your server
 2. **Domain must resolve** - `fongoai.com` should point to `134.122.37.50`
 3. **Server must be running** - PM2 process should be online
 4. **Port 3000 must be accessible** - Nginx should proxy correctly
@@ -92,5 +91,5 @@ When you set up reporting on Oct 29, the webhook URL might have:
 - Not been updated when the server moved
 - Been inaccessible due to DNS/firewall issues
 
-The webhook code itself is correct - it just wasn't receiving data from Retell AI.
+The webhook code itself is correct - it just wasn't receiving data from Nucleus AI.
 

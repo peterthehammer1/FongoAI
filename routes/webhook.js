@@ -33,7 +33,7 @@ router.post('/', asyncHandler(async (req, res) => {
       }
     }
 
-    // Process comprehensive Retell AI data
+    // Process comprehensive Nucleus AI data
     if (call?.call_id && ['call_started', 'call_ended', 'call_analyzed'].includes(event)) {
       try {
         const processedData = retellDataProcessor.processWebhookEvent(req.body);
@@ -47,7 +47,7 @@ router.post('/', asyncHandler(async (req, res) => {
       }
     }
     
-    // Handle custom function calls from Retell AI
+    // Handle custom function calls from Nucleus AI
     if (name === 'validate_card_type' && args) {
       console.log('💳 Custom function call: validate_card_type');
       console.log('Arguments:', args);
@@ -323,7 +323,7 @@ router.post('/', asyncHandler(async (req, res) => {
           break;
         }
         
-        // Retell AI sends transcript - check multiple possible locations
+        // Nucleus AI sends transcript - check multiple possible locations
         // According to docs, transcript can be in call.transcript or call.call_analysis.transcript
         let transcript = call?.transcript 
           || call?.call_analysis?.transcript
@@ -336,9 +336,9 @@ router.post('/', asyncHandler(async (req, res) => {
         console.log(`call.transcript exists: ${!!call?.transcript}`);
         console.log(`call.call_analysis exists: ${!!call?.call_analysis}`);
         
-        // If transcript not in webhook, fetch from Retell API as fallback
+        // If transcript not in webhook, fetch from Nucleus API as fallback
         if (!transcript && process.env.RETELL_API_KEY) {
-          console.log(`📡 Transcript not in webhook, fetching from Retell API...`);
+          console.log(`📡 Transcript not in webhook, fetching from Nucleus API...`);
           try {
             const apiResponse = await axios.get(`https://api.retellai.com/get-call/${callId}`, {
               headers: {

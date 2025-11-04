@@ -1,8 +1,8 @@
 const { logger } = require('./logger');
 
 /**
- * Comprehensive Retell AI Data Processor
- * Handles all 30+ data fields from Retell AI webhooks
+ * Comprehensive Nucleus AI Data Processor
+ * Handles all 30+ data fields from Nucleus AI webhooks
  */
 
 class RetellDataProcessor {
@@ -11,8 +11,8 @@ class RetellDataProcessor {
   }
 
   /**
-   * Process webhook event and extract all Retell AI data
-   * @param {Object} webhookPayload - Full webhook payload from Retell AI
+   * Process webhook event and extract all Nucleus AI data
+   * @param {Object} webhookPayload - Full webhook payload from Nucleus AI
    * @returns {Object} Processed data ready for database storage
    */
   processWebhookEvent(webhookPayload) {
@@ -109,7 +109,7 @@ class RetellDataProcessor {
       return processedData;
 
     } catch (error) {
-      logger.error('Error processing Retell webhook event', {
+      logger.error('Error processing Nucleus webhook event', {
         error: error.message,
         stack: error.stack,
         webhookPayload: webhookPayload
@@ -236,7 +236,7 @@ class RetellDataProcessor {
 
   /**
    * Extract call analysis insights
-   * @param {Object} callAnalysis - Call analysis object from Retell
+   * @param {Object} callAnalysis - Call analysis object from Nucleus
    * @returns {Object} Structured analysis insights
    */
   extractAnalysisInsights(callAnalysis) {
@@ -254,7 +254,7 @@ class RetellDataProcessor {
 
   /**
    * Extract performance metrics
-   * @param {Object} latencyData - Latency data from Retell
+   * @param {Object} latencyData - Latency data from Nucleus
    * @returns {Object} Structured performance metrics
    */
   extractPerformanceMetrics(latencyData) {

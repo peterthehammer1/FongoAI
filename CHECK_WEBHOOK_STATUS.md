@@ -39,15 +39,15 @@ curl -X POST http://localhost:3000/webhook \
 
 Should return: `{"success":true}` or similar
 
-## Most Likely Issue: Retell AI Webhook URL
+## Most Likely Issue: Nucleus AI Webhook URL
 
-The Retell AI agent configuration shows:
+The Nucleus AI agent configuration shows:
 - **Current webhook**: `http://134.122.37.50:3000/webhook`
 - **Should be**: `http://fongoai.com/webhook`
 
-### Update Retell AI Configuration
+### Update Nucleus AI Configuration
 
-1. Go to Retell AI Dashboard
+1. Go to Nucleus AI Dashboard
 2. Find your agent: "Fongo Credit Card Update Agent"
 3. Update webhook URL to: `http://fongoai.com/webhook`
 4. Update LLM WebSocket URL to: `ws://fongoai.com/llm-websocket`
@@ -69,16 +69,16 @@ You should see:
 
 ## If No Webhooks Are Coming
 
-1. **Check Retell AI agent status** - Is it active?
-2. **Check Retell AI logs** - Are calls being made?
-3. **Verify webhook URL** - Is it correct in Retell dashboard?
+1. **Check Nucleus AI agent status** - Is it active?
+2. **Check Nucleus AI logs** - Are calls being made?
+3. **Verify webhook URL** - Is it correct in Nucleus dashboard?
 4. **Check firewall** - Is port 3000 accessible?
-5. **Test from Retell** - Use Retell's webhook test feature
+5. **Test from Nucleus** - Use Nucleus's webhook test feature
 
 ## Common Issues
 
-### Issue: Webhook URL changed but Retell wasn't updated
-**Fix**: Update webhook URL in Retell AI dashboard
+### Issue: Webhook URL changed but Nucleus wasn't updated
+**Fix**: Update webhook URL in Nucleus AI dashboard
 
 ### Issue: Server was down during calls
 **Fix**: Check server uptime: `uptime` and `pm2 status`

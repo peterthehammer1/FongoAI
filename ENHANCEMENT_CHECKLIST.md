@@ -29,7 +29,7 @@
 
 ### 4. If Something Breaks
 - [ ] Check `pm2 logs nucleusai` on server
-- [ ] Check webhook response in Retell AI dashboard
+- [ ] Check webhook response in Nucleus AI dashboard
 - [ ] Rollback using instructions in `WORKING_PROMPT_BACKUP.md`
 - [ ] Document what went wrong
 

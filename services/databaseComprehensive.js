@@ -3,8 +3,8 @@ const path = require('path');
 const { logger } = require('./logger');
 
 /**
- * Comprehensive Database Service for Retell AI Data
- * Handles all 30+ data fields from Retell AI webhooks
+ * Comprehensive Database Service for Nucleus AI Data
+ * Handles all 30+ data fields from Nucleus AI webhooks
  */
 
 class DatabaseComprehensive {
@@ -44,8 +44,8 @@ class DatabaseComprehensive {
   }
 
   /**
-   * Store comprehensive call data from Retell AI webhook
-   * @param {Object} callData - Processed call data from RetellDataProcessor
+   * Store comprehensive call data from Nucleus AI webhook
+   * @param {Object} callData - Processed call data from NucleusDataProcessor
    * @returns {Promise<number>} Call ID
    */
   async storeComprehensiveCallData(callData) {

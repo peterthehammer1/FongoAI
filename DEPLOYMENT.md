@@ -24,9 +24,9 @@ cp env.example .env
 Edit `.env` with your actual values:
 
 ```env
-# Retell AI Configuration
-RETELL_API_KEY=your_actual_retell_api_key
-RETELL_AGENT_ID=your_actual_agent_id
+# Nucleus AI Configuration
+NUCLEUS_API_KEY=your_actual_nucleus_api_key
+NUCLEUS_AGENT_ID=your_actual_agent_id
 
 # Server Configuration  
 PORT=3000
@@ -60,16 +60,16 @@ npx vercel --prod
 ./scripts/deploy.sh
 ```
 
-### 3. **Update Retell AI Configuration**
+### 3. **Update Nucleus AI Configuration**
 
-After deployment, update your Retell AI agent with:
+After deployment, update your Nucleus AI agent with:
 
 - **Webhook URL**: `https://your-domain.com/webhook`
 - **LLM WebSocket URL**: `wss://your-domain.com/llm-websocket`
 
 ### 4. **Test the Agent**
 
-1. Call your Retell AI phone number
+1. Call your Nucleus AI phone number
 2. Verify the conversation flow works
 3. Test with a real credit card update
 4. Check logs for any issues
@@ -125,7 +125,7 @@ Monitor your deployment through:
 - **Platform Logs**: Vercel/Railway/Render dashboard
 - **Health Check**: `https://your-domain.com/health`
 - **Webhook Logs**: Check `/webhook` endpoint logs
-- **Retell AI Dashboard**: Monitor call analytics
+- **Nucleus AI Dashboard**: Monitor call analytics
 
 ## 🚨 Troubleshooting
 
