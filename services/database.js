@@ -632,7 +632,7 @@ function checkAndUpdateSmsStatus(callId) {
             const updateSql = `
               UPDATE call_logs
               SET update_successful = NULL,
-                  error_message = 'Not a Fongo Phone. Sent SMS.',
+                  error_message = 'Payment Link Sent',
                   updated_at = CURRENT_TIMESTAMP
               WHERE call_id = ?
             `;
@@ -642,7 +642,7 @@ function checkAndUpdateSmsStatus(callId) {
                 console.error('Error updating call with SMS status:', updateErr);
                 reject(updateErr);
               } else {
-                console.log(`✅ Updated call ${callId} with SMS status: Not a Fongo Phone. Sent SMS.`);
+                console.log(`✅ Updated call ${callId} with SMS status: Payment Link Sent`);
                 resolve(true);
               }
             });

@@ -664,7 +664,7 @@
                         ` : '<em style="color: var(--text-secondary);">No card info</em>'}
                     </td>
                     <td>
-                        ${call.error_message && call.error_message !== 'Not a Fongo Phone. Sent SMS.' ? `
+                        ${call.error_message && call.error_message !== 'Payment Link Sent' ? `
                             <div class="error-preview" title="${escapeHtml(call.error_message)}">
                                 ${formatErrorForDashboard(call.error_message)}
                             </div>
@@ -760,9 +760,9 @@
         }
 
         function formatPaymentStatus(successful, errorMessage) {
-            // Special case: SMS sent for non-Fongo phone
-            if (errorMessage === 'Not a Fongo Phone. Sent SMS.') {
-                return '<span class="badge" style="background: #6c757d; color: white;">Not a Fongo Phone. Sent SMS.</span>';
+            // Special case: Payment link sent via SMS
+            if (errorMessage === 'Payment Link Sent') {
+                return '<span class="badge" style="background: #17a2b8; color: white;">Payment Link Sent</span>';
             }
             
             if (successful === 1 || successful === true) {

@@ -1,0 +1,23 @@
+#!/bin/bash
+# Quick deployment script for SMS status fix
+
+echo "🚀 Deploying SMS Status Fix to Server..."
+echo ""
+echo "Run these commands on your server:"
+echo ""
+echo "1. SSH into server:"
+echo "   ssh root@134.122.37.50"
+echo ""
+echo "2. Navigate and pull code:"
+echo "   cd /var/www/nucleusai"
+echo "   git pull origin main"
+echo ""
+echo "3. Restart application:"
+echo "   pm2 restart nucleusai"
+echo ""
+echo "4. Verify it's running:"
+echo "   pm2 status"
+echo "   pm2 logs nucleusai --lines 10 --nostream"
+echo ""
+echo "✅ Done! The dashboard should now show 'Not a Fongo Phone. Sent SMS.'"
+echo "   instead of 'Failed' for calls where SMS was sent."
