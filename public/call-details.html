@@ -935,6 +935,28 @@
                     document.getElementById('scrubbedTranscriptRow').style.display = 'flex';
                     window.scrubbedTranscript = call.scrubbed_transcript_with_tool_calls;
                 }
+                
+                // Check webhook data for additional recording URLs
+                let webhookData = null;
+                if (call.webhook_data) {
+                    try {
+                        webhookData = typeof call.webhook_data === 'string' 
+                            ? JSON.parse(call.webhook_data) 
+                            : call.webhook_data;
+                    } catch (e) {}
+                }
+                
+                const callData = webhookData?.call || call;
+                
+                if (callData?.public_log_url) {
+                    document.getElementById('publicLogRow').style.display = 'flex';
+                    document.getElementById('publicLogUrl').href = callData.public_log_url;
+                }
+                
+                if (callData?.scrubbed_public_log_url) {
+                    document.getElementById('scrubbedPublicLogRow').style.display = 'flex';
+                    document.getElementById('scrubbedPublicLogUrl').href = callData.scrubbed_public_log_url;
+                }
             }
 
             // Analysis & Insights
@@ -1299,7 +1321,14 @@
             const costContainer = document.getElementById('callCostMetrics');
             
             // Latency Metrics
-            const latency = callData?.latency || (call.latency_data ? JSON.parse(call.latency_data) : null);
+            let latency = callData?.latency || null;
+            if (!latency && call.latency_data) {
+                try {
+                    latency = typeof call.latency_data === 'string' ? JSON.parse(call.latency_data) : call.latency_data;
+                } catch (e) {
+                    console.warn('Could not parse latency_data:', e);
+                }
+            }
             if (latency) {
                 let latencyHtml = '';
                 
@@ -1309,6 +1338,8 @@
                             <span class="info-label">LLM Latency</span>
                             <span class="info-value">P50: ${latency.llm.p50}ms | P90: ${latency.llm.p90}ms</span>
                         </div>
+                        ${latency.llm.min !== undefined ? `<div class="info-row"><span class="info-label">LLM Min/Max</span><span class="info-value">${latency.llm.min}ms / ${latency.llm.max}ms</span></div>` : ''}
+                        ${latency.llm.num !== undefined ? `<div class="info-row"><span class="info-label">LLM Samples</span><span class="info-value">${latency.llm.num}</span></div>` : ''}
                     `;
                 }
                 if (latency.e2e) {
@@ -1317,6 +1348,8 @@
                             <span class="info-label">End-to-End</span>
                             <span class="info-value">P50: ${latency.e2e.p50}ms | P90: ${latency.e2e.p90}ms</span>
                         </div>
+                        ${latency.e2e.min !== undefined ? `<div class="info-row"><span class="info-label">E2E Min/Max</span><span class="info-value">${latency.e2e.min}ms / ${latency.e2e.max}ms</span></div>` : ''}
+                        ${latency.e2e.num !== undefined ? `<div class="info-row"><span class="info-label">E2E Samples</span><span class="info-value">${latency.e2e.num}</span></div>` : ''}
                     `;
                 }
                 if (latency.tts) {
@@ -1325,6 +1358,8 @@
                             <span class="info-label">Text-to-Speech</span>
                             <span class="info-value">P50: ${latency.tts.p50}ms | P90: ${latency.tts.p90}ms</span>
                         </div>
+                        ${latency.tts.min !== undefined ? `<div class="info-row"><span class="info-label">TTS Min/Max</span><span class="info-value">${latency.tts.min}ms / ${latency.tts.max}ms</span></div>` : ''}
+                        ${latency.tts.num !== undefined ? `<div class="info-row"><span class="info-label">TTS Samples</span><span class="info-value">${latency.tts.num}</span></div>` : ''}
                     `;
                 }
                 
@@ -1334,7 +1369,14 @@
             }
             
             // Token Usage
-            const tokenUsage = callData?.llm_token_usage || (call.llm_token_usage ? JSON.parse(call.llm_token_usage) : null);
+            let tokenUsage = callData?.llm_token_usage || null;
+            if (!tokenUsage && call.llm_token_usage) {
+                try {
+                    tokenUsage = typeof call.llm_token_usage === 'string' ? JSON.parse(call.llm_token_usage) : call.llm_token_usage;
+                } catch (e) {
+                    console.warn('Could not parse llm_token_usage:', e);
+                }
+            }
             if (tokenUsage) {
                 tokenContainer.innerHTML = `
                     <div class="info-row">
@@ -1351,7 +1393,14 @@
             }
             
             // Call Cost
-            const callCost = callData?.call_cost || (call.call_cost_data ? JSON.parse(call.call_cost_data) : null);
+            let callCost = callData?.call_cost || null;
+            if (!callCost && call.call_cost_data) {
+                try {
+                    callCost = typeof call.call_cost_data === 'string' ? JSON.parse(call.call_cost_data) : call.call_cost_data;
+                } catch (e) {
+                    console.warn('Could not parse call_cost_data:', e);
+                }
+            }
             if (callCost) {
                 let costHtml = '';
                 
