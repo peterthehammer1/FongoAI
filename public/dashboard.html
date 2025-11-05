@@ -616,7 +616,7 @@
                 console.error('Error loading calls:', error);
                 document.getElementById('callsTable').innerHTML = `
                     <tr>
-                        <td colspan="8" class="empty-state">
+                        <td colspan="7" class="empty-state">
                             <i class="fas fa-exclamation-triangle"></i>
                             <div>Error loading calls. Please refresh the page.</div>
                         </td>
@@ -632,7 +632,7 @@
             if (calls.length === 0) {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="8" class="empty-state">
+                        <td colspan="7" class="empty-state">
                             <i class="fas fa-inbox"></i>
                             <div>No calls found</div>
                         </td>
