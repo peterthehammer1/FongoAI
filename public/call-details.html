@@ -1413,7 +1413,8 @@
                 const combinedCostInDollars = callCost.combined_cost ? callCost.combined_cost / 100 : null;
                 
                 // Get total cost per minute (if available) or calculate from combined_cost
-                const costPerMinute = callCost.total_duration_unit_price || 
+                // total_duration_unit_price is in cents per second, so convert to dollars per minute
+                const costPerMinute = callCost.total_duration_unit_price ? (callCost.total_duration_unit_price / 100) * 60 : 
                                      (combinedCostInDollars && durationMinutes > 0 ? combinedCostInDollars / durationMinutes : null);
                 
                 // Display cost per minute breakdown
