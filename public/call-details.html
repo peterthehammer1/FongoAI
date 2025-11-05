@@ -1423,15 +1423,17 @@
                     let totalPerMinute = 0;
                     
                     callCost.product_costs.forEach(product => {
-                        // unit_price is per SECOND, convert to per MINUTE (multiply by 60)
-                        const unitPricePerSecond = product.unit_price;
-                        const unitPricePerMinute = unitPricePerSecond ? unitPricePerSecond * 60 : null;
+                        // unit_price is in CENTS per SECOND
+                        // Convert: cents/sec ÷ 100 × 60 = dollars/min
+                        // Or: cents/sec × 0.6 = dollars/min
+                        const unitPricePerSecondInCents = product.unit_price;
+                        const unitPricePerMinuteInDollars = unitPricePerSecondInCents ? (unitPricePerSecondInCents / 100) * 60 : null;
                         
-                        // product.cost appears to be in CENTS, convert to dollars
+                        // product.cost is in CENTS, convert to dollars
                         const productCostInDollars = product.cost ? product.cost / 100 : null;
                         
-                        if (unitPricePerMinute !== null) {
-                            totalPerMinute += unitPricePerMinute;
+                        if (unitPricePerMinuteInDollars !== null) {
+                            totalPerMinute += unitPricePerMinuteInDollars;
                         }
                         
                         // Display the cost breakdown
@@ -1439,17 +1441,18 @@
                             <div class="info-row">
                                 <span class="info-label">${formatProductName(product.product)}</span>
                                 <span class="info-value">
-                                    ${unitPricePerMinute !== null ? `$${unitPricePerMinute.toFixed(3)}/min` : ''}
+                                    ${unitPricePerMinuteInDollars !== null ? `$${unitPricePerMinuteInDollars.toFixed(3)}/min` : ''}
                                     ${productCostInDollars !== null ? ` ($${productCostInDollars.toFixed(3)})` : ''}
                                 </span>
                             </div>
                         `;
                     });
                     
-                    // Calculate total cost per minute from total_duration_unit_price (which is also per second)
+                    // Calculate total cost per minute from total_duration_unit_price (which is in cents per second)
                     let displayPerMinute = null;
                     if (callCost.total_duration_unit_price) {
-                        displayPerMinute = callCost.total_duration_unit_price * 60; // Convert per second to per minute
+                        // Convert: cents/sec ÷ 100 × 60 = dollars/min
+                        displayPerMinute = (callCost.total_duration_unit_price / 100) * 60;
                     } else if (totalPerMinute > 0) {
                         displayPerMinute = totalPerMinute;
                     } else if (costPerMinute) {
