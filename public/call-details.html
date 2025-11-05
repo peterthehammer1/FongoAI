@@ -1413,14 +1413,18 @@
                                      (callCost.combined_cost && durationMinutes > 0 ? callCost.combined_cost / durationMinutes : null);
                 
                 // Display cost per minute breakdown
+                // NOTE: Nucleus AI sends unit_price as per SECOND, not per minute
+                // We need to convert to per-minute for display
                 if (callCost.product_costs && Array.isArray(callCost.product_costs)) {
                     let totalPerMinute = 0;
                     
                     callCost.product_costs.forEach(product => {
-                        // Calculate per-minute rate for this product
-                        const unitPrice = product.unit_price || (product.cost && durationMinutes > 0 ? product.cost / durationMinutes : null);
-                        if (unitPrice !== null) {
-                            totalPerMinute += unitPrice;
+                        // unit_price is per SECOND, convert to per MINUTE (multiply by 60)
+                        const unitPricePerSecond = product.unit_price;
+                        const unitPricePerMinute = unitPricePerSecond ? unitPricePerSecond * 60 : null;
+                        
+                        if (unitPricePerMinute !== null) {
+                            totalPerMinute += unitPricePerMinute;
                         }
                         
                         // Display the cost breakdown
@@ -1428,16 +1432,24 @@
                             <div class="info-row">
                                 <span class="info-label">${formatProductName(product.product)}</span>
                                 <span class="info-value">
-                                    ${unitPrice !== null ? `$${unitPrice.toFixed(3)}/min` : ''}
+                                    ${unitPricePerMinute !== null ? `$${unitPricePerMinute.toFixed(3)}/min` : ''}
                                     ${product.cost !== undefined ? ` ($${product.cost.toFixed(3)})` : ''}
                                 </span>
                             </div>
                         `;
                     });
                     
-                    // Display total cost per minute
-                    if (totalPerMinute > 0 || costPerMinute) {
-                        const displayPerMinute = costPerMinute || totalPerMinute;
+                    // Calculate total cost per minute from total_duration_unit_price (which is also per second)
+                    let displayPerMinute = null;
+                    if (callCost.total_duration_unit_price) {
+                        displayPerMinute = callCost.total_duration_unit_price * 60; // Convert per second to per minute
+                    } else if (totalPerMinute > 0) {
+                        displayPerMinute = totalPerMinute;
+                    } else if (costPerMinute) {
+                        displayPerMinute = costPerMinute;
+                    }
+                    
+                    if (displayPerMinute !== null) {
                         costHtml += `
                             <div class="info-row" style="border-top: 1px solid var(--border); margin-top: 8px; padding-top: 8px;">
                                 <span class="info-label" style="font-weight: 600;">Total Cost per Minute</span>
