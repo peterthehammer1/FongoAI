@@ -633,22 +633,30 @@
                 <div class="section-content" id="transcriptRecordingContent">
                     <div class="info-grid">
                         <div class="info-card">
-                            <h4>Recordings</h4>
+                            <h4>Recordings & Logs</h4>
                             <div class="info-row" id="recordingUrlRow" style="display: none;">
-                                <span class="info-label">Recording URL</span>
-                                <span class="info-value"><a href="#" id="recordingUrl" target="_blank">Listen</a></span>
+                                <span class="info-label">Standard Recording</span>
+                                <span class="info-value"><a href="#" id="recordingUrl" target="_blank" style="color: var(--primary); text-decoration: none;"><i class="fas fa-play-circle"></i> Listen</a></span>
                             </div>
                             <div class="info-row" id="recordingMultiChannelRow" style="display: none;">
                                 <span class="info-label">Multi-Channel Recording</span>
-                                <span class="info-value"><a href="#" id="recordingMultiChannelUrl" target="_blank">Listen</a></span>
+                                <span class="info-value"><a href="#" id="recordingMultiChannelUrl" target="_blank" style="color: var(--primary); text-decoration: none;"><i class="fas fa-play-circle"></i> Listen</a></span>
                             </div>
                             <div class="info-row" id="scrubbedRecordingRow" style="display: none;">
                                 <span class="info-label">Scrubbed Recording</span>
-                                <span class="info-value"><a href="#" id="scrubbedRecordingUrl" target="_blank">Listen</a></span>
+                                <span class="info-value"><a href="#" id="scrubbedRecordingUrl" target="_blank" style="color: var(--primary); text-decoration: none;"><i class="fas fa-play-circle"></i> Listen</a></span>
                             </div>
                             <div class="info-row" id="scrubbedMultiChannelRow" style="display: none;">
                                 <span class="info-label">Scrubbed Multi-Channel</span>
-                                <span class="info-value"><a href="#" id="scrubbedMultiChannelUrl" target="_blank">Listen</a></span>
+                                <span class="info-value"><a href="#" id="scrubbedMultiChannelUrl" target="_blank" style="color: var(--primary); text-decoration: none;"><i class="fas fa-play-circle"></i> Listen</a></span>
+                            </div>
+                            <div class="info-row" id="publicLogRow" style="display: none;">
+                                <span class="info-label">Public Log</span>
+                                <span class="info-value"><a href="#" id="publicLogUrl" target="_blank" style="color: var(--primary); text-decoration: none;"><i class="fas fa-file-alt"></i> View</a></span>
+                            </div>
+                            <div class="info-row" id="scrubbedPublicLogRow" style="display: none;">
+                                <span class="info-label">Scrubbed Public Log</span>
+                                <span class="info-value"><a href="#" id="scrubbedPublicLogUrl" target="_blank" style="color: var(--primary); text-decoration: none;"><i class="fas fa-file-alt"></i> View</a></span>
                             </div>
                         </div>
                         <div class="info-card">
@@ -729,15 +737,48 @@
                 </div>
             </div>
 
-            <!-- Webhook Data Section -->
-            <div class="webhook-section">
-                <div class="webhook-header">
-                    <h3><i class="fas fa-database"></i> Raw Webhook Data</h3>
-                    <button class="btn-toggle" onclick="toggleWebhookData()">
-                        <i class="fas fa-eye"></i> Show/Hide
-                    </button>
+            <!-- Performance Metrics Section -->
+            <div class="comprehensive-section" id="performanceMetricsSection" style="display: none;">
+                <div class="section-header" onclick="toggleSection('performanceMetrics')">
+                    <h3><i class="fas fa-tachometer-alt"></i> Performance Metrics</h3>
+                    <i class="fas fa-chevron-down" id="performanceMetricsIcon"></i>
                 </div>
-                <div class="webhook-content" id="webhookContent" style="display: none;"></div>
+                <div class="section-content" id="performanceMetricsContent">
+                    <div class="info-grid">
+                        <div class="info-card">
+                            <h4>Latency Metrics</h4>
+                            <div id="latencyMetrics"></div>
+                        </div>
+                        <div class="info-card">
+                            <h4>LLM Token Usage</h4>
+                            <div id="tokenUsageMetrics"></div>
+                        </div>
+                        <div class="info-card">
+                            <h4>Call Cost</h4>
+                            <div id="callCostMetrics"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Information Section -->
+            <div class="comprehensive-section" id="systemInfoSection" style="display: none;">
+                <div class="section-header" onclick="toggleSection('systemInfo')">
+                    <h3><i class="fas fa-server"></i> System Information</h3>
+                    <i class="fas fa-chevron-down" id="systemInfoIcon"></i>
+                </div>
+                <div class="section-content" id="systemInfoContent">
+                    <div class="info-grid">
+                        <div class="info-card">
+                            <h4>Telephony Provider</h4>
+                            <div id="telephonyInfo"></div>
+                        </div>
+                        <div class="info-card">
+                            <h4>Data Storage</h4>
+                            <div id="dataStorageInfo"></div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -831,17 +872,8 @@
             // Populate comprehensive data
             populateComprehensiveData(call);
 
-            // Webhook data
-            if (call.webhook_data) {
-                try {
-                    const webhookData = typeof call.webhook_data === 'string' 
-                        ? JSON.parse(call.webhook_data) 
-                        : call.webhook_data;
-                    document.getElementById('webhookContent').textContent = JSON.stringify(webhookData, null, 2);
-                } catch (e) {
-                    document.getElementById('webhookContent').textContent = call.webhook_data;
-                }
-            }
+            // Extract and display webhook data in professional format
+            populateWebhookData(call);
         }
 
         // Populate comprehensive Nucleus AI data
@@ -1227,10 +1259,203 @@
             return messages;
         }
 
-        // Toggle webhook data
-        function toggleWebhookData() {
-            const content = document.getElementById('webhookContent');
-            content.style.display = content.style.display === 'none' ? 'block' : 'none';
+        // Extract and populate webhook data in professional CRM format
+        function populateWebhookData(call) {
+            let webhookData = null;
+            
+            // Try to parse webhook_data
+            if (call.webhook_data) {
+                try {
+                    webhookData = typeof call.webhook_data === 'string' 
+                        ? JSON.parse(call.webhook_data) 
+                        : call.webhook_data;
+                } catch (e) {
+                    console.warn('Could not parse webhook_data:', e);
+                }
+            }
+            
+            // Extract from call object if webhook_data not available
+            const callData = webhookData?.call || call;
+            
+            // Performance Metrics
+            if (callData?.latency || callData?.llm_token_usage || callData?.call_cost || 
+                call.latency_data || call.llm_token_usage || call.call_cost_data) {
+                document.getElementById('performanceMetricsSection').style.display = 'block';
+                populatePerformanceMetrics(callData, call);
+            }
+            
+            // System Information
+            if (callData?.telephony_identifier || callData?.opt_in_signed_url !== undefined || 
+                callData?.data_storage_setting || callData?.opt_out_sensitive_data_storage !== undefined) {
+                document.getElementById('systemInfoSection').style.display = 'block';
+                populateSystemInfo(callData, call);
+            }
+        }
+        
+        // Populate Performance Metrics section
+        function populatePerformanceMetrics(callData, call) {
+            const latencyContainer = document.getElementById('latencyMetrics');
+            const tokenContainer = document.getElementById('tokenUsageMetrics');
+            const costContainer = document.getElementById('callCostMetrics');
+            
+            // Latency Metrics
+            const latency = callData?.latency || (call.latency_data ? JSON.parse(call.latency_data) : null);
+            if (latency) {
+                let latencyHtml = '';
+                
+                if (latency.llm) {
+                    latencyHtml += `
+                        <div class="info-row">
+                            <span class="info-label">LLM Latency</span>
+                            <span class="info-value">P50: ${latency.llm.p50}ms | P90: ${latency.llm.p90}ms</span>
+                        </div>
+                    `;
+                }
+                if (latency.e2e) {
+                    latencyHtml += `
+                        <div class="info-row">
+                            <span class="info-label">End-to-End</span>
+                            <span class="info-value">P50: ${latency.e2e.p50}ms | P90: ${latency.e2e.p90}ms</span>
+                        </div>
+                    `;
+                }
+                if (latency.tts) {
+                    latencyHtml += `
+                        <div class="info-row">
+                            <span class="info-label">Text-to-Speech</span>
+                            <span class="info-value">P50: ${latency.tts.p50}ms | P90: ${latency.tts.p90}ms</span>
+                        </div>
+                    `;
+                }
+                
+                latencyContainer.innerHTML = latencyHtml || '<div class="info-row"><span class="info-label">No latency data</span></div>';
+            } else {
+                latencyContainer.innerHTML = '<div class="info-row"><span class="info-label">No latency data available</span></div>';
+            }
+            
+            // Token Usage
+            const tokenUsage = callData?.llm_token_usage || (call.llm_token_usage ? JSON.parse(call.llm_token_usage) : null);
+            if (tokenUsage) {
+                tokenContainer.innerHTML = `
+                    <div class="info-row">
+                        <span class="info-label">Average Tokens</span>
+                        <span class="info-value">${tokenUsage.average || (tokenUsage.values && tokenUsage.values.length > 0 ? Math.round(tokenUsage.values.reduce((a, b) => a + b, 0) / tokenUsage.values.length) : 'N/A')}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Total Requests</span>
+                        <span class="info-value">${tokenUsage.num_requests || (tokenUsage.values ? tokenUsage.values.length : 'N/A')}</span>
+                    </div>
+                `;
+            } else {
+                tokenContainer.innerHTML = '<div class="info-row"><span class="info-label">No token usage data</span></div>';
+            }
+            
+            // Call Cost
+            const callCost = callData?.call_cost || (call.call_cost_data ? JSON.parse(call.call_cost_data) : null);
+            if (callCost) {
+                let costHtml = '';
+                
+                if (callCost.combined_cost !== undefined) {
+                    costHtml += `
+                        <div class="info-row">
+                            <span class="info-label">Total Cost</span>
+                            <span class="info-value" style="color: var(--primary); font-size: 16px;">$${callCost.combined_cost.toFixed(4)}</span>
+                        </div>
+                    `;
+                }
+                
+                if (callCost.product_costs && Array.isArray(callCost.product_costs)) {
+                    callCost.product_costs.forEach(product => {
+                        costHtml += `
+                            <div class="info-row">
+                                <span class="info-label">${formatProductName(product.product)}</span>
+                                <span class="info-value">$${product.cost.toFixed(4)}</span>
+                            </div>
+                        `;
+                    });
+                }
+                
+                if (callCost.total_duration_seconds) {
+                    costHtml += `
+                        <div class="info-row">
+                            <span class="info-label">Duration</span>
+                            <span class="info-value">${formatDuration(callCost.total_duration_seconds)}</span>
+                        </div>
+                    `;
+                }
+                
+                costContainer.innerHTML = costHtml || '<div class="info-row"><span class="info-label">No cost data</span></div>';
+            } else {
+                costContainer.innerHTML = '<div class="info-row"><span class="info-label">No cost data available</span></div>';
+            }
+        }
+        
+        // Populate System Information section
+        function populateSystemInfo(callData, call) {
+            const telephonyContainer = document.getElementById('telephonyInfo');
+            const storageContainer = document.getElementById('dataStorageInfo');
+            
+            // Telephony Provider Info
+            const telephony = callData?.telephony_identifier || {};
+            if (telephony.twilio_call_sid || callData?.from_number) {
+                let telephonyHtml = '';
+                
+                if (telephony.twilio_call_sid) {
+                    telephonyHtml += `
+                        <div class="info-row">
+                            <span class="info-label">Twilio Call SID</span>
+                            <span class="info-value" style="font-family: monospace; font-size: 12px;">${telephony.twilio_call_sid}</span>
+                        </div>
+                    `;
+                }
+                
+                telephonyContainer.innerHTML = telephonyHtml || '<div class="info-row"><span class="info-label">No telephony data</span></div>';
+            } else {
+                telephonyContainer.innerHTML = '<div class="info-row"><span class="info-label">No telephony data available</span></div>';
+            }
+            
+            // Data Storage Settings
+            let storageHtml = '';
+            
+            if (callData?.data_storage_setting !== undefined) {
+                storageHtml += `
+                    <div class="info-row">
+                        <span class="info-label">Storage Setting</span>
+                        <span class="info-value">${callData.data_storage_setting}</span>
+                    </div>
+                `;
+            }
+            
+            if (callData?.opt_out_sensitive_data_storage !== undefined) {
+                storageHtml += `
+                    <div class="info-row">
+                        <span class="info-label">Opt Out Sensitive Data</span>
+                        <span class="info-value">${callData.opt_out_sensitive_data_storage ? 'Yes' : 'No'}</span>
+                    </div>
+                `;
+            }
+            
+            if (callData?.opt_in_signed_url !== undefined) {
+                storageHtml += `
+                    <div class="info-row">
+                        <span class="info-label">Opt In Signed URL</span>
+                        <span class="info-value">${callData.opt_in_signed_url ? 'Yes' : 'No'}</span>
+                    </div>
+                `;
+            }
+            
+            storageContainer.innerHTML = storageHtml || '<div class="info-row"><span class="info-label">No storage settings</span></div>';
+        }
+        
+        // Format product name for display
+        function formatProductName(product) {
+            const names = {
+                'elevenlabs_tts': 'ElevenLabs TTS',
+                'gpt_4_1': 'GPT-4.1',
+                'canada_twilio_telephony': 'Twilio Telephony (Canada)',
+                'pii_scrubbing': 'PII Scrubbing'
+            };
+            return names[product] || product;
         }
 
         // Format functions
